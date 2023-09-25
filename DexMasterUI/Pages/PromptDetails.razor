@@ -131,9 +131,6 @@
 
     private async Task ToggleFavourite()
     {
-        await favouriteData.ToggleFavouriteAsync(_prompt.Id, loggedInUser.Id);
-        await promptData.ToggleFavouriteOnPromptAsync(_prompt, loggedInUser.Id);
-        await userData.ToggleFavouriteOnUserAsync(loggedInUser, _prompt.Id);
         _favourited = !_favourited;
     }
 }

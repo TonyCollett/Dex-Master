@@ -1,0 +1,83 @@
+@if (cardPokemon != null)
+{
+    <MudCard Outlined="true">
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
+                    @cardPokemon.Id
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">@pokemonName</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudTooltip Text="@($"More Info")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudIconButton @onclick="OpenDialog" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
+                </MudTooltip>
+            </CardHeaderActions>
+        </MudCardHeader>
+        @* <MudCardMedia Image="images/pillars.jpg" Height="250" /> *@
+        <MudCardContent>
+
+        </MudCardContent>
+        <MudCardActions>
+            @if (_readOnly == false)
+            {
+                <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    
+                </MudTooltip>
+            }
+            <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary" />
+            </MudTooltip>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter] 
+    public string PokemonId { get; set; }
+    [Parameter]
+    public bool InDialog { get; set; }
+
+    [CascadingParameter] 
+    public User LoggedInUser { get; set; }
+
+    private bool _readOnly;
+    private bool _favourited = false;
+    private bool _userIsAuthenticated;
+    private Pokemon cardPokemon;
+    private string pokemonName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pokeClient = new PokeApiClient();
+        cardPokemon = await pokeClient.GetResourceAsync<Pokemon>(PokemonId);
+
+        pokemonName = CommonFunctions.Capitalise(cardPokemon.Name);
+
+        var authState = await authProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        _readOnly = !_userIsAuthenticated;
+    }
+
+    private async Task OpenDialog()
+    {
+        if (InDialog)
+        {
+            navManager.NavigateTo($"/Pokemon/{cardPokemon.Id}");
+            return;
+        }
+
+        var parameters = new DialogParameters { ["Pokemon"] = cardPokemon, ["LoggedInUser"] = LoggedInUser };
+        var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
+        await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
+    }
+
+    private async Task ToggleFavouriteAsync()
+    {
+        await userData.ToggleFavouriteOnUserAsync(LoggedInUser.Id, cardPokemon.Id);
+        _favourited = !_favourited;
+    }
+}

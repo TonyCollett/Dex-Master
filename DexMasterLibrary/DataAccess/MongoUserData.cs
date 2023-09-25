@@ -33,23 +33,9 @@ public class MongoUserData : IUserData
         return results.FirstOrDefault();
     }
 
-    public async Task ToggleFavouriteOnUserAsync(User user, string promptId)
+    public async Task ToggleFavouriteOnUserAsync(string userId, int promptId)
     {
-        if (user is null)
-        {
-            throw new SocketException();
-        }
-
-        if (user.FavouritePrompts.Contains(promptId))
-        {
-            user.FavouritePrompts.Remove(promptId);
-        }
-        else
-        {
-            user.FavouritePrompts.Add(promptId);
-        }
-
-        await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
+        throw new NotImplementedException();
     }
 
     public async Task CreateUserAsync(User user)

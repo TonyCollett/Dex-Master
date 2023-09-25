@@ -3,18 +3,18 @@
 </MudOverlay>
 
 <MudStack>
-    @if(_promptData == null)
+    @if(_pokemonData == null)
     {
-        <MudText>Loading prompts...</MudText>
+        <MudText>Loading Pokemon...</MudText>
     }
-    else if(_promptData.Items.Any())
+    else if (_pokemonData.Count > 0)
     {
         <MudGrid>
-            @foreach (var prompt in _promptData.Items)
+            @foreach (var pokemon in _pokemonData.Results)
             {
                 <MudItem lg="4" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PromptCard Prompt="prompt" InDialog="false"/>
+                        <PokemonCard PokemonId="@pokemon.Name" InDialog="false"/>
                     </CascadingValue>
                 </MudItem>
             }
@@ -24,11 +24,11 @@
                 <MudItem lg="1" xs="2"></MudItem>
                 <MudItem lg="1" xs="2"></MudItem>
                 <MudItem lg="8" xs="6">
-                    <MudPagination Selected="_currentPage" Count="_promptData.TotalPages" SelectedChanged="OnPageChanged" ShowFirstButton="true"
+                    <MudPagination Selected="_currentPage" Count="10" SelectedChanged="OnPageChanged" ShowFirstButton="true"
                                     ShowLastButton="true" BoundaryCount="2" MiddleCount="3" Class="justify-center mud-width-full" />
                 </MudItem>
                 <MudItem lg="1" xs="2">
-                    <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="_promptData.TotalPages" Variant="Variant.Outlined" Label="Page" />
+                    <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="10" Variant="Variant.Outlined" Label="Page" />
                 </MudItem>
                 @if (AllowPromptsPerPagePicker)
                 {
@@ -62,7 +62,7 @@
     [Parameter]
     public bool AllowPromptsPerPagePicker { get; set; } = true;
 
-    private DTPagedResult<Prompt> _promptData;
+    private NamedApiResourceList<Pokemon> _pokemonData;
     private int _currentPage = 1;
     private int _promptsPerPage = 12;
     private User _loggedInUser = null;
@@ -70,23 +70,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // instantiate client
-        PokeApiClient pokeClient = new PokeApiClient();
         
-        NamedApiResourceList<Pokemon> allPokemon = await pokeClient.GetNamedResourcePageAsync<Pokemon>(10, 0);
-
-        var pokemonCache = allPokemon.Results.Select(x => new PokemonCache
-            {
-                Name = x.Name,
-                Url = x.Url
-            });
-
-
-        // get a resource by name
-        Pokemon hoOh = await pokeClient.GetResourceAsync<Pokemon>("ho-oh");
-
-        // ... or by id
-        Item clawFossil = await pokeClient.GetResourceAsync<Item>(100);
 
         var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
 
@@ -109,7 +93,12 @@
             _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
         }
 
-        _promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+        // instantiate client
+        PokeApiClient pokeClient = new PokeApiClient();
+
+        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(10, 0);
+
+        //_promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
 
         _displayLoadingArt = false;
 
@@ -123,7 +112,7 @@
 
         await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
         
-        _promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+        //_promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
 
         _displayLoadingArt = false;
 
