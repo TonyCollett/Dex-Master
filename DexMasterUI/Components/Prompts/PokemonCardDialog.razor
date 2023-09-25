@@ -1,5 +1,5 @@
 <CascadingValue Value="@LoggedInUser">
-    <PromptCard Prompt="Prompt" InDialog="true"/>
+    <PokemonCard PokemonId="PokemonId" InDialog="true"/>
 </CascadingValue>
 
 @code {
@@ -9,13 +9,13 @@
     [Parameter]
     public User LoggedInUser { get; set; }
     [Parameter] 
-    public Prompt Prompt { get; set; }
+    public int PokemonId { get; set; }
 
     void Submit() => MudDialog.Close(DialogResult.Ok(true));
     void Cancel() => MudDialog.Cancel();
 
     void GoToPrompt()
     {
-        navManager.NavigateTo($"/Prompt/{Prompt.Id}");
+        navManager.NavigateTo($"/Pokemon/{PokemonId}");
     }
 }

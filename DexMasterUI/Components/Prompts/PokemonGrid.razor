@@ -96,7 +96,7 @@
         // instantiate client
         PokeApiClient pokeClient = new PokeApiClient();
 
-        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(10, 0);
+        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(12, 1000);
 
         //_promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
 
