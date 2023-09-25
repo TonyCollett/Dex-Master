@@ -1,0 +1,32 @@
+@page "/Prompts/{SortBy}"
+
+<PromptGrid SortOption="@_sortOption" />
+
+@code {
+    [Parameter]
+    public string SortBy { get; set; } = default!;
+
+    private SortOption _sortOption;
+
+    protected override void OnParametersSet()
+    {
+        switch (SortBy)
+        {
+            case "favourite":
+            case "Favourite":
+                _sortOption = SortOption.MostFavourited;
+                break;
+            case "popular":
+            case "Popular":
+                _sortOption = SortOption.MostViewed;
+                break;
+            case "new":
+            case "New":
+                _sortOption = SortOption.New;
+                break;
+            default:
+                _sortOption = SortOption.Default;
+                break;
+        }
+    }
+}

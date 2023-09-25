@@ -1,0 +1,10 @@
+﻿@page "/Prompts/Random"
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Prompt prompt = await promptData.GetRandomPromptAsync();
+
+        navManager.NavigateTo($"/Prompt/{prompt.Id}");
+    }
+}

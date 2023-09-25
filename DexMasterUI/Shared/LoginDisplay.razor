@@ -1,0 +1,62 @@
+<AuthorizeView>
+    <Authorized>
+        @if (LoggedInUser != null)
+        {
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" FullWidth="true">
+            <ActivatorContent>
+                <MudStack AlignItems="AlignItems.Center" Row="true">
+                    <MudStack Spacing="1" Justify="Justify.Center">
+                        <MudText Typo="Typo.body1">
+                            @LoggedInUser.DisplayName
+                        </MudText>
+                        <MudText Typo="Typo.body2">
+                            @LoggedInUser.EmailAddress
+                        </MudText>
+                    </MudStack>
+                    <MudAvatar Color="Color.Secondary" Variant="Variant.Filled">
+                        BI
+                    </MudAvatar>
+                </MudStack>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>Notifications</MudMenuItem>
+                <MudMenuItem @onclick="@(() => NavigateTo($"Profile/{LoggedInUser.Id}"))">Profile</MudMenuItem>
+                @if (LoggedInUser.VipStatus == VipStatus.Admin)
+                {
+                <MudMenuItem @onclick="@(() => NavigateTo("Admin"))">Admin</MudMenuItem>
+                }
+                <MudMenuItem @onclick="@(() => NavigateTo("Identity/Logout", true))">Logout</MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <ActivatorContent>
+                <MudBadge Visible="true" Content="1" Color="Color.Warning" Overlap="true" Bordered="true">
+                    <MudAvatar Color="Color.Secondary" Variant="Variant.Filled">
+                        Blep
+                    </MudAvatar>
+                </MudBadge>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>
+                    <MudStack>
+                        <MudButton StartIcon="@Icons.Custom.Brands.Google" Href="/Identity/Login?provider=Google" Variant="Variant.Filled" Color="Color.Info">Google Sign In</MudButton>
+                        <MudButton StartIcon="@Icons.Custom.Brands.Microsoft" Href="/Identity/Login?provider=Microsoft" Variant="Variant.Filled" Color="Color.Success">Microsoft Sign In</MudButton>
+                    </MudStack>
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public User LoggedInUser { get; set; }
+
+    private void NavigateTo(string url, bool forceReload = false)
+    {
+        navManager.NavigateTo(url, forceReload);
+    }
+}

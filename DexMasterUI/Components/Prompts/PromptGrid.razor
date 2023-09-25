@@ -1,0 +1,146 @@
+﻿<MudOverlay @bind-Visible="_displayLoadingArt" DarkBackground="true" ZIndex="9999">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+<MudStack>
+    @if(_promptData == null)
+    {
+        <MudText>Loading prompts...</MudText>
+    }
+    else if(_promptData.Items.Any())
+    {
+        <MudGrid>
+            @foreach (var prompt in _promptData.Items)
+            {
+                <MudItem lg="4" md="6" xs="12">
+                    <CascadingValue Value="@_loggedInUser">
+                        <PromptCard Prompt="prompt" InDialog="false"/>
+                    </CascadingValue>
+                </MudItem>
+            }
+        </MudGrid>
+        <MudPaper>
+            <MudGrid Class="d-flex align-center mud-width-full py-3">
+                <MudItem lg="1" xs="2"></MudItem>
+                <MudItem lg="1" xs="2"></MudItem>
+                <MudItem lg="8" xs="6">
+                    <MudPagination Selected="_currentPage" Count="_promptData.TotalPages" SelectedChanged="OnPageChanged" ShowFirstButton="true"
+                                    ShowLastButton="true" BoundaryCount="2" MiddleCount="3" Class="justify-center mud-width-full" />
+                </MudItem>
+                <MudItem lg="1" xs="2">
+                    <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="_promptData.TotalPages" Variant="Variant.Outlined" Label="Page" />
+                </MudItem>
+                @if (AllowPromptsPerPagePicker)
+                {
+                <MudItem lg="1" xs="2">
+                    <MudSelect T="int" @bind-Value="_promptsPerPage" Variant="Variant.Outlined" SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))" Margin="Margin.Dense" Label="# Per Page">
+                        <MudSelectItem Value="9" />
+                        <MudSelectItem Value="12" />
+                        <MudSelectItem Value="15" />
+                        <MudSelectItem Value="30" />
+                        <MudSelectItem Value="60" />
+                        <MudSelectItem Value="90" />
+                    </MudSelect>
+                </MudItem>    
+                }
+            </MudGrid>
+        </MudPaper>
+    }
+    else
+    {
+        <MudText>No prompts were found</MudText>
+    }
+</MudStack>
+
+    @code {
+    [Parameter]
+    public string SearchTerm { get; set; }
+    [Parameter]
+    public SortOption SortOption { get; set; } = SortOption.Default;
+    [Parameter]
+    public string UserId { get; set; }
+    [Parameter]
+    public bool AllowPromptsPerPagePicker { get; set; } = true;
+
+    private DTPagedResult<Prompt> _promptData;
+    private int _currentPage = 1;
+    private int _promptsPerPage = 12;
+    private User _loggedInUser = null;
+    private bool _displayLoadingArt = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // instantiate client
+        PokeApiClient pokeClient = new PokeApiClient();
+        
+        NamedApiResourceList<Pokemon> allPokemon = await pokeClient.GetNamedResourcePageAsync<Pokemon>(1300, 0);
+
+        var pokemonCache = allPokemon.Results.Select(x => new PokemonCache
+            {
+                Name = x.Name,
+                Url = x.Url
+            });
+
+
+        // get a resource by name
+        Pokemon hoOh = await pokeClient.GetResourceAsync<Pokemon>("ho-oh");
+
+        // ... or by id
+        Item clawFossil = await pokeClient.GetResourceAsync<Item>(100);
+
+        var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
+
+        if (localBrowserPromptsPerPageResult.Success && AllowPromptsPerPagePicker)
+        {
+            _promptsPerPage = localBrowserPromptsPerPageResult.Value;
+        }
+        else
+        {
+            _promptsPerPage = 9;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _displayLoadingArt = true;
+
+        if (_loggedInUser is null)
+        {
+            _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+        }
+
+        _promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+
+        _displayLoadingArt = false;
+
+        StateHasChanged();
+    }
+
+    private async Task OnPageChanged(int newPage)
+    {
+        _displayLoadingArt = true;
+        _currentPage = newPage;
+
+        await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
+        
+        _promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+
+        _displayLoadingArt = false;
+
+        StateHasChanged();
+    }
+
+    private async Task CheckBrowserStorageAsync()
+    {
+        var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
+
+        if (localBrowserPromptsPerPageResult.Success)
+        {
+            _promptsPerPage = localBrowserPromptsPerPageResult.Value;
+        }
+        else
+        {
+            await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
+        }
+    }
+}

@@ -1,0 +1,52 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (Prompt != null && users != null)
+        {
+            <MudGrid>
+                <MudItem lg="12" sm="12">
+                    <MudTextField Variant="Variant.Outlined" T="string" Label="Title"
+                              @bind-Value="Prompt.Title" />
+                </MudItem>
+                <MudItem lg="12" sm="12">
+                    <MudTextField Variant="Variant.Outlined" T="string" Label="Description"
+                              @bind-Value="Prompt.PromptDescription" Lines="5" />
+                </MudItem>
+            </MudGrid>
+        }
+        else
+        {
+            <MudOverlay DarkBackground="true" ZIndex="9999" AutoClose="true">
+                <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+            </MudOverlay>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@Close">Cancel</MudButton>
+        <MudButton OnClick="@SaveDialogAsync" Color="Color.Primary">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public DexMasterLibrary.Models.Prompt Prompt { get; set; }
+
+    private IEnumerable<User> users;
+
+    protected async override Task OnInitializedAsync()
+    {
+        users = await userData.GetAllUsersAsync();
+    }
+
+    private async void SaveDialogAsync()
+    {
+        await promptData.UpdatePromptAsync(Prompt);
+        MudDialog.Close();
+    }
+
+    private void Close()
+    {
+        MudDialog.Cancel();
+    }
+}

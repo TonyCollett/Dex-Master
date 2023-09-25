@@ -1,0 +1,146 @@
+﻿@page "/Prompt/{PromptId}"
+
+<MudOverlay @bind-Visible="_displayLoadingArt" DarkBackground="true" ZIndex="9999">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+
+@if (_prompt != null)
+{
+    <MudPaper Class="pa-6" Elevation="4">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudStack Spacing="12" AlignItems="AlignItems.Center" Row="true">
+                    @if (_prompt.PromptType == PromptType.Text)
+                    {
+                        <MudAvatar Size="Size.Large" Color="Color.Dark" Variant="Variant.Filled">
+                            <MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Material.Filled.Textsms" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Size="Size.Large" Color="Color.Dark" Variant="Variant.Filled">
+                            <MudIcon Size="Size.Large" Color="Color.Success" Icon="@Icons.Material.Filled.Image" />
+                        </MudAvatar>
+                    }
+                    <MudText Typo="Typo.h4">@_prompt.Title</MudText>
+                    <MudSpacer />
+                    <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                        <MudBadge Content="@_prompt.FavouritedBy.Count().ToString()" Overlap="true" Origin="Origin.TopLeft" Color="Color.Secondary">
+                            <MudToggleIconButton Size="Size.Large" Icon="@Icons.Material.Filled.FavoriteBorder" Color="Color.Secondary"
+                                             ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="Color.Secondary"
+                                             Toggled="@_prompt.FavouritedBy.Contains(loggedInUser.Id)" ToggledChanged="ToggleFavourite" />
+                        </MudBadge>
+                    </MudTooltip>
+                    <MudTooltip Text="Created By" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                        <MudChip Size="Size.Large" Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                            <MudText Typo="Typo.body2">@_prompt.CreatedBy.DisplayName</MudText>
+                        </MudChip>
+                    </MudTooltip>
+                    <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                        <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.Share" Color="Color.Primary" OnClick="ShareAsync" />
+                    </MudTooltip>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="12">
+                <MudStack>
+                    @if (_prompt.PromptType == PromptType.Text)
+                    {
+                        <MudItem lg="12" sm="12">
+                            <MudTextField Variant="Variant.Outlined" T="string" Label="Prompt" Value="@_prompt.PromptDescription" Lines="15" ReadOnly="true" />
+                        </MudItem>
+                        <MudItem lg="12" sm="12">
+                            <MudTextField Variant="Variant.Outlined" T="string" Label="Example Result" Value="@_prompt.PromptResult" Lines="10" ReadOnly="true" />
+                        </MudItem>
+                    } 
+                    else
+                    {
+                        <MudItem lg="12" sm="12">
+                            <MudTextField Variant="Variant.Outlined" T="string" Label="Prompt" Value="@_prompt.PromptDescription" Lines="6" ReadOnly="true" />
+                        </MudItem>
+                        <MudText>TODO: Here be images</MudText>
+                    }
+                </MudStack>
+            </MudItem>
+            @if(loggedInUser != null && (loggedInUser.VipStatus == VipStatus.Admin || loggedInUser.Id == _prompt.CreatedBy.Id))
+            {
+            <MudItem xs="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="EditPrompt" Class="ml-auto" Disabled="false">
+                    Edit
+                </MudButton>
+            </MudItem>    
+            }
+        </MudGrid>
+    </MudPaper>
+}
+
+@code {
+    [Parameter] 
+    public string PromptId { get; set; } = default!;
+
+    private Prompt _prompt;
+    private User loggedInUser;
+    private bool _favourited = false;
+    private bool _displayLoadingArt = true;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        _displayLoadingArt = true;
+
+        loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+
+        _prompt = await promptData.GetPromptByIdAsync(PromptId);
+        await promptData.IncreaseViewCountForPromptAsync(_prompt);
+
+        _displayLoadingArt = false;
+    }
+
+    private async void EditPrompt()
+    {
+        Prompt editPrompt = new()
+        {
+            Title = _prompt.Title,
+            PromptDescription = _prompt.PromptDescription,
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            CloseButton = true
+        };
+
+        var parameters = new DialogParameters
+        {
+            ["Prompt"] = editPrompt
+        };
+
+        var dialog = dialogService.Show<PromptEdit>($"Edit Prompt", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            _prompt.Title = editPrompt.Title;
+            _prompt.PromptDescription = editPrompt.PromptDescription;
+            StateHasChanged();
+
+            await promptData.UpdatePromptAsync(_prompt);
+        }
+    }
+
+    private async Task ToggleFavourite()
+    {
+        await favouriteData.ToggleFavouriteAsync(_prompt.Id, loggedInUser.Id);
+        await promptData.ToggleFavouriteOnPromptAsync(_prompt, loggedInUser.Id);
+        await userData.ToggleFavouriteOnUserAsync(loggedInUser, _prompt.Id);
+        _favourited = !_favourited;
+    }
+
+    private async Task ShareAsync()
+    {
+        var url = navManager.BaseUri + $"Prompt/{_prompt.Id}";
+        await promptData.SharePromptAsync(_prompt);
+        await socialMediaSharing.ShareOnSocialMedia("Check out this awesome AI Prompt at BlepIt!", _prompt.Title, url);
+    }
+}

@@ -1,0 +1,44 @@
+﻿@attribute [Authorize]
+
+@if (_user != null) {
+    <MudGrid>
+        <MudItem xs="4"></MudItem>
+        <MudItem xs="4">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudAvatar Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Large">
+                    @(_user?.DisplayName?.Substring(0, 1))
+                </MudAvatar>
+                @if (string.IsNullOrWhiteSpace(_user.Username))
+                {
+                    <MudStack Row=true>
+                        <MudTextField Value="@_user.FirstName" Label="First Name" Variant="Variant.Outlined" ReadOnly="true" Margin="Margin.Dense" />
+                        <MudTextField Value="@_user.LastName" Label="Last Name" Variant="Variant.Outlined" ReadOnly="true" Margin="Margin.Dense" />
+                    </MudStack>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Filled">
+                        Create Username
+                    </MudButton>
+                }
+                else
+                {
+                    
+                }
+                <ConfigUsername LoggedInUser="_user" />
+                <MudTextField Value="@_user.EmailAddress" Label="Email" Variant="Variant.Outlined" ReadOnly="true" Margin="Margin.Dense" />
+            </MudStack>
+        </MudItem>
+        <MudItem xs="4"></MudItem>
+    </MudGrid>
+}
+
+@code {
+
+    [Parameter]
+    public string UserId { get; set; }
+
+    private User _user { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _user = await userData.GetUserByBsonIdAsync(UserId);
+    }
+}

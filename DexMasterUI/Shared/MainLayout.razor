@@ -1,0 +1,103 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudDialogProvider 
+    FullWidth="true"
+    MaxWidth="MaxWidth.Medium"/>
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="false">
+        <MudText Class="pl-4" Typo="Typo.h4" @onclick="GoHome">Dex-Master</MudText>
+        <MudSpacer />
+        <MudStack AlignItems="AlignItems.Center" Row="true">
+            <SearchBar SearchString="searchTerm" OnSearchCallback="@PerformSearch"/>
+            <MudDivider Vertical="true" FlexItem="true" />
+            <MudToggleIconButton @bind-Toggled="@_isDarkMode" 
+                Color="Color.Surface" Icon="@Icons.Material.Filled.DarkMode"
+                ToggledColor="Color.Primary" ToggledIcon="@Icons.Material.Filled.LightMode" />
+            <MudDivider Vertical="true" FlexItem="true" />
+            <LoginDisplay LoggedInUser="@_loggedInUser" />
+        </MudStack>
+    </MudAppBar>
+    <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Mini">
+        <MudNavMenu Bordered="false">
+            @if (_loggedInUser != null)
+            {
+            <MudDrawerHeader>
+                <MudButton @onclick="@(() => NavigateTo("Prompt/Create"))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">
+                    Submit Prompt
+                </MudButton>
+            </MudDrawerHeader>
+            }
+            <MudNavLink @onclick="@(() => NavigateTo("Prompts/New"))" Icon="@Icons.Material.Filled.NewReleases">
+                Newest Prompts
+            </MudNavLink>
+            <MudNavLink @onclick="@(() => NavigateTo("Prompts/Popular"))" Icon="@Icons.Material.Filled.Star">
+                Popular Prompts
+            </MudNavLink>
+            <MudNavLink OnClick="NavigateToRandom" Icon="@Icons.Material.Filled.Shuffle">
+                Random Prompt
+            </MudNavLink>
+            @if(_loggedInUser != null)
+            {
+                <MudNavGroup Title="Logged In User stuff TODO">
+                    <MudNavLink @onclick="@(() => NavigateTo("Me/Prompts"))" Icon="@Icons.Material.Filled.TextSnippet">
+                        My Created Prompts
+                    </MudNavLink>
+                    <MudNavLink @onclick="@(() => NavigateTo("Me/Favourites"))" Icon="@Icons.Material.Filled.Favorite">
+                        My Favourite Prompts
+                    </MudNavLink>
+                </MudNavGroup>
+            }
+            <MudNavLink @onclick="@(() => NavigateTo("Users"))" Icon="@Icons.Material.Filled.EmojiPeople">
+                Users
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent Class="pt-16 px-5 pb-15">
+        <MudContainer Class="mt-4" MaxWidth="MaxWidth.ExtraExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+    <MudScrollToTop>
+        <MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+    </MudScrollToTop>
+</MudLayout>
+
+@code {
+    private User _loggedInUser;
+    private MudTheme _theme = new();
+    private bool _isDarkMode = true;
+    private string _searchTerm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+    }
+
+    private void GoHome()
+    {
+        navManager.NavigateTo("/");
+    }
+
+    private void NavigateTo(string url)
+    {
+        navManager.NavigateTo($"/{url}");
+        StateHasChanged();
+    }
+
+    private async Task NavigateToRandom()
+    {
+        Prompt prompt = await promptData.GetRandomPromptAsync();
+
+        navManager.NavigateTo($"/Prompt/{prompt.Id}");
+    }
+
+    private void PerformSearch(string searchText)
+    {
+        navManager.NavigateTo($"/Search/{searchText}");
+    }
+}

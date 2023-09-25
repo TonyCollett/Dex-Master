@@ -1,0 +1,8 @@
+@page "/Search/{SearchText}"
+
+<PromptGrid SearchTerm="@SearchText" />
+
+@code {
+    [Parameter]
+    public string SearchText { get; set; } = default!;
+}

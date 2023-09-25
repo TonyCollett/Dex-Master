@@ -1,0 +1,139 @@
+@if(Prompt != null){
+    <MudCard Outlined="true">
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudTooltip Text="@($"Created: {Prompt.DateCreated.ToLocalTime():dd/MM/yyyy h:mm tt}")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    @if (Prompt.PromptType == PromptType.Text)
+                    {
+                        <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
+                            <MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.Textsms" />
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
+                            <MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.Image" />
+                        </MudAvatar>
+                    }
+                </MudTooltip>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">@Prompt.Title</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudTooltip Text="@($"Inspect Prompt")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudIconButton @onclick="OpenDialog" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
+                </MudTooltip>
+            </CardHeaderActions>
+        </MudCardHeader>
+        @* <MudCardMedia Image="images/pillars.jpg" Height="250" /> *@
+        <MudCardContent>
+            <MudText Typo="Typo.body2">
+                @(InDialog ? Prompt.PromptDescription :
+                    (Prompt.PromptDescription.Length > 350 ?
+                    Prompt.PromptDescription.Substring(0, 350) + "..." :
+                    Prompt.PromptDescription))
+            </MudText>
+        </MudCardContent>
+        <MudCardActions>
+            @if (_readOnly == false)
+            {
+                <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudBadge Content="@Prompt.FavouritedBy.Count().ToString()" Overlap="true" Origin="Origin.TopLeft" Color="Color.Secondary">
+                        <MudToggleIconButton Icon="@Icons.Material.Filled.FavoriteBorder" Color="Color.Secondary"
+                                             ToggledIcon="@Icons.Material.Filled.Favorite" ToggledColor="Color.Secondary"
+                                             Toggled="@Prompt.FavouritedBy.Contains(LoggedInUser.Id)" ToggledChanged="ToggleFavourite" />
+                    </MudBadge>
+                </MudTooltip>
+            }
+            <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary" OnClick="ShareAsync"/>
+            </MudTooltip>
+            <MudSpacer />
+            @if(string.IsNullOrEmpty(Prompt.PromptResult) == false)
+            {
+                <MudTooltip Text="Example Result" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudIconButton @onclick="OpenResultDialog" Icon="@Icons.Material.Filled.QuestionMark" Color="Color.Success" />
+                </MudTooltip>
+            }
+            @if (LoggedInUser?.VipStatus == VipStatus.Admin)
+            {
+                <MudTooltip Text="@($"Delete Prompt")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeletePromptAsync" />
+                </MudTooltip>
+            }
+            @if (_readOnly == false) {
+                <MudTooltip Text="@($"Try it! (Disabled)")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                    <MudIconButton Icon="@Icons.Material.Filled.Try" Variant="Variant.Outlined" Color="Color.Default" Disabled="true"/>
+                </MudTooltip>
+            }
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter] 
+    public Prompt Prompt { get; set; }
+    [Parameter]
+    public string HighlightText { get; set; }
+    [Parameter]
+    public bool InDialog { get; set; }
+
+    [CascadingParameter] 
+    public User LoggedInUser { get; set; }
+
+    private bool _readOnly;
+    private bool _favourited = false;
+    private bool _userIsAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        _readOnly = !_userIsAuthenticated;
+    }
+
+    private async Task OpenDialog()
+    {
+        if (InDialog)
+        {
+            navManager.NavigateTo($"/Prompt/{Prompt.Id}");
+            return;
+        }
+
+        await promptData.IncreaseViewCountForPromptAsync(Prompt);
+
+        var parameters = new DialogParameters { ["Prompt"] = Prompt, ["LoggedInUser"] = LoggedInUser };
+        var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
+        await dialogService.ShowAsync<PromptCardDialog>("Show Prompt", parameters, options);
+    }
+
+    private async Task OpenResultDialog()
+    {
+        var parameters = new DialogParameters { ["Prompt"] = Prompt };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium };
+        await dialogService.ShowAsync<ResultDialog>("Example Result", parameters, options);
+    }
+
+    private async Task ToggleFavourite()
+    {
+        await favouriteData.ToggleFavouriteAsync(Prompt.Id, LoggedInUser.Id);
+        await promptData.ToggleFavouriteOnPromptAsync(Prompt, LoggedInUser.Id);
+        await userData.ToggleFavouriteOnUserAsync(LoggedInUser, Prompt.Id);
+        _favourited = !_favourited;
+    }
+
+    private async Task ShareAsync()
+    {
+        var url = navManager.BaseUri + $"Prompt/{Prompt.Id}";
+        await promptData.SharePromptAsync(Prompt);
+        await socialMediaSharing.ShareOnSocialMedia("Check out this awesome AI Prompt at BlepIt!", Prompt.Title, url);
+    }
+
+    private async Task DeletePromptAsync()
+    {
+        await promptData.DeletePromptAsync(Prompt);
+        navManager.NavigateTo("/", true);
+    }
+}

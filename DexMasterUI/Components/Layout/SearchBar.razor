@@ -1,0 +1,26 @@
+﻿<MudTextField Label="Search Prompts" @bind-Value="_searchString" Margin="Margin.Dense" Variant="Variant.Outlined" Immediate="true"
+              Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" 
+              OnAdornmentClick="PerformSearch" OnKeyPress="Enter"></MudTextField>
+
+@code {
+    [Parameter]
+    public string SearchString { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSearchCallback { get; set; }
+
+    private string _searchString { get; set; }
+
+    private async Task Enter(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" || args.Code == "NumpadEnter")
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        await OnSearchCallback.InvokeAsync(_searchString);
+    }
+}

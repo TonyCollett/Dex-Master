@@ -1,0 +1,33 @@
+﻿@attribute [Authorize]
+
+@if (comments != null)
+{
+    <MudStack>
+        @foreach (Comment comment in comments)
+        {
+            if (ParentId == comment.ParentId && !comment.Archived)
+            {
+                <MudPaper>
+                    <MudText>@comment.CommentText</MudText>
+                </MudPaper>
+            }
+        }
+
+    </MudStack>
+}
+
+
+@code {
+    [Parameter]
+    public string ParentId { get; set; } = default!;
+
+    private User loggedInUser;
+    private IEnumerable<Comment> comments;
+
+    protected async override Task OnInitializedAsync()
+    {
+        loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+        comments = await commentData.GetCommentsByParentIdAsync(ParentId);
+
+    }
+}

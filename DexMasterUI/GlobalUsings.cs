@@ -1,0 +1,14 @@
+﻿global using Bogus;
+global using DexMasterLibrary.DataAccess;
+global using DexMasterLibrary.DataAccess.DTClasses;
+global using DexMasterLibrary.DataAccess.Interfaces;
+global using DexMasterLibrary.Enums;
+global using DexMasterLibrary.Models;
+global using DexMasterUI.Helpers;
+global using Microsoft.AspNetCore.Authentication.Cookies;
+global using Microsoft.AspNetCore.Components.Authorization;
+global using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+global using MudBlazor;
+global using MudBlazor.Services;
+global using PokeApiNet;
+global using SocialMediaSharingBlazor;

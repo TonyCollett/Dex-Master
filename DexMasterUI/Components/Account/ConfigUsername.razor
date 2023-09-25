@@ -1,0 +1,48 @@
+﻿@if (LoggedInUser != null)
+{
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4">
+                <MudForm @ref="form">
+                        <MudTextField T="string" MaxLength="20" Label="Username" @bind-Value="@_username" Validation="@(new Func<string, Task<string>>(TestUsernameExistsAsync))" />
+                    <MudButton Variant="Variant.Filled" Disabled="@_success" Color="Color.Primary" OnClick="SaveAsync" Class="ml-auto">Save</MudButton>
+                </MudForm>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+}
+
+@code
+{
+    [Parameter]
+    public User LoggedInUser { get; set; }
+    
+    private string _username;
+    private bool _success;
+    MudForm form;
+
+    protected override void OnInitialized()
+    {
+        _username = LoggedInUser.Username;
+    }
+
+    private async Task<string> TestUsernameExistsAsync(string username)
+    {
+        if (await userData.CheckUsernameExists(username))
+        {
+            _success = false;
+            return "Username already exists";
+        }
+        _success = true;
+        return null;
+    }
+
+    private async Task SaveAsync()
+    {
+        LoggedInUser.Username = _username;
+        await userData.UpdateUserAsync(LoggedInUser);
+        
+    }
+}
