@@ -12,7 +12,7 @@
         <MudGrid>
             @foreach (var pokemon in _pokemonData.Results)
             {
-                <MudItem lg="4" md="6" xs="12">
+                <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
                         <PokemonCard PokemonId="@pokemon.Name" InDialog="false"/>
                     </CascadingValue>
@@ -24,8 +24,13 @@
                 <MudItem lg="1" xs="2"></MudItem>
                 <MudItem lg="1" xs="2"></MudItem>
                 <MudItem lg="8" xs="6">
-                    <MudPagination Selected="_currentPage" Count="10" SelectedChanged="OnPageChanged" ShowFirstButton="true"
-                                    ShowLastButton="true" BoundaryCount="2" MiddleCount="3" Class="justify-center mud-width-full" />
+                    <MudPagination Selected="_currentPage" 
+                                   Count="10" 
+                                   SelectedChanged="OnPageChanged" 
+                                   ShowFirstButton="true"
+                                   ShowLastButton="true" 
+                                   BoundaryCount="2" MiddleCount="3" 
+                                   Class="justify-center mud-width-full" />
                 </MudItem>
                 <MudItem lg="1" xs="2">
                     <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="10" Variant="Variant.Outlined" Label="Page" />
@@ -52,7 +57,7 @@
     }
 </MudStack>
 
-    @code {
+@code {
     [Parameter]
     public string SearchTerm { get; set; }
     [Parameter]
@@ -68,10 +73,10 @@
     private User _loggedInUser = null;
     private bool _displayLoadingArt = true;
 
+    PokeApiClient pokeClient;
+
     protected override async Task OnInitializedAsync()
     {
-        
-
         var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
 
         if (localBrowserPromptsPerPageResult.Success && AllowPromptsPerPagePicker)
@@ -80,7 +85,7 @@
         }
         else
         {
-            _promptsPerPage = 9;
+            _promptsPerPage = 12;
         }
     }
 
@@ -93,12 +98,9 @@
             _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
         }
 
-        // instantiate client
-        PokeApiClient pokeClient = new PokeApiClient();
+        pokeClient = new PokeApiClient();
 
-        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(12, 1000);
-
-        //_promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(_promptsPerPage, 0);
 
         _displayLoadingArt = false;
 
@@ -112,7 +114,7 @@
 
         await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
         
-        //_promptData = await promptData.GetActivePagedResultsAsync(_currentPage, _promptsPerPage, SearchTerm, SortOption, UserId);
+        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(_promptsPerPage, _currentPage * _promptsPerPage);
 
         _displayLoadingArt = false;
 
