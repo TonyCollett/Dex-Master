@@ -17,19 +17,11 @@ builder.Services.AddAuthentication()
         options.ClientId = googleAuthNSection["ClientId"] ?? string.Empty;
         options.ClientSecret = googleAuthNSection["ClientSecret"] ?? string.Empty;
         options.CallbackPath = "/signin-google";
-    })
-    .AddMicrosoftAccount(microsoftOptions =>
-    {
-        microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"] ?? string.Empty;
-        microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"] ?? string.Empty;
-        microsoftOptions.CallbackPath = "/signin-microsoft";
     });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<HttpContextAccessor>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
-
-builder.Services.AddSocialMediaSharing();
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<HttpClient>();

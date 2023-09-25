@@ -73,7 +73,7 @@
         // instantiate client
         PokeApiClient pokeClient = new PokeApiClient();
         
-        NamedApiResourceList<Pokemon> allPokemon = await pokeClient.GetNamedResourcePageAsync<Pokemon>(1300, 0);
+        NamedApiResourceList<Pokemon> allPokemon = await pokeClient.GetNamedResourcePageAsync<Pokemon>(10, 0);
 
         var pokemonCache = allPokemon.Results.Select(x => new PokemonCache
             {

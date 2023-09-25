@@ -39,7 +39,7 @@
                         </MudChip>
                     </MudTooltip>
                     <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                        <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.Share" Color="Color.Primary" OnClick="ShareAsync" />
+                        <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.Share" Color="Color.Primary" />
                     </MudTooltip>
                 </MudStack>
             </MudItem>
@@ -135,12 +135,5 @@
         await promptData.ToggleFavouriteOnPromptAsync(_prompt, loggedInUser.Id);
         await userData.ToggleFavouriteOnUserAsync(loggedInUser, _prompt.Id);
         _favourited = !_favourited;
-    }
-
-    private async Task ShareAsync()
-    {
-        var url = navManager.BaseUri + $"Prompt/{_prompt.Id}";
-        await promptData.SharePromptAsync(_prompt);
-        await socialMediaSharing.ShareOnSocialMedia("Check out this awesome AI Prompt at BlepIt!", _prompt.Title, url);
     }
 }

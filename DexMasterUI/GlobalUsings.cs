@@ -11,4 +11,3 @@ global using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 global using MudBlazor;
 global using MudBlazor.Services;
 global using PokeApiNet;
-global using SocialMediaSharingBlazor;

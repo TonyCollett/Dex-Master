@@ -19,10 +19,8 @@
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="7.0.5" />
     <PackageReference Include="MudBlazor" Version="6.2.2" />
     <PackageReference Include="PokeApiNet" Version="3.0.10" />
-    <PackageReference Include="SocialMediaSharingBlazor" Version="7.1.0" />
   </ItemGroup>
 
   <ItemGroup>
