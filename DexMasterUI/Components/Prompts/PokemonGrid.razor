@@ -1,4 +1,6 @@
-﻿<MudOverlay @bind-Visible="_displayLoadingArt" DarkBackground="true" ZIndex="9999">
+﻿@using DexMasterUI.Services
+
+<MudOverlay @bind-Visible="_displayLoadingArt" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
@@ -7,69 +9,69 @@
     {
         <MudText>Loading Pokemon...</MudText>
     }
-    else if (_pokemonData.Count > 0)
+    else if (_pokemonData.Any())
     {
         <MudGrid>
-            @foreach (var pokemon in _pokemonData.Results)
+            @foreach (var pokemon in _pokemonData)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard PokemonId="@pokemon.Name" InDialog="false"/>
+                        <PokemonCard Pokemon="@pokemon" InDialog="false"/>
                     </CascadingValue>
                 </MudItem>
             }
         </MudGrid>
-        <MudPaper>
-            <MudGrid Class="d-flex align-center mud-width-full py-3">
-                <MudItem lg="1" xs="2"></MudItem>
-                <MudItem lg="1" xs="2"></MudItem>
-                <MudItem lg="8" xs="6">
-                    <MudPagination Selected="_currentPage" 
-                                   Count="10" 
-                                   SelectedChanged="OnPageChanged" 
-                                   ShowFirstButton="true"
-                                   ShowLastButton="true" 
-                                   BoundaryCount="2" MiddleCount="3" 
-                                   Class="justify-center mud-width-full" />
-                </MudItem>
-                <MudItem lg="1" xs="2">
-                    <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="10" Variant="Variant.Outlined" Label="Page" />
-                </MudItem>
-                @if (AllowPromptsPerPagePicker)
-                {
-                <MudItem lg="1" xs="2">
-                    <MudSelect T="int" @bind-Value="_promptsPerPage" Variant="Variant.Outlined" SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))" Margin="Margin.Dense" Label="# Per Page">
-                        <MudSelectItem Value="9" />
-                        <MudSelectItem Value="12" />
-                        <MudSelectItem Value="15" />
-                        <MudSelectItem Value="30" />
-                        <MudSelectItem Value="60" />
-                        <MudSelectItem Value="90" />
-                    </MudSelect>
-                </MudItem>    
-                }
-            </MudGrid>
-        </MudPaper>
     }
     else
     {
-        <MudText>No prompts were found</MudText>
+        <MudText>No Pokemon were found</MudText>
     }
+    <MudPaper>
+        <MudGrid Class="d-flex align-center mud-width-full py-3">
+            <MudItem lg="1" xs="2"></MudItem>
+            <MudItem lg="1" xs="2"></MudItem>
+            <MudItem lg="8" xs="6">
+                <MudPagination Selected="_currentPage"
+                               Count="10"
+                               SelectedChanged="OnPageChanged"
+                               ShowFirstButton="true"
+                               ShowLastButton="true"
+                               BoundaryCount="2" MiddleCount="3"
+                               Class="justify-center mud-width-full" />
+            </MudItem>
+            <MudItem lg="1" xs="2">
+                <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="10" Variant="Variant.Outlined" Label="Page" />
+            </MudItem>
+            <MudItem lg="1" xs="2">
+                <MudSelect T="int"
+                @bind-Value="_cardsPerPage"
+                           Variant="Variant.Outlined"
+                           SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))"
+                           Margin="Margin.Dense"
+                           Label="# Per Page">
+                    <MudSelectItem Value="9" />
+                    <MudSelectItem Value="12" />
+                    <MudSelectItem Value="15" />
+                    <MudSelectItem Value="30" />
+                    <MudSelectItem Value="60" />
+                    <MudSelectItem Value="90" />
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
 </MudStack>
 
 @code {
     [Parameter]
-    public string SearchTerm { get; set; }
-    [Parameter]
-    public SortOption SortOption { get; set; } = SortOption.Default;
-    [Parameter]
     public string UserId { get; set; }
-    [Parameter]
-    public bool AllowPromptsPerPagePicker { get; set; } = true;
 
-    private NamedApiResourceList<Pokemon> _pokemonData;
+    private const string _BROWSER_VARIABLE_NAME = "CardsPerPage";
+
+    private readonly IPokeApiService pokeApiService = new PokeApiService();
+    
+    private IEnumerable<Pokemon> _pokemonData;
     private int _currentPage = 1;
-    private int _promptsPerPage = 12;
+    private int _cardsPerPage = 12;
     private User _loggedInUser = null;
     private bool _displayLoadingArt = true;
 
@@ -77,16 +79,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
-
-        if (localBrowserPromptsPerPageResult.Success && AllowPromptsPerPagePicker)
-        {
-            _promptsPerPage = localBrowserPromptsPerPageResult.Value;
-        }
-        else
-        {
-            _promptsPerPage = 12;
-        }
+        await CheckBrowserStorageAsync();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -98,9 +91,7 @@
             _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
         }
 
-        pokeClient = new PokeApiClient();
-
-        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(_promptsPerPage, 0);
+        _pokemonData = await pokeApiService.GetPokemonListAsync(_cardsPerPage, 0);
 
         _displayLoadingArt = false;
 
@@ -111,10 +102,10 @@
     {
         _displayLoadingArt = true;
         _currentPage = newPage;
-
-        await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
         
-        _pokemonData = await pokeClient.GetNamedResourcePageAsync<Pokemon>(_promptsPerPage, _currentPage * _promptsPerPage);
+        _pokemonData = await pokeApiService.GetPokemonListAsync(_cardsPerPage, (_currentPage-1) * _cardsPerPage);
+
+        await protectedLocalStorage.SetAsync(_BROWSER_VARIABLE_NAME, _cardsPerPage);
 
         _displayLoadingArt = false;
 
@@ -123,15 +114,16 @@
 
     private async Task CheckBrowserStorageAsync()
     {
-        var localBrowserPromptsPerPageResult = await protectedLocalStorage.GetAsync<int>("PromptsPerPage");
+        var localBrowserCardsPerPageResult = await protectedLocalStorage.GetAsync<int>(_BROWSER_VARIABLE_NAME);
 
-        if (localBrowserPromptsPerPageResult.Success)
+        if (localBrowserCardsPerPageResult.Success)
         {
-            _promptsPerPage = localBrowserPromptsPerPageResult.Value;
+            _cardsPerPage = localBrowserCardsPerPageResult.Value;
         }
         else
         {
-            await protectedLocalStorage.SetAsync("PromptsPerPage", _promptsPerPage);
+            _cardsPerPage = 12;
         }
     }
+
 }

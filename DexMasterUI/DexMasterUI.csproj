@@ -30,4 +30,9 @@
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Services\IPokeApiService.cs" />
+    <Compile Include="Services\PokeApiService.cs" />
+  </ItemGroup>
 </Project>

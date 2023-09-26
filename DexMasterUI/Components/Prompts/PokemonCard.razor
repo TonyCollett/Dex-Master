@@ -1,10 +1,10 @@
-@if (cardPokemon != null)
+@if (Pokemon != null)
 {
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @cardPokemon.Id
+                    @Pokemon.Id
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
@@ -36,7 +36,7 @@
 
 @code {
     [Parameter] 
-    public string PokemonId { get; set; }
+    public Pokemon Pokemon { get; set; }
     [Parameter]
     public bool InDialog { get; set; } = false;
 
@@ -46,15 +46,11 @@
     private bool _readOnly;
     private bool _favourited = false;
     private bool _userIsAuthenticated;
-    private Pokemon cardPokemon;
     private string pokemonName;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        var pokeClient = new PokeApiClient();
-        cardPokemon = await pokeClient.GetResourceAsync<Pokemon>(PokemonId);
-
-        pokemonName = CommonFunctions.Capitalise(cardPokemon.Name);
+        pokemonName = CommonFunctions.Capitalise(Pokemon.Name);
 
         var authState = await authProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
@@ -66,18 +62,18 @@
     {
         if (InDialog)
         {
-            navManager.NavigateTo($"/Pokemon/{cardPokemon.Id}");
+            navManager.NavigateTo($"/Pokemon/{Pokemon.Id}");
             return;
         }
 
-        var parameters = new DialogParameters { ["PokemonId"] = cardPokemon.Id, ["LoggedInUser"] = LoggedInUser };
+        var parameters = new DialogParameters { ["PokemonId"] = Pokemon.Id, ["LoggedInUser"] = LoggedInUser };
         var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
         await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
     }
 
     private async Task ToggleFavouriteAsync()
     {
-        await userData.ToggleFavouriteOnUserAsync(LoggedInUser.Id, cardPokemon.Id);
+        await userData.ToggleFavouriteOnUserAsync(LoggedInUser.Id, Pokemon.Id);
         _favourited = !_favourited;
     }
 }

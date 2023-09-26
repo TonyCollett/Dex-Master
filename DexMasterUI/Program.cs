@@ -1,3 +1,5 @@
+using DexMasterUI.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
@@ -31,6 +33,8 @@ builder.Services.AddTransient<IUserData, MongoUserData>();
 builder.Services.AddTransient<IPromptData, MongoPromptData>();
 builder.Services.AddTransient<ICommentData, MongoCommentData>();
 builder.Services.AddTransient<IFavouriteData, MongoFavouriteData>();
+
+builder.Services.AddScoped<IPokeApiService, PokeApiService>();
 
 var app = builder.Build();
 
