@@ -63,14 +63,6 @@
                     }
                 </MudStack>
             </MudItem>
-            @if(loggedInUser != null && (loggedInUser.VipStatus == VipStatus.Admin || loggedInUser.Id == _prompt.CreatedBy.Id))
-            {
-            <MudItem xs="3">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="EditPrompt" Class="ml-auto" Disabled="false">
-                    Edit
-                </MudButton>
-            </MudItem>    
-            }
         </MudGrid>
     </MudPaper>
 }
@@ -94,39 +86,6 @@
         await promptData.IncreaseViewCountForPromptAsync(_prompt);
 
         _displayLoadingArt = false;
-    }
-
-    private async void EditPrompt()
-    {
-        Prompt editPrompt = new()
-        {
-            Title = _prompt.Title,
-            PromptDescription = _prompt.PromptDescription,
-        };
-
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            CloseButton = true
-        };
-
-        var parameters = new DialogParameters
-        {
-            ["Prompt"] = editPrompt
-        };
-
-        var dialog = dialogService.Show<PromptEdit>($"Edit Prompt", parameters, options);
-
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-        {
-            _prompt.Title = editPrompt.Title;
-            _prompt.PromptDescription = editPrompt.PromptDescription;
-            StateHasChanged();
-
-            await promptData.UpdatePromptAsync(_prompt);
-        }
     }
 
     private async Task ToggleFavourite()

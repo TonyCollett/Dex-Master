@@ -1,18 +1,20 @@
 ﻿@using DexMasterUI.Services
+@using Pokemon = PokeApiNet.Pokemon
+@using System.Collections.ObjectModel
 
-<MudOverlay @bind-Visible="_displayLoadingArt" DarkBackground="true" ZIndex="9999">
+<MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
 <MudStack>
-    @if(_pokemonData == null)
+    @if(_pokemons == null)
     {
         <MudText>Loading Pokemon...</MudText>
     }
-    else if (_pokemonData.Any())
+    else if (_pokemons.Any())
     {
         <MudGrid>
-            @foreach (var pokemon in _pokemonData)
+            @foreach (Pokemon pokemon in _pokemons)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
@@ -44,7 +46,7 @@
             </MudItem>
             <MudItem lg="1" xs="2">
                 <MudSelect T="int"
-                @bind-Value="_cardsPerPage"
+                @bind-Value="_defaultLimit"
                            Variant="Variant.Outlined"
                            SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))"
                            Margin="Margin.Dense"
@@ -65,65 +67,92 @@
     [Parameter]
     public string UserId { get; set; }
 
-    private const string _BROWSER_VARIABLE_NAME = "CardsPerPage";
+    private const string BrowserVariableName = "CardsPerPage";
 
-    private readonly IPokeApiService pokeApiService = new PokeApiService();
+    private readonly IPokeApiService _pokeApiService = new PokeApiService();
     
-    private IEnumerable<Pokemon> _pokemonData;
+    private ObservableCollection<Pokemon> _pokemons = new();
     private int _currentPage = 1;
-    private int _cardsPerPage = 12;
+    private int _defaultLimit = 15;
     private User _loggedInUser = null;
-    private bool _displayLoadingArt = true;
-
-    PokeApiClient pokeClient;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await CheckBrowserStorageAsync();
-    }
+    private bool _isLoading = true;
 
     protected override async Task OnParametersSetAsync()
     {
-        _displayLoadingArt = true;
-
+        _isLoading = true;
+        
+        await CheckBrowserStorageAsync();
+        
         if (_loggedInUser is null)
         {
             _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
         }
 
-        _pokemonData = await pokeApiService.GetPokemonListAsync(_cardsPerPage, 0);
+        await InitializePokemonsAsync();
 
-        _displayLoadingArt = false;
+        _isLoading = false;
 
         StateHasChanged();
     }
 
     private async Task OnPageChanged(int newPage)
     {
-        _displayLoadingArt = true;
+        _isLoading = true;
         _currentPage = newPage;
         
-        _pokemonData = await pokeApiService.GetPokemonListAsync(_cardsPerPage, (_currentPage-1) * _cardsPerPage);
+        //_pokemonData = await _pokeApiService.GetPokemonListAsync(_defaultLimit, (_currentPage-1) * _defaultLimit);
 
-        await protectedLocalStorage.SetAsync(_BROWSER_VARIABLE_NAME, _cardsPerPage);
+        await protectedLocalStorage.SetAsync(BrowserVariableName, _defaultLimit);
 
-        _displayLoadingArt = false;
+        _isLoading = false;
 
         StateHasChanged();
     }
 
     private async Task CheckBrowserStorageAsync()
     {
-        var localBrowserCardsPerPageResult = await protectedLocalStorage.GetAsync<int>(_BROWSER_VARIABLE_NAME);
+        var localBrowserCardsPerPageResult = await protectedLocalStorage.GetAsync<int>(BrowserVariableName);
 
         if (localBrowserCardsPerPageResult.Success)
         {
-            _cardsPerPage = localBrowserCardsPerPageResult.Value;
+            _defaultLimit = localBrowserCardsPerPageResult.Value;
         }
         else
         {
-            _cardsPerPage = 12;
+            _defaultLimit = 12;
         }
     }
+    
+    public async Task InitializePokemonsAsync()
+    {
+        if (_pokemons.Any())
+            return;
 
+        try
+        {
+            _isLoading = true;
+
+            await PullPokemons(_defaultLimit);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Error getting Pokemon list");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    
+    private async Task PullPokemons(int limit, bool clearPokemonsList = false)
+    {
+        if (clearPokemonsList && _pokemons.Any())
+            _pokemons.Clear();
+
+        var offset = _pokemons.Count();
+
+        var pokemons = await _pokeApiService.GetPokemonListAsync(limit, offset);
+
+        pokemons.ToList().ForEach(p => _pokemons.Add(p));
+    }
 }
