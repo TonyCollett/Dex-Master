@@ -1,10 +1,12 @@
-﻿namespace DexMasterLibrary.DataAccess;
+﻿using PokeApiNet;
+
+namespace DexMasterLibrary.DataAccess;
 
 public class MongoLocalPokemonData : ILocalPokemonData
 {
     private readonly IDbConnection _db;
     private readonly IMemoryCache _cache;
-    private readonly IMongoCollection<LocalPokemon> _localPokemonCollection;
+    private readonly IMongoCollection<Pokemon> _localPokemonCollection;
     private const string CacheName = "LocalPokemonData";
 
     public MongoLocalPokemonData(IDbConnection db, IMemoryCache cache)
@@ -14,43 +16,29 @@ public class MongoLocalPokemonData : ILocalPokemonData
         _localPokemonCollection = db.LocalPokemonCollection;
     }
 
-    public async Task<DTPagedResult<LocalPokemon>> GetActivePagedResultsAsync(
+    /// <inheritdoc />
+    public async Task<DTPagedResult<Pokemon>> GetActivePagedResultsAsync(
         int pageNumber,
-        int localPokemonsPerPage,
-        string searchTerm = "",
-        string createdById = "")
+        int localPokemonsPerPage)
     {
-        string cacheKey = $"{CacheName}_Page{pageNumber}_Size{localPokemonsPerPage}_Search{searchTerm}_CreatedBy{createdById}";
-        string totalCountCacheKey = $"{CacheName}_TotalCount_Search{searchTerm}_CreatedBy{createdById}";
+        string cacheKey = $"{CacheName}_Page{pageNumber}_Size{localPokemonsPerPage}";
+        string totalCountCacheKey = $"{CacheName}_TotalCount";
 
-        var output = _cache.Get<List<LocalPokemon>>(cacheKey);
+        var output = _cache.Get<List<Pokemon>>(cacheKey);
         var cachedTotalCount = _cache.Get<long?>(totalCountCacheKey);
 
         if (output is not null && cachedTotalCount.HasValue)
         {
             int totalPages = (int)Math.Ceiling((double)cachedTotalCount.Value / localPokemonsPerPage);
-            return new DTPagedResult<LocalPokemon>
+            return new DTPagedResult<Pokemon>
             {
                 Items = output,
                 TotalPages = totalPages,
             };
         }
 
-        FilterDefinition<LocalPokemon>? filter = Builders<LocalPokemon>.Filter.Gt(t => t.DateCreated, DateTime.MinValue);
-
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            var searchFilter = Builders<LocalPokemon>.Filter.Regex(p => p.Title, new BsonRegularExpression(searchTerm, "i"))
-                            | Builders<LocalPokemon>.Filter.Regex(p => p.Description, new BsonRegularExpression(searchTerm, "i"));
-            filter &= searchFilter;
-        }
-
-        if (!string.IsNullOrWhiteSpace(createdById))
-        {
-            var createdByFilter = Builders<LocalPokemon>.Filter.Eq(p => p.CreatedBy.Id, createdById);
-            filter &= createdByFilter;
-        }
-
+        FilterDefinition<Pokemon>? filter = Builders<Pokemon>.Filter.Gt(t => t.Id, 0);
+        
         var totalCount = await _localPokemonCollection.CountDocumentsAsync(filter);
         var query = _localPokemonCollection.Find(filter);
 
@@ -63,23 +51,25 @@ public class MongoLocalPokemonData : ILocalPokemonData
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(1));
         _cache.Set(totalCountCacheKey, totalCount, TimeSpan.FromMinutes(1));
 
-        return new DTPagedResult<LocalPokemon>
+        return new DTPagedResult<Pokemon>
         {
             Items = results,
             TotalPages = calculatedTotalPages,
         };
     }
 
-    public async Task<LocalPokemon> GetLocalPokemonByIdAsync(string id)
+    /// <inheritdoc />
+    public async Task<Pokemon> GetLocalPokemonByIdAsync(int id)
     {
-        IAsyncCursor<LocalPokemon> results = await _localPokemonCollection.FindAsync(t => t.Id == id);
+        IAsyncCursor<Pokemon> results = await _localPokemonCollection.FindAsync(t => t.Id == id);
         return results.FirstOrDefault();
     }
 
-    public async Task<LocalPokemon> GetRandomLocalPokemonAsync()
+    /// <inheritdoc />
+    public async Task<Pokemon> GetRandomLocalPokemonAsync()
     {
         // Count the total number of documents in the collection
-        long totalCount = await _localPokemonCollection.CountDocumentsAsync(FilterDefinition<LocalPokemon>.Empty);
+        long totalCount = await _localPokemonCollection.CountDocumentsAsync(FilterDefinition<Pokemon>.Empty);
 
         // If there are no documents, return null
         if (totalCount == 0)
@@ -92,25 +82,28 @@ public class MongoLocalPokemonData : ILocalPokemonData
         int randomIndex = random.Next(0, (int)totalCount);
 
         // Fetch the document at the random index
-        var result = await _localPokemonCollection.Find(FilterDefinition<LocalPokemon>.Empty)
+        var result = await _localPokemonCollection.Find(FilterDefinition<Pokemon>.Empty)
                                             .Skip(randomIndex)
                                             .Limit(1)
                                             .FirstOrDefaultAsync();
         return result;
     }
-
-    public async Task UpdateLocalPokemonAsync(LocalPokemon localPokemon)
+    
+    /// <inheritdoc />
+    public async Task<long> GetCountAsync()
+    {
+        return await _localPokemonCollection.CountDocumentsAsync(FilterDefinition<Pokemon>.Empty);
+    }
+    
+    /// <inheritdoc />
+    public async Task UpdateLocalPokemonAsync(Pokemon localPokemon)
     {
         await _localPokemonCollection.ReplaceOneAsync(p => p.Id == localPokemon.Id, localPokemon);
         _cache.Remove(CacheName);
     }
 
-    public async Task CreateLocalPokemonAsync(LocalPokemon localPokemon)
-    {
-        await CreateMultipleLocalPokemonsAsync(new[] { localPokemon });
-    }
-
-    public async Task CreateMultipleLocalPokemonsAsync(IEnumerable<LocalPokemon> localPokemons)
+    /// <inheritdoc />
+    public async Task UpdateMultipleLocalPokemonsAsync(IEnumerable<Pokemon> pokemonList)
     {
         var client = _db.Client;
 
@@ -121,8 +114,13 @@ public class MongoLocalPokemonData : ILocalPokemonData
         try
         {
             var db = client.GetDatabase(_db.DbName);
-            var localPokemonsInTransaction = db.GetCollection<LocalPokemon>(_db.LocalPokemonCollectionName);
-            await localPokemonsInTransaction.InsertManyAsync(session, localPokemons);
+            var localPokemonsInTransaction = db.GetCollection<Pokemon>(_db.LocalPokemonCollectionName);
+            
+            // replace with bulkwrite
+            foreach (var pokemon in pokemonList)
+            {
+                await localPokemonsInTransaction.ReplaceOneAsync(session, p => p.Id == pokemon.Id, pokemon);
+            }
 
             await session.CommitTransactionAsync();
         }
@@ -137,10 +135,31 @@ public class MongoLocalPokemonData : ILocalPokemonData
         }
     }
 
-    public async Task DeleteLocalPokemonAsync(LocalPokemon localPokemon)
+    public async Task CreateMultipleLocalPokemonsAsync(IEnumerable<Pokemon> pokemonList)
     {
-        await _localPokemonCollection.DeleteOneAsync(p => p.Id == localPokemon.Id);
-        _cache.Remove(CacheName);
+        var client = _db.Client;
+
+        using var session = await client.StartSessionAsync();
+
+        session.StartTransaction();
+
+        try
+        {
+            var db = client.GetDatabase(_db.DbName);
+            var localPokemonsInTransaction = db.GetCollection<Pokemon>(_db.LocalPokemonCollectionName);
+            await localPokemonsInTransaction.InsertManyAsync(session, pokemonList);
+
+            await session.CommitTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await session.AbortTransactionAsync();
+            throw;
+        }
+        finally
+        {
+            _cache.Remove(CacheName);
+        }
     }
 }
 

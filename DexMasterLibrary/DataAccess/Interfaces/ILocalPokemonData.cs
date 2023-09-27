@@ -1,16 +1,34 @@
-﻿namespace DexMasterLibrary.DataAccess.Interfaces;
+﻿using PokeApiNet;
+
+namespace DexMasterLibrary.DataAccess.Interfaces;
 
 public interface ILocalPokemonData
 {
-    Task<DTPagedResult<LocalPokemon>> GetActivePagedResultsAsync(
+    /// <summary>
+    /// Get Paged Results of LocalPokemon
+    /// </summary>
+    public Task<DTPagedResult<Pokemon>> GetActivePagedResultsAsync(
         int pageNumber,
-        int localPokemonsPerPage,
-        string searchTerm = "",
-        string createdById = "");
-    Task<LocalPokemon> GetLocalPokemonByIdAsync(string id);
-    Task<LocalPokemon> GetRandomLocalPokemonAsync();
-    Task UpdateLocalPokemonAsync(LocalPokemon localPokemon);
-    Task CreateLocalPokemonAsync(LocalPokemon localPokemon);
-    Task CreateMultipleLocalPokemonsAsync(IEnumerable<LocalPokemon> localPokemons);
-    Task DeleteLocalPokemonAsync(LocalPokemon localPokemon);
+        int localPokemonsPerPage);
+    
+    /// <summary>
+    /// Get Pokemon by Id
+    /// </summary>
+    public Task<Pokemon> GetLocalPokemonByIdAsync(int id);
+    
+    /// <summary>
+    /// Get Pokemon by Title
+    /// </summary>
+    public Task<Pokemon> GetRandomLocalPokemonAsync();
+    
+    /// <summary>
+    /// Update Pokemon
+    /// </summary>
+    public Task UpdateLocalPokemonAsync(Pokemon localPokemon);
+    
+    /// <summary>
+    /// Create LocalPokemon
+    /// </summary>
+    public Task CreateMultipleLocalPokemonsAsync(IEnumerable<Pokemon> pokemonList);
+
 }

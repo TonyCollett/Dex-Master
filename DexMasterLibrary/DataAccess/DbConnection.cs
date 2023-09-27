@@ -1,38 +1,33 @@
-﻿// Ignore Spelling: Favourite
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace DexMasterLibrary.DataAccess;
 
 public class DbConnection : IDbConnection
 {
-    private readonly IConfiguration _config;
-    private readonly IMongoDatabase _db;
     private readonly string _connectionId = "MongoDB";
+    
     public string DbName { get; }
     public string UserCollectionName { get; } = "users";
-    public string LocalPokemonCollectionName { get; } = "localpokemon";
+    public string LocalPokemonCollectionName { get; } = "local-pokemon";
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
-    public IMongoCollection<LocalPokemon> LocalPokemonCollection { get; }
+    public IMongoCollection<Pokemon> LocalPokemonCollection { get; }
 
     public DbConnection(IConfiguration config)
     {
         try
         {
-            _config = config;
-            Client = new MongoClient(_config.GetConnectionString(_connectionId));
-            DbName = _config["DatabaseName"] ?? "PokeCloud";
-            _db = Client.GetDatabase(DbName);
+            Client = new MongoClient(config.GetConnectionString(_connectionId));
+            DbName = config["DatabaseName"] ?? "PokeCloud";
             
-            UserCollection = _db.GetCollection<User>(UserCollectionName);
-            LocalPokemonCollection = _db.GetCollection<LocalPokemon>(LocalPokemonCollectionName);
+            IMongoDatabase db = Client.GetDatabase(DbName);
+            UserCollection = db.GetCollection<User>(UserCollectionName);
+            LocalPokemonCollection = db.GetCollection<Pokemon>(LocalPokemonCollectionName);
         }
-        catch (System.Exception)
+        catch (Exception)
         {
-            throw;
+            // ignored
         }
-
     }
 }
 

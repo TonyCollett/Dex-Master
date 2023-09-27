@@ -1,5 +1,4 @@
 @page "/admin"
-@attribute [Authorize]
 
 <MudOverlay @bind-Visible="showLoadingArt" DarkBackground="true" ZIndex="9999" AutoClose="true">
      <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -13,7 +12,7 @@
     </MudItem>
     <MudItem lg="2">
         <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="ImportInitialPokemonDataAsync">
-            Generate Sample Prompt Data
+            Import Pokemon Data
         </MudButton>
     </MudItem>
 </MudGrid>
@@ -22,17 +21,11 @@
 @code {
 
     private bool showLoadingArt;
-
-    private List<User> users;
-    private IEnumerable<Pokemon> pokemonList;
+    
 
     protected async override Task OnInitializedAsync()
     {
-        showLoadingArt = true;
 
-        users = await userData.GetAllUsersAsync();
-
-        showLoadingArt = false;
     }
 
     private async Task GenerateRandomUsers()
@@ -47,8 +40,6 @@
 
         await userData.CreateMultipleUsersAsync(fakeUsers.Generate(15));
 
-        users = await userData.GetAllUsersAsync();
-
         showLoadingArt = false;
         StateHasChanged();
     }
@@ -56,8 +47,15 @@
     private async Task ImportInitialPokemonDataAsync()
     {
         showLoadingArt = true;
+        int pokedexNumber = 0;
 
-        pokemonList = await pokeApiService.GetPokemonListAsync(1300, 0);
+        while (pokedexNumber < 1017)
+        {
+            IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(20, pokedexNumber);
+            await localPokemonData.CreateMultipleLocalPokemonsAsync(pokemonList);
+            pokedexNumber += 20;
+        }
+        
 
         showLoadingArt = false;
         StateHasChanged();
