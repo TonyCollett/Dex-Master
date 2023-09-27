@@ -7,9 +7,9 @@ public interface ILocalPokemonData
     /// <summary>
     /// Get Paged Results of LocalPokemon
     /// </summary>
-    public Task<DTPagedResult<Pokemon>> GetActivePagedResultsAsync(
-        int pageNumber,
-        int localPokemonsPerPage);
+    public Task<DTPagedResult<Pokemon>> GetPokemonListAsync(
+        int limit,
+        int offset);
     
     /// <summary>
     /// Get Pokemon by Id

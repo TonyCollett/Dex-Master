@@ -17,11 +17,9 @@ public class MongoLocalPokemonData : ILocalPokemonData
     }
 
     /// <inheritdoc />
-    public async Task<DTPagedResult<Pokemon>> GetActivePagedResultsAsync(
-        int pageNumber,
-        int localPokemonsPerPage)
+    public async Task<DTPagedResult<Pokemon>> GetPokemonListAsync(int limit, int offset)
     {
-        string cacheKey = $"{CacheName}_Page{pageNumber}_Size{localPokemonsPerPage}";
+        string cacheKey = $"{CacheName}_Page{limit}_Size{offset}";
         string totalCountCacheKey = $"{CacheName}_TotalCount";
 
         var output = _cache.Get<List<Pokemon>>(cacheKey);
@@ -29,7 +27,7 @@ public class MongoLocalPokemonData : ILocalPokemonData
 
         if (output is not null && cachedTotalCount.HasValue)
         {
-            int totalPages = (int)Math.Ceiling((double)cachedTotalCount.Value / localPokemonsPerPage);
+            int totalPages = (int)Math.Ceiling((double)cachedTotalCount.Value / offset);
             return new DTPagedResult<Pokemon>
             {
                 Items = output,
@@ -42,11 +40,11 @@ public class MongoLocalPokemonData : ILocalPokemonData
         var totalCount = await _localPokemonCollection.CountDocumentsAsync(filter);
         var query = _localPokemonCollection.Find(filter);
 
-        var results = await query.Skip((pageNumber - 1) * localPokemonsPerPage)
-                                 .Limit(localPokemonsPerPage)
+        var results = await query.Skip((limit - 1) * offset)
+                                 .Limit(offset)
                                  .ToListAsync();
 
-        int calculatedTotalPages = (int)Math.Ceiling((double)totalCount / localPokemonsPerPage);
+        int calculatedTotalPages = (int)Math.Ceiling((double)totalCount / offset);
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(1));
         _cache.Set(totalCountCacheKey, totalCount, TimeSpan.FromMinutes(1));
