@@ -8,7 +8,6 @@ public interface IUserData
     Task<User> GetUserByUsernameAsync(string username);
     Task<User> GetUserFromAuthentication(string objectId);
     Task<List<User>> GetAllUsersAsync(bool ignoreCache = false);
-    Task ToggleFavouriteOnUserAsync(string userId, int promptId);
     Task UpdateUserAsync(User user);
     Task<bool> CheckUsernameExists(string username);
 }

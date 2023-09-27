@@ -11,9 +11,7 @@
                 <MudText Typo="Typo.body1">@pokemonName</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
-                <MudTooltip Text="@($"More Info")" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                    <MudIconButton @onclick="OpenDialog" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
-                </MudTooltip>
+                <MudIconButton @onclick="OpenDialog()" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardMedia Image="@Pokemon.Sprites.FrontDefault" />
@@ -69,11 +67,5 @@
         var parameters = new DialogParameters { ["PokemonId"] = Pokemon.Id, ["LoggedInUser"] = LoggedInUser };
         var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
         await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
-    }
-
-    private async Task ToggleFavouriteAsync()
-    {
-        await userData.ToggleFavouriteOnUserAsync(LoggedInUser.Id, Pokemon.Id);
-        _favourited = !_favourited;
     }
 }

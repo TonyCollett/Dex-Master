@@ -33,11 +33,6 @@ public class MongoUserData : IUserData
         return results.FirstOrDefault();
     }
 
-    public async Task ToggleFavouriteOnUserAsync(string userId, int promptId)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task CreateUserAsync(User user)
     {
         await _users.InsertOneAsync(user);
