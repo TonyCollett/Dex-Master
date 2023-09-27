@@ -12,20 +12,19 @@
 @using DexMasterUI.Components
 @using DexMasterUI.Components.Admin
 @using DexMasterUI.Components.Display
-@using DexMasterUI.Components.Comments
 @using DexMasterUI.Components.Users
 @using DexMasterUI.Components.Layout
 @using DexMasterUI.Components.Account
+@using DexMasterUI.Services
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 @inject ProtectedLocalStorage protectedLocalStorage
 @inject NavigationManager navManager
 @inject AuthenticationStateProvider authProvider
+@inject IPokeApiService pokeApiService
 @inject IHttpContextAccessor httpContextAccessor
 @inject IUserData userData
-@inject IPromptData promptData
-@inject ICommentData commentData
-@inject IFavouriteData favouriteData
+@inject ILocalPokemonData localPokemonData
 @inject IDialogService dialogService
 @inject ISnackbar snackbar
 @inject IDbConnection dbConnection

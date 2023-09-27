@@ -1,6 +1,4 @@
-﻿@using DexMasterUI.Services
-@using Pokemon = PokeApiNet.Pokemon
-@using System.Collections.ObjectModel
+﻿@using System.Collections.ObjectModel
 
 <MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -73,7 +71,7 @@
     
     private ObservableCollection<Pokemon> _pokemons = new();
     private int _currentPage = 1;
-    private int _defaultLimit = 15;
+    private int _defaultLimit = 12;
     private User _loggedInUser = null;
     private bool _isLoading = true;
 

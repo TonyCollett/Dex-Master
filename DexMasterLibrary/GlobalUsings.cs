@@ -1,6 +1,5 @@
 ﻿global using DexMasterLibrary.DataAccess.DTClasses;
 global using DexMasterLibrary.DataAccess.Interfaces;
-global using DexMasterLibrary.Enums;
 global using DexMasterLibrary.Models;
 global using Microsoft.Extensions.Caching.Memory;
 global using MongoDB.Bson;

@@ -30,9 +30,7 @@ builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddSingleton<IDbConnection, DbConnection>();
 builder.Services.AddTransient<IUserData, MongoUserData>();
-builder.Services.AddTransient<IPromptData, MongoPromptData>();
-builder.Services.AddTransient<ICommentData, MongoCommentData>();
-builder.Services.AddTransient<IFavouriteData, MongoFavouriteData>();
+builder.Services.AddTransient<ILocalPokemonData, MongoLocalPokemonData>();
 
 builder.Services.AddScoped<IPokeApiService, PokeApiService>();
 

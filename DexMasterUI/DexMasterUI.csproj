@@ -35,4 +35,8 @@
     <Compile Include="Services\IPokeApiService.cs" />
     <Compile Include="Services\PokeApiService.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\Comments\CommentDisplay.razor" />
+  </ItemGroup>
 </Project>

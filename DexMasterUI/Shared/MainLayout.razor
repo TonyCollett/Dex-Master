@@ -36,9 +36,6 @@
             <MudNavLink @onclick="@(() => NavigateTo("Prompts/Popular"))" Icon="@Icons.Material.Filled.Star">
                 Popular Prompts
             </MudNavLink>
-            <MudNavLink OnClick="NavigateToRandom" Icon="@Icons.Material.Filled.Shuffle">
-                Random Prompt
-            </MudNavLink>
             @if(_loggedInUser != null)
             {
                 <MudNavGroup Title="Logged In User stuff TODO">
@@ -87,13 +84,6 @@
     {
         navManager.NavigateTo($"/{url}");
         StateHasChanged();
-    }
-
-    private async Task NavigateToRandom()
-    {
-        Prompt prompt = await promptData.GetRandomPromptAsync();
-
-        navManager.NavigateTo($"/Prompt/{prompt.Id}");
     }
 
     private void PerformSearch(string searchText)
