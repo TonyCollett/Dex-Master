@@ -16,7 +16,7 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard Pokemon="@pokemon" InDialog="false"/>
+                        <PokemonCard Pokemon="@pokemon" />
                     </CascadingValue>
                 </MudItem>
             }
@@ -145,12 +145,14 @@
     private async Task PullPokemons(int limit, bool clearPokemonsList = false)
     {
         if (clearPokemonsList && _pokemons.Any())
+        {
             _pokemons.Clear();
+        }
 
         var offset = _pokemons.Count();
 
-        var pokemons = await _pokeApiService.GetPokemonListAsync(limit, offset);
+        var pokemon = await pokemonData.GetPokemonListAsync(limit, offset);
 
-        pokemons.ToList().ForEach(p => _pokemons.Add(p));
+        pokemon.ToList().ForEach(p => _pokemons.Add(p));
     }
 }

@@ -1,13 +1,13 @@
-﻿using PokeApiNet;
-
-namespace DexMasterLibrary.DataAccess.Interfaces;
+﻿namespace DexMasterLibrary.DataAccess.Interfaces;
 
 public interface IDbConnection
 {
     MongoClient Client { get; }
     string DbName { get; }
-    IMongoCollection<Pokemon> LocalPokemonCollection { get; }
-    string LocalPokemonCollectionName { get; }
+    IMongoCollection<Pokemon> PokemonCollection { get; }
+    string PokemonCollectionName { get; }
+    IMongoCollection<PokemonSpecies> PokemonSpeciesCollection { get; }
+    string PokemonSpeciesCollectionName { get; }
     IMongoCollection<User> UserCollection { get; }
     string UserCollectionName { get; }
 }

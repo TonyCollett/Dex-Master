@@ -1,6 +1,6 @@
 @page "/admin"
 
-<MudOverlay @bind-Visible="showLoadingArt" DarkBackground="true" ZIndex="9999" AutoClose="true">
+<MudOverlay @bind-Visible="_showLoadingArt" DarkBackground="true" ZIndex="9999" AutoClose="true">
      <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
@@ -20,17 +20,11 @@
 
 @code {
 
-    private bool showLoadingArt;
-    
-
-    protected async override Task OnInitializedAsync()
-    {
-
-    }
+    private bool _showLoadingArt;
 
     private async Task GenerateRandomUsers()
     {
-        showLoadingArt = true;
+        _showLoadingArt = true;
         StateHasChanged();
 
         var fakeUsers = new Faker<User>()
@@ -40,24 +34,23 @@
 
         await userData.CreateMultipleUsersAsync(fakeUsers.Generate(15));
 
-        showLoadingArt = false;
+        _showLoadingArt = false;
         StateHasChanged();
     }
 
     private async Task ImportInitialPokemonDataAsync()
     {
-        showLoadingArt = true;
+        _showLoadingArt = true;
         int pokedexNumber = 0;
 
         while (pokedexNumber < 1017)
         {
-            IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(20, pokedexNumber);
-            await localPokemonData.CreateMultipleLocalPokemonsAsync(pokemonList);
-            pokedexNumber += 20;
+            IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(100, pokedexNumber);
+            await pokemonData.CreateMultiplePokemonAsync(pokemonList);
+            pokedexNumber += 100;
         }
-        
 
-        showLoadingArt = false;
+        _showLoadingArt = false;
         StateHasChanged();
     }
 }

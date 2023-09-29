@@ -8,6 +8,7 @@ public interface IPokeApiService
     public Task<IEnumerable<Ability>> GetPokemonAbilitiesAsync(Pokemon pokemon);
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
     public Task<IEnumerable<Type>> GetPokemonTypesAsync(Pokemon pokemon);
+    public Task<PokemonSpecies> GetPokemonSpeciesAsync(Pokemon pokemon);
     public Task<Pokemon> GetPokemonByNameAsync(string name);
     public Task<Pokemon> GetPokemonByIdAsync(int id);
     public Task<Ability> GetAbilityByNameAsync(string name);
