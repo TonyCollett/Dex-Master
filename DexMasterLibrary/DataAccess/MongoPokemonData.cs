@@ -1,4 +1,6 @@
-﻿namespace DexMasterLibrary.DataAccess;
+﻿using PokeApiNet;
+
+namespace DexMasterLibrary.DataAccess;
 
 public class MongoPokemonData : IPokemonData
 {
@@ -6,6 +8,7 @@ public class MongoPokemonData : IPokemonData
     private readonly IMemoryCache _cache;
     private readonly IMongoCollection<Pokemon> _pokemonCollection;
     private const string CacheName = "PokemonData";
+    private readonly PokeApiClient _pokeApiClient = new();
 
     public MongoPokemonData(IDbConnection db, IMemoryCache cache)
     {
@@ -22,8 +25,8 @@ public class MongoPokemonData : IPokemonData
 
         if (output == null || output.Count == 0)
         {
-            var foundPokemon = await _pokemonCollection.FindAsync(FilterDefinition<Pokemon>.Empty);
-            output = foundPokemon.ToList();
+            var foundPokemon = await _pokeApiClient.GetNamedResourcePageAsync<Pokemon>(limit, offset);
+            output = await _pokeApiClient.GetResourceAsync<Pokemon>(foundPokemon.Results);
             _cache.Set(cacheKey, output, TimeSpan.FromMinutes(60));
         }
 

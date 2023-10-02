@@ -151,7 +151,7 @@
 
         var offset = _pokemons.Count();
 
-        var pokemon = await pokemonData.GetPokemonListAsync(limit, offset);
+        var pokemon = await pokeApiService.GetPokemonListAsync(limit, offset);
 
         pokemon.ToList().ForEach(p => _pokemons.Add(p));
     }

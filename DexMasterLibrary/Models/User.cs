@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Favourite
-
-namespace DexMasterLibrary.Models;
+﻿namespace DexMasterLibrary.Models;
 public class User
 {
     [BsonId]
