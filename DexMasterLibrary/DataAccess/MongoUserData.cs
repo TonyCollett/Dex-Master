@@ -29,7 +29,7 @@ public class MongoUserData : IUserData
 
     public async Task<User> GetUserFromAuthentication(string objectId)
     {
-        var results = await _users.FindAsync(u => u.AuthenticationMethods.NameIdentifier == objectId);
+        var results = await _users.FindAsync(u => u.AuthenticationMethod.NameIdentifier == objectId);
         return results.FirstOrDefault();
     }
 

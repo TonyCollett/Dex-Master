@@ -9,6 +9,7 @@
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.Name)</MudText>
+                <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
@@ -16,15 +17,15 @@
         </MudCardHeader>
         <!--<MudCardMedia Image="@Pokemon.Sprites.FrontDefault" />-->
         <MudCardContent>
-
+            
         </MudCardContent>
         <MudCardActions>
-            @if (_readOnly == false)
-            {
-                <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                    
-                </MudTooltip>
-            }
+            <MudTooltip Text="Caught" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.TwoTone.CatchingPokemon" Color="Color.Primary" />
+            </MudTooltip>
+            <MudTooltip Text="Caught Shiny" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Primary" />
+            </MudTooltip>
             <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
                 <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary" />
             </MudTooltip>
@@ -41,11 +42,14 @@
 
     private bool _readOnly;
     private bool _userIsAuthenticated;
+    private string _pokemonTypes;
 
     protected override async Task OnParametersSetAsync()
     {
-        var authState = await authProvider.GetAuthenticationStateAsync();
+        AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
+        
+        _pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (CommonFunctions.Capitalise(type.Type.Name) + " "));
 
         _readOnly = !_userIsAuthenticated;
     }

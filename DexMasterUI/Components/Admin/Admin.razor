@@ -28,9 +28,7 @@
         StateHasChanged();
 
         var fakeUsers = new Faker<User>()
-            .RuleFor<string>(u => u.Username, f => f.Random.Word())
-            .RuleFor<string>(u => u.FirstName, f => f.Name.FirstName())
-            .RuleFor<string>(u => u.LastName, f => f.Name.LastName());
+            .RuleFor(u => u.Username, f => f.Person.Random.Words(1));
 
         await userData.CreateMultipleUsersAsync(fakeUsers.Generate(15));
 
