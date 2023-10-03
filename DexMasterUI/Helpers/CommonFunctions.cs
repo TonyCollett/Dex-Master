@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DexMasterUI.Helpers
+﻿namespace DexMasterUI.Helpers
 {
     public static class CommonFunctions
     {
@@ -12,7 +10,6 @@ namespace DexMasterUI.Helpers
             }
 
             return string.Concat(input.First().ToString().ToUpper(), input.AsSpan(1));
-
         }
     }
 }
