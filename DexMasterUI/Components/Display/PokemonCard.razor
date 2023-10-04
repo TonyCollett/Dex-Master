@@ -4,7 +4,7 @@
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @Pokemon.NationalDexNumber
+                    @Pokemon.Id
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
@@ -15,7 +15,7 @@
                 <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        <!--<MudCardMedia Image="@Pokemon.BasicImageSpriteUrl" />-->
+        <!--<MudCardMedia Image="@Pokemon.Sprites.FrontDefault" />-->
         <MudCardContent>
             
         </MudCardContent>
@@ -35,7 +35,7 @@
 
 @code {
     [Parameter] 
-    public BasicPokemon Pokemon { get; set; }
+    public Pokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
@@ -49,15 +49,8 @@
         AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
         
-        _pokemonTypes = Pokemon.Type1.ToString() + " " + Pokemon.Type2.ToString();
+        _pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (type.Type.Name + " "));
 
         _readOnly = !_userIsAuthenticated;
-    }
-
-    private async Task OpenDialog()
-    {
-        var parameters = new DialogParameters { ["PokemonId"] = Pokemon.Id, ["LoggedInUser"] = LoggedInUser };
-        var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
-        await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
     }
 }

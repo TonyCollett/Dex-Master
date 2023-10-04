@@ -28,6 +28,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _user = await userData.GetUserByBsonIdAsync(UserId);
+        _user = await UserData.GetUserByBsonIdAsync(UserId);
     }
 }

@@ -30,7 +30,7 @@
 
     private async Task<string> TestUsernameExistsAsync(string username)
     {
-        if (await userData.CheckUsernameExists(username))
+        if (await UserData.CheckUsernameExists(username))
         {
             _success = false;
             return "Username already exists";
@@ -42,7 +42,7 @@
     private async Task SaveAsync()
     {
         LoggedInUser.Username = _username;
-        await userData.UpdateUserAsync(LoggedInUser);
+        await UserData.UpdateUserAsync(LoggedInUser);
         
     }
 }

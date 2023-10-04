@@ -72,7 +72,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+        _loggedInUser = await authProvider.GetUserFromAuthAsync(UserData);
     }
 
     private void GoHome()
