@@ -44,22 +44,23 @@ namespace DexMasterUI.Pages.Identity
             {
                 User user = await _userData.GetUserFromAuthentication(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-                if (user is null)
+                if (string.IsNullOrEmpty(user.Id))
                 {
                     var newUser = new User()
                     {
                         AuthenticationMethod = new AuthenticationProvider()
                         {
-                            Provider = authenticatedUser.AuthenticationType,
-                            NameIdentifier = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                            Provider = authenticatedUser.AuthenticationType!,
+                            NameIdentifier = User.FindFirstValue(ClaimTypes.NameIdentifier)!
                         },
-                        EmailAddress = User.FindFirstValue(ClaimTypes.Email)
+                        EmailAddress = User.FindFirstValue(ClaimTypes.Email)!
                     };
 
                     await _userData.CreateUserAsync(newUser);
                 }
                 else
                 {
+                    user.LastLoggedInDate = DateTime.Now;
                     await _userData.UpdateUserAsync(user);
                 }
 

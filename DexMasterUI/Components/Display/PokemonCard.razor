@@ -20,14 +20,20 @@
             
         </MudCardContent>
         <MudCardActions>
+            @if (LoggedInUser != null)
+            {
+            <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Outlined.Star" Color="Color.Primary"/>
+            </MudTooltip>
             <MudTooltip Text="Caught" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.TwoTone.CatchingPokemon" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.TwoTone.CatchingPokemon" Color="Color.Primary"/>
             </MudTooltip>
             <MudTooltip Text="Caught Shiny" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Primary"/>
             </MudTooltip>
+            }
             <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary"/>
             </MudTooltip>
         </MudCardActions>
     </MudCard>
