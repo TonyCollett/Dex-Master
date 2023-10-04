@@ -20,14 +20,20 @@
             
         </MudCardContent>
         <MudCardActions>
+            @if (LoggedInUser != null)
+            {
+            <MudTooltip Text="Favourite" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
+                <MudIconButton Icon="@Icons.Material.Outlined.Star" Color="Color.Primary"/>
+            </MudTooltip>
             <MudTooltip Text="Caught" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.TwoTone.CatchingPokemon" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.TwoTone.CatchingPokemon" Color="Color.Primary"/>
             </MudTooltip>
             <MudTooltip Text="Caught Shiny" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.Filled.CatchingPokemon" Color="Color.Primary"/>
             </MudTooltip>
+            }
             <MudTooltip Text="Share" Arrow="true" Placement="Placement.Bottom" Color="Color.Primary">
-                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary" />
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="Color.Primary"/>
             </MudTooltip>
         </MudCardActions>
     </MudCard>
@@ -49,15 +55,8 @@
         AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
         
-        _pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (CommonFunctions.Capitalise(type.Type.Name) + " "));
+        _pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (type.Type.Name + " "));
 
         _readOnly = !_userIsAuthenticated;
-    }
-
-    private async Task OpenDialog()
-    {
-        var parameters = new DialogParameters { ["PokemonId"] = Pokemon.Id, ["LoggedInUser"] = LoggedInUser };
-        var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
-        await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
     }
 }

@@ -66,8 +66,6 @@
     public string UserId { get; set; }
 
     private const string SavedOffset = "Offset";
-
-    private readonly IPokeApiService _pokeApiService = new PokeApiService();
     
     private IEnumerable<Pokemon> _pokemon;
     private int _currentPage = 1;
@@ -83,10 +81,10 @@
         
         if (_loggedInUser is null)
         {
-            _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+            _loggedInUser = await authProvider.GetUserFromAuthAsync(UserData);
         }
 
-        _pokemon = await _pokeApiService.GetPokemonListAsync(_offset, (_currentPage-1) * _offset);
+        _pokemon = await PokeApiService.GetPokemonListAsync(_offset, (_currentPage-1) * _offset);
 
         _isLoading = false;
 
@@ -98,7 +96,7 @@
         _isLoading = true;
         _currentPage = newPage;
         
-        _pokemon = await _pokeApiService.GetPokemonListAsync(_offset, (_currentPage-1) * _offset);
+        _pokemon = await PokeApiService.GetPokemonListAsync(_offset, (_currentPage-1) * _offset);
 
         await protectedLocalStorage.SetAsync(SavedOffset, _offset);
 
