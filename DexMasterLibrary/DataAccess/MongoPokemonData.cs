@@ -1,4 +1,6 @@
-﻿namespace DexMasterLibrary.DataAccess;
+﻿using DexMasterUI.Services;
+
+namespace DexMasterLibrary.DataAccess;
 
 public class MongoPokemonData : IPokemonData
 {
@@ -7,6 +9,7 @@ public class MongoPokemonData : IPokemonData
     private readonly IMongoCollection<Pokemon> _pokemonCollection;
     private const string CacheName = "PokemonData";
     private readonly PokeApiClient _pokeApiClient = new();
+    private readonly PokeApiService _pokeApiService = new();
 
     public MongoPokemonData(IDbConnection db, IMemoryCache cache)
     {
@@ -23,8 +26,18 @@ public class MongoPokemonData : IPokemonData
 
         if (output == null || output.Count == 0)
         {
-            var foundPokemon = await _pokeApiClient.GetNamedResourcePageAsync<Pokemon>(limit, offset);
-            output = await _pokeApiClient.GetResourceAsync<Pokemon>(foundPokemon.Results);
+            var storedPokemon = await _pokemonCollection.FindAsync(FilterDefinition<Pokemon>.Empty);
+
+            if (storedPokemon != null && storedPokemon.Any())
+            {
+                output = await storedPokemon.ToListAsync();
+            }
+            else
+            {
+                var apiPokemon  = await _pokeApiService.GetPokemonListAsync(limit, offset);
+                output = apiPokemon.ToList();
+            }
+            
             _cache.Set(cacheKey, output, TimeSpan.FromMinutes(60));
         }
 
@@ -90,13 +103,13 @@ public class MongoPokemonData : IPokemonData
             session.StartTransaction();
             
             IMongoDatabase? db = client.GetDatabase(_db.DbName);
-            var pokemonInTransaction = db.GetCollection<Pokemon>(_db.PokemonCollectionName);
             
             if (deleteExisting)
             {
-                await pokemonInTransaction.DeleteManyAsync(session, FilterDefinition<Pokemon>.Empty);
+                await db.DropCollectionAsync(_db.PokemonCollectionName);
             }
             
+            var pokemonInTransaction = db.GetCollection<Pokemon>(_db.PokemonCollectionName);
             await pokemonInTransaction.InsertManyAsync(session, pokemonList);
 
             await session.CommitTransactionAsync();
