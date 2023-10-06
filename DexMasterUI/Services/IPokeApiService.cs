@@ -5,6 +5,7 @@ namespace DexMasterUI.Services;
 public interface IPokeApiService
 {
     public Task<IEnumerable<Pokemon>> GetPokemonListAsync(int limit, int offset);
+    public Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset);
     public Task<IEnumerable<Ability>> GetPokemonAbilitiesAsync(Pokemon pokemon);
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
     public Task<IEnumerable<Type>> GetPokemonTypesAsync(Pokemon pokemon);

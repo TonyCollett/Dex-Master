@@ -60,30 +60,6 @@ public class MongoPokemonData : IPokemonData
             return output.First(p => p.Id == id);
         }
     }
-
-    /// <inheritdoc />
-    public async Task<Pokemon?> GetRandomPokemonAsync()
-    {
-        // Count the total number of documents in the collection
-        long totalCount = await _pokemonCollection.CountDocumentsAsync(FilterDefinition<Pokemon>.Empty);
-
-        // If there are no documents, return null
-        if (totalCount == 0)
-        {
-            return null;
-        }
-
-        // Generate a random index
-        Random random = new Random();
-        int randomIndex = random.Next(0, (int)totalCount);
-
-        // Fetch the document at the random index
-        var result = await _pokemonCollection.Find(FilterDefinition<Pokemon>.Empty)
-                                            .Skip(randomIndex)
-                                            .Limit(1)
-                                            .FirstOrDefaultAsync();
-        return result;
-    }
     
     /// <inheritdoc />
     public async Task UpdatePokemonAsync(Pokemon pokemon)

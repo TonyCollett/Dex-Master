@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <Compile Remove="Services\**" />
+    <Compile Include="Services\IPokeApiService.cs" />
+    <Compile Include="Services\PokeApiService.cs" />
     <Content Remove="Services\**" />
     <EmbeddedResource Remove="Services\**" />
     <None Remove="Services\**" />
@@ -29,11 +31,6 @@
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Services\IPokeApiService.cs" />
-    <Compile Include="Services\PokeApiService.cs" />
   </ItemGroup>
 
   <ItemGroup>

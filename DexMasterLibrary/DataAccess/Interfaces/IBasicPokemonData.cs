@@ -18,11 +18,6 @@ public interface IBasicPokemonData
     public Task<BasicPokemon> GetBasicPokemonByIdAsync(string id);
     
     /// <summary>
-    /// Get Random BasicPokemon
-    /// </summary>
-    public Task<BasicPokemon?> GetRandomBasicPokemonAsync();
-    
-    /// <summary>
     /// Update BasicPokemon
     /// </summary>
     public Task UpdateBasicPokemonAsync(BasicPokemon pokemon);

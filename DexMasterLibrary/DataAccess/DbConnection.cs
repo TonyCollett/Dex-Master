@@ -27,8 +27,8 @@ public class DbConnection : IDbConnection
             IMongoDatabase db = Client.GetDatabase(DbName);
             UserCollection = db.GetCollection<User>(UserCollectionName);
             PokemonCollection = db.GetCollection<Pokemon>(PokemonCollectionName);
-            BasicPokemonCollection = db.GetCollection<BasicPokemon>(BasicPokemonCollectionName);
             PokemonSpeciesCollection = db.GetCollection<PokemonSpecies>(PokemonSpeciesCollectionName);
+            BasicPokemonCollection = db.GetCollection<BasicPokemon>(BasicPokemonCollectionName);
         }
         catch (Exception)
         {

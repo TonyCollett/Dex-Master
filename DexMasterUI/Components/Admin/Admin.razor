@@ -16,12 +16,19 @@
             Import Pokemon Data
         </MudButton>
     </MudItem>
+    <MudItem lg="2">
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="ImportInitialPokemonSpeciesDataAsync">
+            Import Pokemon Species Data
+        </MudButton>
+    </MudItem>
+    <MudText>Completed: @_pokedexNumber</MudText>
 </MudGrid>
 
 
 @code {
 
     private bool _showLoadingArt;
+    private int _pokedexNumber = 0;
 
     private async Task GenerateRandomUsers()
     {
@@ -40,11 +47,12 @@
     private async Task ImportInitialPokemonDataAsync()
     {
         _showLoadingArt = true;
-        int pokedexNumber = 0;
+        _pokedexNumber = 0;
+        int lookup = 50;
 
-        while (pokedexNumber < 1017)
+        while (_pokedexNumber < 1017)
         {
-            IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(100, pokedexNumber);
+            IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(lookup, _pokedexNumber);
             
             IEnumerable<BasicPokemon> basicPokemonList = pokemonList.Select(p => new BasicPokemon
             {
@@ -56,7 +64,30 @@
             });
             
             await basicPokemonData.CreateMultipleBasicPokemonAsync(basicPokemonList);
-            pokedexNumber += 100;
+            await pokemonData.CreateMultiplePokemonAsync(pokemonList);
+            
+            _pokedexNumber += lookup;
+        }
+
+        _showLoadingArt = false;
+        StateHasChanged();
+    }
+    
+    private async Task ImportInitialPokemonSpeciesDataAsync()
+    {
+        _showLoadingArt = true;
+        _pokedexNumber = 0;
+        int lookup = 50;
+
+        while (_pokedexNumber < 1017)
+        {
+            IEnumerable<PokemonSpecies> pokemonSpeciesList = await pokeApiService.GetPokemonSpeciesListAsync(lookup, _pokedexNumber);
+            
+            var updatedList = pokemonSpeciesList.Where(x => x.FlavorTextEntries.Any(y => y.Language.Name == "en") && x.Genera.Any(y => y.Language.Name == "en"));
+            
+            await pokemonSpeciesData.CreateMultiplePokemonSpeciesAsync(pokemonSpeciesList);
+            
+            _pokedexNumber += lookup;
         }
 
         _showLoadingArt = false;

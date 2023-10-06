@@ -18,11 +18,6 @@ public interface IPokemonData
     public Task<Pokemon> GetPokemonByIdAsync(int id);
     
     /// <summary>
-    /// Get Random Pokemon
-    /// </summary>
-    public Task<Pokemon?> GetRandomPokemonAsync();
-    
-    /// <summary>
     /// Update Pokemon
     /// </summary>
     public Task UpdatePokemonAsync(Pokemon pokemon);
