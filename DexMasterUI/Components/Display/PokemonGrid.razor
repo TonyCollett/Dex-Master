@@ -32,23 +32,29 @@
             <MudItem lg="1" xs="2"></MudItem>
             <MudItem lg="8" xs="6">
                 <MudPagination Selected="_currentPage"
-                               Count="10"
+                               Count="_totalPages"
                                SelectedChanged="OnPageChanged"
                                ShowFirstButton="true"
                                ShowLastButton="true"
-                               BoundaryCount="2" MiddleCount="3"
+                               BoundaryCount="2" 
+                               MiddleCount="3"
                                Class="justify-center mud-width-full" />
             </MudItem>
             <MudItem lg="1" xs="2">
-                <MudNumericField Margin="Margin.Dense" @bind-Value="_currentPage" Min="1" Max="10" Variant="Variant.Outlined" Label="Page" />
+                <MudNumericField Margin="Margin.Dense" 
+                                 @bind-Value="_currentPage" 
+                                 Min="1" 
+                                 Max="_totalPages" 
+                                 Variant="Variant.Outlined" 
+                                 Label="Page" />
             </MudItem>
             <MudItem lg="1" xs="2">
                 <MudSelect T="int"
-                @bind-Value="_offset"
+                @bind-Value="_limit"
                            Variant="Variant.Outlined"
                            SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))"
                            Margin="Margin.Dense"
-                           Label="# Per Page">
+                           Label="Pkmn Per Page">
                     <MudSelectItem Value="9" />
                     <MudSelectItem Value="12" />
                     <MudSelectItem Value="15" />
@@ -71,9 +77,11 @@
     
     private IEnumerable<BasicPokemon> _pokemon;
     private int _currentPage = 1;
-    private int _offset = 12;
+    private int _limit = 12;
     private User _loggedInUser = null;
     private bool _isLoading = true;
+    private int _totalPages = 1;
+    private int _totalPokemon = 1017;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -81,12 +89,11 @@
         
         await CheckBrowserStorageAsync();
         
-        if (_loggedInUser is null)
-        {
-            _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
-        }
+        _loggedInUser ??= await authProvider.GetUserFromAuthAsync(userData);
+        
+        _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 
-        _pokemon = await basicPokemonData.GetBasicPokemonListAsync(_offset, (_currentPage-1) * _offset);
+        _pokemon = await basicPokemonData.GetBasicPokemonListAsync(_limit, (_currentPage-1) * _limit);
 
         _isLoading = false;
 
@@ -98,9 +105,11 @@
         _isLoading = true;
         _currentPage = newPage;
         
-        _pokemon = await basicPokemonData.GetBasicPokemonListAsync(_offset, (_currentPage-1) * _offset);
+        _pokemon = await basicPokemonData.GetBasicPokemonListAsync(_limit, (_currentPage-1) * _limit);
 
-        await protectedLocalStorage.SetAsync(SavedOffset, _offset);
+        await protectedLocalStorage.SetAsync(SavedOffset, _limit);
+        
+        _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 
         _isLoading = false;
 
@@ -110,6 +119,6 @@
     private async Task CheckBrowserStorageAsync()
     {
         var localBrowserCardsPerPageResult = await protectedLocalStorage.GetAsync<int>(SavedOffset);
-        _offset = localBrowserCardsPerPageResult.Success ? localBrowserCardsPerPageResult.Value : 12;
+        _limit = localBrowserCardsPerPageResult.Success ? localBrowserCardsPerPageResult.Value : 12;
     }
 }

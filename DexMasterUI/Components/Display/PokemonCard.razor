@@ -12,7 +12,7 @@
                 <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
-                <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
+                <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
         <!--<MudCardMedia Image="@Pokemon.BasicImageSpriteUrl" />-->
@@ -39,31 +39,32 @@
     </MudCard>
 }
 
+<MudDrawer @bind-Open="@_open" 
+           Anchor="Anchor.End" 
+           Elevation="1" 
+           Variant="@DrawerVariant.Temporary"
+           Width="40%">
+    <PokemonDetails PokemonId="@Pokemon.NationalDexNumber" />
+</MudDrawer>
+
 @code {
     [Parameter] 
     public BasicPokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
-
-    private bool _readOnly;
-    private bool _userIsAuthenticated;
+    
+    private bool _open;
     private string _pokemonTypes;
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity != null) _userIsAuthenticated = authState.User.Identity.IsAuthenticated;
-        
-        _pokemonTypes = Pokemon.Type1.ToString() + " " + Pokemon.Type2.ToString();
-
-        _readOnly = !_userIsAuthenticated;
+        _pokemonTypes = Pokemon.Type1 + " " + Pokemon.Type2;
     }
 
-    private async Task OpenDialog()
+    private void OpenDrawer()
     {
-        var parameters = new DialogParameters { ["PokemonId"] = Pokemon.Id, ["LoggedInUser"] = LoggedInUser };
-        var options = new DialogOptions { CloseOnEscapeKey = true, NoHeader = true};
-        await dialogService.ShowAsync<PokemonCardDialog>("Show Pokemon", parameters, options);
+        _open = true;
     }
+
 }

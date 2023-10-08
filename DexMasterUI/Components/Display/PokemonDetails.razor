@@ -1,0 +1,21 @@
+@if (_pokemon != null && _pokemonSpecies != null)
+{
+    <h1>@_pokemon.Name</h1>
+}
+
+@code {
+    [Parameter] 
+    public int PokemonId { get; set; }
+
+    [CascadingParameter] 
+    public User LoggedInUser { get; set; }
+
+    private Pokemon _pokemon;
+    private PokemonSpecies _pokemonSpecies;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        _pokemon = await pokemonData.GetPokemonByIdAsync(PokemonId);
+        _pokemonSpecies = await pokemonSpeciesData.GetPokemonSpeciesByIdAsync(PokemonId);
+    }
+}
