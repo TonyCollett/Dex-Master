@@ -1,6 +1,6 @@
 ﻿using Type = PokeApiNet.Type;
 
-namespace DexMasterUI.Services;
+namespace DexMasterLibrary.Services;
 
 public class PokeApiService : IPokeApiService
 {

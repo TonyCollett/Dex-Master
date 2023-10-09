@@ -39,12 +39,15 @@
     </MudCard>
 }
 
-<MudDrawer @bind-Open="@_open" 
-           Anchor="Anchor.End" 
-           Elevation="1" 
+<MudDrawer @bind-Open="@_open"
+           Anchor="Anchor.End"
+           Elevation="1"
            Variant="@DrawerVariant.Temporary"
            Width="40%">
-    <PokemonDetails PokemonId="@Pokemon.NationalDexNumber" />
+    @if (_open)
+    {
+        <PokemonDetails PokemonId="@Pokemon.NationalDexNumber"/>
+    }
 </MudDrawer>
 
 @code {

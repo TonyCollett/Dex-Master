@@ -1,4 +1,4 @@
-﻿using DexMasterUI.Services;
+﻿using DexMasterLibrary.Services;
 
 namespace DexMasterLibrary.DataAccess;
 
@@ -8,7 +8,6 @@ public class MongoPokemonSpeciesData : IPokemonSpeciesData
     private readonly IMemoryCache _cache;
     private readonly IMongoCollection<PokemonSpecies> _pokemonSpeciesCollection;
     private const string CacheName = "PokemonSpeciesData";
-    private readonly PokeApiClient _pokeApiClient = new();
     private readonly PokeApiService _pokeApiService = new();
 
     public MongoPokemonSpeciesData(IDbConnection db, IMemoryCache cache)
@@ -45,20 +44,28 @@ public class MongoPokemonSpeciesData : IPokemonSpeciesData
     }
 
     /// <inheritdoc />
-    public async Task<PokemonSpecies> GetPokemonSpeciesByIdAsync(int id)
+    public async Task<PokemonSpecies?> GetPokemonSpeciesByIdAsync(int id)
     {
-        string cacheKey = $"{CacheName}";
-        var output = _cache.Get<List<PokemonSpecies>>(cacheKey);
+        string cacheKey = $"{CacheName}-{id}";
+        var output = _cache.Get<PokemonSpecies>(cacheKey);
 
-        if (output == null || output.Count == 0)
+        if (output == null)
         {
-            var foundPokemonSpecies = await _pokemonSpeciesCollection.FindAsync(p => p.Id == id);
-            return foundPokemonSpecies.FirstOrDefault();
+            var cachedList = _cache.Get<List<PokemonSpecies>>(CacheName);
+            
+            if (cachedList != null && cachedList.Count() > 0)
+            {
+                output = cachedList.FirstOrDefault(p => p.Id == id);
+            }
+            else
+            {
+                var foundPokemonSpecies = await _pokemonSpeciesCollection.FindAsync(p => p.Id == id);
+                output = foundPokemonSpecies.FirstOrDefault();
+                _cache.Set(cacheKey, output);
+            }
         }
-        else
-        {
-            return output.First(p => p.Id == id);
-        }
+
+        return output;
     }
     
     /// <inheritdoc />

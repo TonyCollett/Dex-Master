@@ -15,7 +15,7 @@ public interface IPokemonData
     /// </summary>
     /// <param name="id">The ID of the Pokemon to retrieve.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the retrieved Pokemon.</returns>
-    public Task<Pokemon> GetPokemonByIdAsync(int id);
+    public Task<Pokemon?> GetPokemonByIdAsync(int id);
     
     /// <summary>
     /// Update Pokemon
