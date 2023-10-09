@@ -65,13 +65,13 @@ public class MongoBasicPokemonData : IBasicPokemonData
             session.StartTransaction();
             
             IMongoDatabase? db = client.GetDatabase(_db.DbName);
-            var pokemonInTransaction = db.GetCollection<BasicPokemon>(_db.BasicPokemonCollectionName);
             
             if (deleteExisting)
             {
-                await pokemonInTransaction.DeleteManyAsync(session, FilterDefinition<BasicPokemon>.Empty);
+                await db.DropCollectionAsync(_db.DbName);
             }
             
+            var pokemonInTransaction = db.GetCollection<BasicPokemon>(_db.BasicPokemonCollectionName);
             await pokemonInTransaction.InsertManyAsync(session, pokemonList);
 
             await session.CommitTransactionAsync();
