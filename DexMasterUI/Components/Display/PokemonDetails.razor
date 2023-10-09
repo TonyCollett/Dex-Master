@@ -1,39 +1,55 @@
 @if (_pokemon != null && _pokemonSpecies != null)
 {
-    <MudCard>
-      <MudCardHeader>
-        @_pokemon.Name
-      </MudCardHeader>
-      <MudCardContent>
-        <MudGrid>
-          <MudItem>
-            <MudImage Src="@_pokemon.Sprites.FrontDefault" />
-          </MudItem>
-          <MudItem>
-            <MudText Typo="Typo.h6">Species</MudText>
-            <MudText Typo="Typo.body1">@_pokemonSpecies.Name</MudText>
-            <MudText Typo="Typo.h6">Height</MudText>
-            <MudText Typo="Typo.body1">@_pokemon.Height</MudText>
-            <MudText Typo="Typo.h6">Weight</MudText>
-            <MudText Typo="Typo.body1">@_pokemon.Weight</MudText>
-            <MudText Typo="Typo.h6">Abilities</MudText>
-            <MudText Typo="Typo.body1">
-              @foreach (var ability in _pokemon.Abilities)
-              {
-                <span>@ability.Ability.Name</span>
-              }
-            </MudText>
-            <MudText Typo="Typo.h6">Types</MudText>
-            <MudText Typo="Typo.body1">
-              @foreach (var type in _pokemon.Types)
-              {
-                <span>@type.Type.Name</span>
-              }
-            </MudText>
-          </MudItem>
-        </MudGrid>
-      </MudCardContent>
-    </MudCard>
+  <MudStack>
+    <MudStack Row="true">
+      <MudText Typo="Typo.h6">@_pokemon.Name</MudText>
+      <MudText Typo="Typo.h6">@_pokemon.Types[0].Type.Name</MudText>
+      <MudText Typo="Typo.h6"></MudText>
+    </MudStack>
+    <MudStack Row="true">
+      <MudButton>SV</MudButton>
+      <MudButton>SwSh</MudButton>
+      <MudButton>XY</MudButton>
+      <MudButton>GSP</MudButton>
+      <MudButton>RBY</MudButton>
+    </MudStack>
+    @* <MudImage Src="@_pokemon.Sprites.FrontDefault"/> *@
+    <MudStack Row="true">
+
+    </MudStack>
+  </MudStack>
+    @* *@
+    @* <MudCard> *@
+    @*   <MudCardContent> *@
+    @*     <MudGrid> *@
+    @*       <MudItem> *@
+    @*         <MudImage Src="@_pokemon.Sprites.FrontDefault" /> *@
+    @*       </MudItem> *@
+    @*       <MudItem> *@
+    @*         <MudText Typo="Typo.h6">Species</MudText> *@
+    @*         <MudText Typo="Typo.body1">@_pokemonSpecies.Name</MudText> *@
+    @*         <MudText Typo="Typo.h6">Height</MudText> *@
+    @*         <MudText Typo="Typo.body1">@_pokemon.Height</MudText> *@
+    @*         <MudText Typo="Typo.h6">Weight</MudText> *@
+    @*         <MudText Typo="Typo.body1">@_pokemon.Weight</MudText> *@
+    @*         <MudText Typo="Typo.h6">Abilities</MudText> *@
+    @*         <MudText Typo="Typo.body1"> *@
+    @*           @foreach (var ability in _pokemon.Abilities) *@
+    @*           { *@
+    @*             <span>@ability.Ability.Name</span> *@
+    @*           } *@
+    @*         </MudText> *@
+    @*         <MudText Typo="Typo.h6">Types</MudText> *@
+    @*         <MudText Typo="Typo.body1"> *@
+    @*           @foreach (var type in _pokemon.Types) *@
+    @*           { *@
+    @*             <span>@type.Type.Name</span> *@
+    @*           } *@
+    @*         </MudText> *@
+    @*       </MudItem> *@
+    @*     </MudGrid> *@
+    @*   </MudCardContent> *@
+    @* </MudCard> *@
 }
 
 @code {
