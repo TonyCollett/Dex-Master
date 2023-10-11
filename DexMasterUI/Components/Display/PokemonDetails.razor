@@ -1,55 +1,25 @@
 @using DexMasterLibrary.Enums
 @if (_pokemon != null && _pokemonSpecies != null)
 {
-  <MudStack>
-    <MudStack Row="true">
-      <MudText Typo="Typo.h6">@_pokemonInfo.Name</MudText>
-      <MudText Typo="Typo.h6">@_pokemonInfo.Type1</MudText>
-      <MudText Typo="Typo.h6">@_pokemonInfo.Type2</MudText>
+    <MudStack>
+        <MudChipSet @bind-SelectedChip="_selected" Mandatory="true">
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN I</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN II</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN III</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN IV</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN V</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VI</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VII</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VIII</MudChip>
+            <MudChip Color="Color.Primary" SelectedColor="Color.Success" Default="true">GEN IX</MudChip>
+        </MudChipSet>
     </MudStack>
-      <MudStack Row="true">
-          @foreach (var generation in _generations)
-          {
-              <MudButton>@generation</MudButton>
-          }
-      </MudStack>
+  
+    <MudText Typo="Typo.h6">@_pokemonInfo.Name</MudText>
+    <MudText Typo="Typo.h6">@_pokemonInfo.Type1</MudText>
+    <MudText Typo="Typo.h6">@_pokemonInfo.Type2</MudText>
     @* <MudImage Src="@_pokemon.Sprites.FrontDefault"/> *@
-    <MudStack Row="true">
-        <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
-    </MudStack>
-  </MudStack>
-    @* *@
-    @* <MudCard> *@
-    @*   <MudCardContent> *@
-    @*     <MudGrid> *@
-    @*       <MudItem> *@
-    @*         <MudImage Src="@_pokemon.Sprites.FrontDefault" /> *@
-    @*       </MudItem> *@
-    @*       <MudItem> *@
-    @*         <MudText Typo="Typo.h6">Species</MudText> *@
-    @*         <MudText Typo="Typo.body1">@_pokemonSpecies.Name</MudText> *@
-    @*         <MudText Typo="Typo.h6">Height</MudText> *@
-    @*         <MudText Typo="Typo.body1">@_pokemon.Height</MudText> *@
-    @*         <MudText Typo="Typo.h6">Weight</MudText> *@
-    @*         <MudText Typo="Typo.body1">@_pokemon.Weight</MudText> *@
-    @*         <MudText Typo="Typo.h6">Abilities</MudText> *@
-    @*         <MudText Typo="Typo.body1"> *@
-    @*           @foreach (var ability in _pokemon.Abilities) *@
-    @*           { *@
-    @*             <span>@ability.Ability.Name</span> *@
-    @*           } *@
-    @*         </MudText> *@
-    @*         <MudText Typo="Typo.h6">Types</MudText> *@
-    @*         <MudText Typo="Typo.body1"> *@
-    @*           @foreach (var type in _pokemon.Types) *@
-    @*           { *@
-    @*             <span>@type.Type.Name</span> *@
-    @*           } *@
-    @*         </MudText> *@
-    @*       </MudItem> *@
-    @*     </MudGrid> *@
-    @*   </MudCardContent> *@
-    @* </MudCard> *@
+    <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
 }
 
 @code {
@@ -62,7 +32,7 @@
     private Pokemon _pokemon;
     private PokemonSpecies _pokemonSpecies;
     private PokemonInfo _pokemonInfo = new();
-    private IEnumerable<string> _generations;
+    private MudChip _selected;
   
     private class PokemonInfo
     {
@@ -80,8 +50,6 @@
     protected override async Task OnParametersSetAsync()
     {
         PokeApiClient pokeApiClient = new();
-        var generationsLookup = await pokeApiClient.GetNamedResourcePageAsync<Generation>();
-        _generations = generationsLookup.Results.Select(x => x.Name);
         
         _pokemon = await pokemonData.GetPokemonByIdAsync(PokemonId);
         _pokemonSpecies = await pokemonSpeciesData.GetPokemonSpeciesByIdAsync(PokemonId);
