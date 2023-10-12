@@ -2,7 +2,7 @@
 @if (_pokemon != null && _pokemonSpecies != null)
 {
     <MudStack>
-        <MudChipSet @bind-SelectedChip="_selected" Mandatory="true">
+        <MudChipSet @bind-SelectedChip="_selected" SelectedChipsChanged="ChipChanged" Mandatory="true">
             <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN I</MudChip>
             <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN II</MudChip>
             <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN III</MudChip>
@@ -20,6 +20,11 @@
     <MudText Typo="Typo.h6">@_pokemonInfo.Type2</MudText>
     @* <MudImage Src="@_pokemon.Sprites.FrontDefault"/> *@
     <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+    
+    @if (_selected != null)
+    {
+        <MudText>You selected @_selected.Text</MudText>
+    }
 }
 
 @code {
@@ -66,5 +71,11 @@
             _pokemonInfo.MainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
             _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en").FlavorText;
         }
+    }
+    
+    private void ChipChanged()
+    {
+        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en" && x.Version.Name == "blue").FlavorText;
+        StateHasChanged();
     }
 }
