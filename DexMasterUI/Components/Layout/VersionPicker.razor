@@ -1,0 +1,63 @@
+﻿<MudStack>
+    @if (_generations != null && _generations.Any())
+    {
+        <MudChipSet @bind-SelectedChip="_selectedGen" SelectedChipsChanged="GenerationChanged" Mandatory="true">
+            @foreach (var generation in _generations)
+            {
+                <MudChip Color="Color.Primary" Text="@generation.Name" SelectedColor="Color.Success">@generation.Name</MudChip>
+            }
+        </MudChipSet>
+    }
+    @if (_selectedGeneration != null)
+    {
+        <MudChipSet @bind-SelectedChip="_selectedVerGrp" SelectedChipsChanged="VersionGroupChanged" Mandatory="true">
+            @foreach (var versionGroup in _selectedGeneration.VersionGroups)
+            {
+                <MudChip Color="Color.Primary" Text="@versionGroup.Name" SelectedColor="Color.Success">@versionGroup.Name</MudChip>
+            }
+        </MudChipSet>
+    }
+    @if (_selectedVersionGroup != null)
+    {
+        <MudChipSet @bind-SelectedChip="_selectedVer" SelectedChipsChanged="VersionChanged" Mandatory="true">
+            @foreach (var version in _selectedVersionGroup.Versions)
+            {
+                <MudChip Color="Color.Primary" Text="@version.Name" SelectedColor="Color.Success">@version.Name</MudChip>
+            }
+        </MudChipSet>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public EventCallback<string> SelectedVersionChanged { get; set; }
+
+    private IEnumerable<Generation> _generations;
+    private MudChip _selectedGen;
+    private MudChip _selectedVerGrp;
+    private MudChip _selectedVer;
+    private Generation _selectedGeneration;
+    private VersionGroup _selectedVersionGroup;
+    private PokeApiNet.Version _selectedVersion;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _generations = await pokeApiService.GetGenerationListAsync();
+    }
+    
+    private async Task GenerationChanged()
+    {
+        _selectedGeneration = await pokeApiService.GetGenerationByNameAsync(_selectedGen.Text);
+    }
+    
+    private async Task VersionGroupChanged()
+    {
+        _selectedVersionGroup = await pokeApiService.GetVersionGroupByNameAsync(_selectedVerGrp.Text);
+    }
+    
+    private async Task VersionChanged()
+    {
+        _selectedVersion = await pokeApiService.GetVersionByNameAsync(_selectedVer.Text);
+        await SelectedVersionChanged.InvokeAsync(_selectedVersion.Name);
+    }
+}

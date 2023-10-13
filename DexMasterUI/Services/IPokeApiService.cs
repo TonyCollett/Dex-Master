@@ -17,6 +17,7 @@ public interface IPokeApiService
     public Task<Ability> GetAbilityByIdAsync(int id);
     public Task<Move> GetMoveByNameAsync(string name);
     public Task<Move> GetMoveByIdAsync(int id);
+    public Task<Generation> GetGenerationByNameAsync(string name);
     public Task<IEnumerable<Generation>> GetGenerationListAsync();
     public Task<VersionGroup> GetVersionGroupByNameAsync(string name);
     public Task<Version> GetVersionByNameAsync(string name);
