@@ -2,28 +2,44 @@
 @if (_pokemon != null && _pokemonSpecies != null)
 {
     <MudStack>
-        <MudChipSet @bind-SelectedChip="_selected" SelectedChipsChanged="ChipChanged" Mandatory="true">
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN I</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN II</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN III</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN IV</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN V</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VI</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VII</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success">GEN VIII</MudChip>
-            <MudChip Color="Color.Primary" SelectedColor="Color.Success" Default="true">GEN IX</MudChip>
-        </MudChipSet>
+        @if (_generations != null && _generations.Any())
+        {
+            <MudChipSet @bind-SelectedChip="_selectedGen" SelectedChipsChanged="GenerationChanged" Mandatory="true">
+                @foreach (var generation in _generations)
+                {
+                    <MudChip Color="Color.Primary" Text="@generation.Name" SelectedColor="Color.Success">@generation.Name</MudChip>
+                }
+            </MudChipSet>
+        }
+        @if (_selectedGeneration != null)
+        {
+            <MudChipSet @bind-SelectedChip="_selectedVerGrp" SelectedChipsChanged="VersionGroupChanged" Mandatory="true">
+                @foreach (var versionGroup in _selectedGeneration.VersionGroups)
+                {
+                    <MudChip Color="Color.Primary" Text="@versionGroup.Name" SelectedColor="Color.Success">@versionGroup.Name</MudChip>
+                }
+            </MudChipSet>
+        }
+        @if (_selectedVersionGroup != null)
+        {
+            <MudChipSet @bind-SelectedChip="_selectedVer" SelectedChipsChanged="VersionChanged" Mandatory="true">
+                @foreach (var version in _selectedVersionGroup.Versions)
+                {
+                    <MudChip Color="Color.Primary" Text="@version.Name" SelectedColor="Color.Success">@version.Name</MudChip>
+                }
+            </MudChipSet>
+        }
     </MudStack>
   
     <MudText Typo="Typo.h6">@_pokemonInfo.Name</MudText>
     <MudText Typo="Typo.h6">@_pokemonInfo.Type1</MudText>
     <MudText Typo="Typo.h6">@_pokemonInfo.Type2</MudText>
-    @* <MudImage Src="@_pokemon.Sprites.FrontDefault"/> *@
+    <MudImage Src="@_pokemon.Sprites.FrontDefault"/>
     <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
     
-    @if (_selected != null)
+    @if (_selectedGen != null)
     {
-        <MudText>You selected @_selected.Text</MudText>
+        <MudText>You selected @_selectedGen.Text</MudText>
     }
 }
 
@@ -37,7 +53,15 @@
     private Pokemon _pokemon;
     private PokemonSpecies _pokemonSpecies;
     private PokemonInfo _pokemonInfo = new();
-    private MudChip _selected;
+    private IEnumerable<Generation> _generations;
+    private IEnumerable<VersionGroup> _versionGroups;
+    private MudChip _selectedGen;
+    private MudChip _selectedVerGrp;
+    private MudChip _selectedVer;
+    private Generation _selectedGeneration;
+    private VersionGroup _selectedVersionGroup;
+    private PokeApiNet.Version _selectedVersion;
+    private PokeApiService _pokeApiService = new();
   
     private class PokemonInfo
     {
@@ -54,10 +78,10 @@
     
     protected override async Task OnParametersSetAsync()
     {
-        PokeApiClient pokeApiClient = new();
-        
         _pokemon = await pokemonData.GetPokemonByIdAsync(PokemonId);
         _pokemonSpecies = await pokemonSpeciesData.GetPokemonSpeciesByIdAsync(PokemonId);
+        
+        _generations = await pokeApiService.GetGenerationListAsync();
 
         if (_pokemon != null && _pokemonSpecies != null)
         {
@@ -73,9 +97,18 @@
         }
     }
     
-    private void ChipChanged()
+    private async Task GenerationChanged()
     {
-        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en" && x.Version.Name == "blue").FlavorText;
-        StateHasChanged();
+        _selectedGeneration = await _pokeApiService.GetGenerationByNameAsync(_selectedVerGrp.Text);
+    }
+    
+    private async Task VersionGroupChanged()
+    {
+        _selectedVersionGroup = await _pokeApiService.GetVersionGroupByNameAsync(_selectedVerGrp.Text);
+    }
+    
+    private async Task VersionChanged()
+    {
+        _selectedVersion = await _pokeApiService.GetVersionByNameAsync(_selectedVer.Text);
     }
 }

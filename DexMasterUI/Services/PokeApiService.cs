@@ -1,4 +1,5 @@
 ﻿using Type = PokeApiNet.Type;
+using Version = PokeApiNet.Version;
 
 namespace DexMasterUI.Services;
 
@@ -78,5 +79,27 @@ public class PokeApiService : IPokeApiService
     public async Task<Type> GetTypeByIdAsync(int id)
     {
         return await Client.GetResourceAsync<Type>(id);
+    }
+    
+    public async Task<Generation> GetGenerationByNameAsync(string name)
+    {
+        return await Client.GetResourceAsync<Generation>(name);
+    }
+    
+    public async Task<IEnumerable<Generation>> GetGenerationListAsync()
+    {
+        var generations = await Client.GetNamedResourcePageAsync<Generation>();
+
+        return await Client.GetResourceAsync<Generation>(generations.Results);
+    }
+    
+    public async Task<VersionGroup> GetVersionGroupByNameAsync(string name)
+    {
+        return await Client.GetResourceAsync<VersionGroup>(name);
+    }
+    
+    public async Task<Version> GetVersionByNameAsync(string name)
+    {
+        return await Client.GetResourceAsync<Version>(name);
     }
 }
