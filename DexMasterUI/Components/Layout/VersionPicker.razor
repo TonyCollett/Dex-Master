@@ -1,13 +1,18 @@
 ﻿<MudStack>
-    @if (_generations != null && _generations.Any())
-    {
-        <MudChipSet @bind-SelectedChip="_selectedGen" SelectedChipsChanged="GenerationChanged" Mandatory="true">
+    <MudSelect T="string"
+               SelectedValuesChanged="(()=>GenerationChanged(value))" 
+               Label="Generation" 
+               Variant="Variant.Filled" 
+               AnchorOrigin="Origin.BottomCenter">
+        @if (_generations != null && _generations.Any())
+        {        
             @foreach (var generation in _generations)
             {
-                <MudChip Color="Color.Primary" Text="@generation.Name" SelectedColor="Color.Success">@generation.Name</MudChip>
+                <MudSelectItem Value="@(generation.Name)"/>
             }
-        </MudChipSet>
-    }
+        }
+    </MudSelect>
+
     @if (_selectedGeneration != null)
     {
         <MudChipSet @bind-SelectedChip="_selectedVerGrp" SelectedChipsChanged="VersionGroupChanged" Mandatory="true">
@@ -33,7 +38,7 @@
     public EventCallback<string> SelectedVersionChanged { get; set; }
 
     private IEnumerable<Generation> _generations;
-    private MudChip _selectedGen;
+    private string _selectedGen;
     private MudChip _selectedVerGrp;
     private MudChip _selectedVer;
     private Generation _selectedGeneration;
@@ -45,9 +50,9 @@
         _generations = await pokeApiService.GetGenerationListAsync();
     }
     
-    private async Task GenerationChanged()
+    private async Task GenerationChanged(string value)
     {
-        _selectedGeneration = await pokeApiService.GetGenerationByNameAsync(_selectedGen.Text);
+        _selectedGeneration = await pokeApiService.GetGenerationByNameAsync(value);
     }
     
     private async Task VersionGroupChanged()
