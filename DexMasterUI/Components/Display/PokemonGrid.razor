@@ -12,7 +12,7 @@
     else if (_pokemon.Any())
     {
         <MudGrid>
-            @foreach (BasicPokemon pokemon in _pokemon)
+            @foreach (Pokemon pokemon in _pokemon)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
@@ -72,7 +72,7 @@
 
     private const string SavedLimit = "Limit";
 
-    private IEnumerable<BasicPokemon> _pokemon;
+    private IEnumerable<Pokemon> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;
@@ -98,7 +98,7 @@
     {
         _isLoading = true;
         
-        _pokemon = await basicPokemonData.GetBasicPokemonListAsync(_limit, (_currentPage-1) * _limit);
+        _pokemon = await pokeApiService.GetPokemonListAsync(_limit, (_currentPage-1) * _limit);
 
         _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 

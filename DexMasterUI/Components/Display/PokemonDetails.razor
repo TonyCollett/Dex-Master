@@ -46,8 +46,8 @@
     
     protected override async Task OnParametersSetAsync()
     {
-        _pokemon = await pokemonData.GetPokemonByIdAsync(PokemonId);
-        _pokemonSpecies = await pokemonSpeciesData.GetPokemonSpeciesByIdAsync(PokemonId);
+        _pokemon = await pokeApiService.GetPokemonByIdAsync(PokemonId);
+        _pokemonSpecies = await pokeApiService.GetPokemonSpeciesAsync(_pokemon);
 
         if (_pokemon != null && _pokemonSpecies != null)
         {

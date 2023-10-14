@@ -43,11 +43,11 @@
     protected override async Task OnInitializedAsync()
     {
         _generations = await pokeApiService.GetGenerationListAsync();
-        List<Generation> gen = _generations.ToList();
-        if (_generations != null && gen.Any())
+        var generations = _generations.ToList();
+        
+        if (generations.Any())
         {
-            _generation = await pokeApiService.GetGenerationByNameAsync(gen.Last().Name);
-            _selectedGeneration = gen.Last().Name;
+            await GenerationChanged(generations.Last().Name);
         }
     }
     
@@ -55,6 +55,7 @@
     {
         _generation = await pokeApiService.GetGenerationByNameAsync(value);
         _selectedGeneration = _generation.Name;
+        StateHasChanged();
     }
     
     private async Task VersionGroupChanged(string value)
@@ -64,14 +65,11 @@
         
         if (_versionGroup.Versions.Count == 1)
         {
-            var version = await pokeApiService.GetVersionByNameAsync(_versionGroup.Versions.First().Name);
-            _selectedVersion = version.Name;
-            await SelectedVersionChanged.InvokeAsync(version.Name);
+            await VersionChanged(_versionGroup.Versions.First().Name);
         }
-        else
-        {
-            StateHasChanged();
-        }
+        
+        StateHasChanged();
+
     }
     
     private async Task VersionChanged(string value)
@@ -79,5 +77,6 @@
         _version = await pokeApiService.GetVersionByNameAsync(value);
         _selectedVersion = _version.Name;
         await SelectedVersionChanged.InvokeAsync(_selectedVersion);
+        StateHasChanged();
     }
 }
