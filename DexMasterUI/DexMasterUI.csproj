@@ -10,8 +10,6 @@
 
   <ItemGroup>
     <Compile Remove="Services\**" />
-    <Compile Include="Services\IPokeApiService.cs" />
-    <Compile Include="Services\PokeApiService.cs" />
     <Content Remove="Services\**" />
     <EmbeddedResource Remove="Services\**" />
     <None Remove="Services\**" />

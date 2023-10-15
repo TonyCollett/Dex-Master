@@ -1,6 +1,4 @@
-﻿using DexMasterLibrary.Services;
-
-namespace DexMasterLibrary.DataAccess;
+﻿namespace DexMasterLibrary.DataAccess;
 
 public class MongoPokemonSpeciesData : IPokemonSpeciesData
 {

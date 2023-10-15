@@ -1,4 +1,4 @@
-using DexMasterUI.Services;
+using DexMasterLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

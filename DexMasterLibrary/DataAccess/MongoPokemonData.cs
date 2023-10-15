@@ -1,6 +1,4 @@
-﻿using DexMasterLibrary.Services;
-
-namespace DexMasterLibrary.DataAccess;
+﻿namespace DexMasterLibrary.DataAccess;
 
 public class MongoPokemonData : IPokemonData
 {
@@ -8,12 +6,13 @@ public class MongoPokemonData : IPokemonData
     private readonly IMemoryCache _cache;
     private readonly IMongoCollection<Pokemon> _pokemonCollection;
     private const string CacheName = "PokemonData";
-    private readonly PokeApiService _pokeApiService = new();
+    private readonly IPokeApiService _pokeApiService;
 
-    public MongoPokemonData(IDbConnection db, IMemoryCache cache)
+    public MongoPokemonData(IDbConnection db, IMemoryCache cache, IPokeApiService pokeApiService)
     {
         _db = db;
         _cache = cache;
+        _pokeApiService = pokeApiService;
         _pokemonCollection = db.PokemonCollection;
     }
 
