@@ -5,7 +5,13 @@
 </MudOverlay>
 
 <MudStack>
-    @if(_pokemon == null)
+    <MudStack Row="true">
+        <MudSpacer></MudSpacer>
+        <MudSpacer></MudSpacer>
+        <VersionPicker></VersionPicker>
+    </MudStack>
+    
+    @if (_pokemon == null)
     {
         <MudText>Loading Pokemon...</MudText>
     }
@@ -16,7 +22,7 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard Pokemon="@pokemon" />
+                        <PokemonCard Pokemon="@pokemon"/>
                     </CascadingValue>
                 </MudItem>
             }
@@ -36,30 +42,30 @@
                                SelectedChanged="OnPageChanged"
                                ShowFirstButton="true"
                                ShowLastButton="true"
-                               BoundaryCount="2" 
+                               BoundaryCount="2"
                                MiddleCount="3"
-                               Class="justify-center mud-width-full" />
+                               Class="justify-center mud-width-full"/>
             </MudItem>
             <MudItem lg="1" xs="2">
-                <MudNumericField Margin="Margin.Dense" 
-                                 @bind-Value="_currentPage" 
-                                 Min="1" 
-                                 Max="_totalPages" 
-                                 Variant="Variant.Outlined" 
-                                 Label="Page" />
+                <MudNumericField Margin="Margin.Dense"
+                                 @bind-Value="_currentPage"
+                                 Min="1"
+                                 Max="_totalPages"
+                                 Variant="Variant.Outlined"
+                                 Label="Page"/>
             </MudItem>
             <MudItem lg="1" xs="2">
                 <MudSelect T="int"
-                @bind-Value="_limit"
+                           @bind-Value="_limit"
                            Variant="Variant.Outlined"
-                           SelectedValuesChanged="@(()=>OnPageChanged(_currentPage))"
+                           SelectedValuesChanged="@(() => OnPageChanged(_currentPage))"
                            Margin="Margin.Dense"
                            Label="Pkmn Per Page">
-                    <MudSelectItem Value="9" />
-                    <MudSelectItem Value="12" />
-                    <MudSelectItem Value="15" />
-                    <MudSelectItem Value="30" />
-                    <MudSelectItem Value="60" />
+                    <MudSelectItem Value="9"/>
+                    <MudSelectItem Value="12"/>
+                    <MudSelectItem Value="15"/>
+                    <MudSelectItem Value="30"/>
+                    <MudSelectItem Value="60"/>
                 </MudSelect>
             </MudItem>
         </MudGrid>

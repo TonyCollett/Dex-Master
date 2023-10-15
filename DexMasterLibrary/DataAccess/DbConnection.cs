@@ -9,12 +9,10 @@ public class DbConnection : IDbConnection
     public string DbName { get; }
     public string UserCollectionName { get; } = "users";
     public string PokemonCollectionName { get; } = "pokemon";
-    public string BasicPokemonCollectionName { get; } = "basic-pokemon";
     public string PokemonSpeciesCollectionName { get; } = "pokemon-species";
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
     public IMongoCollection<Pokemon> PokemonCollection { get; }
-    public IMongoCollection<BasicPokemon> BasicPokemonCollection { get; }
     public IMongoCollection<PokemonSpecies> PokemonSpeciesCollection { get; }
 
     public DbConnection(IConfiguration config)
@@ -28,7 +26,6 @@ public class DbConnection : IDbConnection
             UserCollection = db.GetCollection<User>(UserCollectionName);
             PokemonCollection = db.GetCollection<Pokemon>(PokemonCollectionName);
             PokemonSpeciesCollection = db.GetCollection<PokemonSpecies>(PokemonSpeciesCollectionName);
-            BasicPokemonCollection = db.GetCollection<BasicPokemon>(BasicPokemonCollectionName);
         }
         catch (Exception)
         {

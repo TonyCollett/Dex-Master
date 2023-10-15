@@ -53,17 +53,7 @@
         while (_pokedexNumber < 1017)
         {
             IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(lookup, _pokedexNumber);
-            
-            IEnumerable<BasicPokemon> basicPokemonList = pokemonList.Select(p => new BasicPokemon
-            {
-                Name = CommonFunctions.Capitalise(p.Name),
-                NationalDexNumber = p.Id,
-                BasicImageSpriteUrl = p.Sprites.FrontDefault,
-                Type1 = CommonFunctions.ConvertStringToEnum<Types>(p.Types[0].Type.Name).GetValueOrDefault(),
-                Type2 = p.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(p.Types[1].Type.Name) : null
-            });
-            
-            await basicPokemonData.CreateMultipleBasicPokemonAsync(basicPokemonList, true);
+
             await pokemonData.CreateMultiplePokemonAsync(pokemonList);
             
             _pokedexNumber += lookup;
