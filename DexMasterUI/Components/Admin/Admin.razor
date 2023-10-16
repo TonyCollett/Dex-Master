@@ -15,11 +15,6 @@
             Import Pokemon Data
         </MudButton>
     </MudItem>
-    <MudItem lg="2">
-        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="ImportInitialPokemonSpeciesDataAsync">
-            Import Pokemon Species Data
-        </MudButton>
-    </MudItem>
     <MudText>Completed: @_pokedexNumber</MudText>
 </MudGrid>
 
@@ -54,25 +49,6 @@
             IEnumerable<Pokemon> pokemonList = await pokeApiService.GetPokemonListAsync(lookup, _pokedexNumber);
 
             await pokemonData.CreateMultiplePokemonAsync(pokemonList);
-            
-            _pokedexNumber += lookup;
-        }
-
-        _showLoadingArt = false;
-        StateHasChanged();
-    }
-    
-    private async Task ImportInitialPokemonSpeciesDataAsync()
-    {
-        _showLoadingArt = true;
-        _pokedexNumber = 0;
-        int lookup = 50;
-
-        while (_pokedexNumber < 1017)
-        {
-            IEnumerable<PokemonSpecies> pokemonSpeciesList = await pokeApiService.GetPokemonSpeciesListAsync(lookup, _pokedexNumber);
-
-            await pokemonSpeciesData.CreateMultiplePokemonSpeciesAsync(pokemonSpeciesList, true);
             
             _pokedexNumber += lookup;
         }
