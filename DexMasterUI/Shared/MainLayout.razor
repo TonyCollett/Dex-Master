@@ -22,33 +22,11 @@
     </MudAppBar>
     <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Elevation="1" Variant="@DrawerVariant.Mini">
         <MudNavMenu Bordered="false">
-            @if (_loggedInUser != null)
-            {
-            <MudDrawerHeader>
-                <MudButton @onclick="@(() => NavigateTo("Prompt/Create"))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">
-                    Submit Prompt
-                </MudButton>
-            </MudDrawerHeader>
-            }
-            <MudNavLink @onclick="@(() => NavigateTo("Prompts/New"))" Icon="@Icons.Material.Filled.NewReleases">
-                Newest Prompts
+            <MudNavLink @onclick="@(() => NavigateTo("PokeDex"))" Icon="@Icons.Material.Filled.NewReleases">
+                PokeDex
             </MudNavLink>
-            <MudNavLink @onclick="@(() => NavigateTo("Prompts/Popular"))" Icon="@Icons.Material.Filled.Star">
-                Popular Prompts
-            </MudNavLink>
-            @if(_loggedInUser != null)
-            {
-                <MudNavGroup Title="Logged In User stuff TODO">
-                    <MudNavLink @onclick="@(() => NavigateTo("Me/Prompts"))" Icon="@Icons.Material.Filled.TextSnippet">
-                        My Created Prompts
-                    </MudNavLink>
-                    <MudNavLink @onclick="@(() => NavigateTo("Me/Favourites"))" Icon="@Icons.Material.Filled.Favorite">
-                        My Favourite Prompts
-                    </MudNavLink>
-                </MudNavGroup>
-            }
-            <MudNavLink @onclick="@(() => NavigateTo("Users"))" Icon="@Icons.Material.Filled.EmojiPeople">
-                Users
+            <MudNavLink @onclick="@(() => NavigateTo("ItemDex"))" Icon="@Icons.Material.Filled.Star">
+                ItemDex
             </MudNavLink>
         </MudNavMenu>
     </MudDrawer>

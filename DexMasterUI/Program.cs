@@ -1,6 +1,6 @@
 using DexMasterLibrary.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -30,7 +30,7 @@ builder.Services.AddScoped<HttpClient>();
 
 builder.Services.AddSingleton<IDbConnection, DbConnection>();
 builder.Services.AddTransient<IUserData, MongoUserData>();
-builder.Services.AddTransient<IPokemonData, MongoPokemonData>();
+builder.Services.AddTransient<ICustomPokemonDetailsData, MongoCustomPokemonDetailsData>();
 
 builder.Services.AddScoped<IPokeApiService, PokeApiService>();
 

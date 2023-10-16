@@ -8,12 +8,10 @@ public class DbConnection : IDbConnection
     
     public string DbName { get; }
     public string UserCollectionName { get; } = "users";
-    public string PokemonCollectionName { get; } = "pokemon";
-    public string PokemonSpeciesCollectionName { get; } = "pokemon-species";
+    public string AdditionalPokemonCollectionName { get; } = "pokemon_custom";
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
-    public IMongoCollection<Pokemon> PokemonCollection { get; }
-    public IMongoCollection<PokemonSpecies> PokemonSpeciesCollection { get; }
+    public IMongoCollection<CustomPokemonDetails> CustomPokemonDetailsCollection { get; }
 
     public DbConnection(IConfiguration config)
     {
@@ -24,8 +22,7 @@ public class DbConnection : IDbConnection
             
             IMongoDatabase db = Client.GetDatabase(DbName);
             UserCollection = db.GetCollection<User>(UserCollectionName);
-            PokemonCollection = db.GetCollection<Pokemon>(PokemonCollectionName);
-            PokemonSpeciesCollection = db.GetCollection<PokemonSpecies>(PokemonSpeciesCollectionName);
+            CustomPokemonDetailsCollection = db.GetCollection<CustomPokemonDetails>(AdditionalPokemonCollectionName);
         }
         catch (Exception)
         {

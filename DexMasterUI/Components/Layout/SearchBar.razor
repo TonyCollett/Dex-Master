@@ -1,6 +1,12 @@
-﻿<MudTextField Label="Search Prompts" @bind-Value="_searchString" Margin="Margin.Dense" Variant="Variant.Outlined" Immediate="true"
-              Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" 
-              OnAdornmentClick="PerformSearch" OnKeyPress="Enter"></MudTextField>
+﻿<MudTextField Label="Search Pokemon" 
+              @bind-Value="_searchTerm" 
+              Margin="Margin.Dense" 
+              Variant="Variant.Outlined" 
+              Immediate="true"
+              Adornment="Adornment.End" 
+              AdornmentIcon="@Icons.Material.Filled.Search" 
+              OnAdornmentClick="PerformSearch" 
+              OnKeyPress="Enter" />
 
 @code {
     [Parameter]
@@ -9,7 +15,7 @@
     [Parameter]
     public EventCallback<string> OnSearchCallback { get; set; }
 
-    private string _searchString { get; set; }
+    private string _searchTerm;
 
     private async Task Enter(KeyboardEventArgs args)
     {
@@ -21,6 +27,6 @@
 
     private async Task PerformSearch()
     {
-        await OnSearchCallback.InvokeAsync(_searchString);
+        await OnSearchCallback.InvokeAsync(_searchTerm);
     }
 }
