@@ -7,11 +7,11 @@ public class PokeApiService : IPokeApiService
 {
     private PokeApiClient Client { get; } = new();
     
-    public async Task<IEnumerable<Pokemon>> GetPokemonListAsync(int limit, int offset)
+    public async Task<(int, IEnumerable<Pokemon>)> GetPokemonListAsync(int limit, int offset)
     {
         var pokemonPage = await Client.GetNamedResourcePageAsync<Pokemon>(limit, offset);
 
-        return await Client.GetResourceAsync<Pokemon>(pokemonPage.Results);
+        return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)

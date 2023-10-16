@@ -40,7 +40,7 @@ namespace DexMasterUI.Helpers
                 }
                 else
                 {
-                    // Convert to lowercase and check if it's "the" or "and"
+                    // Convert to lowercase and check if it's "the" or "and" or "of"
                     string word = words[i].ToLower();
                     if (word != "the" && word != "and" && word != "of")
                     {

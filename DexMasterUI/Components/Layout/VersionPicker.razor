@@ -1,12 +1,13 @@
 ﻿<MudStack Row="true">
-    <MudSelect T="string" 
-               Value="_selectedGeneration" 
-               ValueChanged="GenerationChanged" 
-               Label="Generation" 
-               Variant="Variant.Filled" 
+    <MudSelect T="string"
+               Value="_selectedGeneration"
+               ValueChanged="GenerationChanged"
+               Label="Generation"
+               Variant="Variant.Filled"
                AnchorOrigin="Origin.BottomCenter"
-               Disabled="_loading"
+               Disabled="_generationDisabled"
                FullWidth="true">
+        <MudSelectItem Value="@("national")">National</MudSelectItem>
         @if (_generations != null && _generations.Any())
         {
             @foreach (var generation in _generations)
@@ -21,10 +22,10 @@
                Label="Version" 
                Variant="Variant.Filled" 
                AnchorOrigin="Origin.BottomCenter"
-               Disabled="_loading"
+               Disabled="_versionDisabled"
                FullWidth="true">
         @if (_versionsInGeneration != null && _versionsInGeneration.Any())
-{
+        {
             @foreach (var version in _versionsInGeneration)
             {
                 <MudSelectItem Value="@(version.Name)">@CommonFunctions.CleanAndCapitalise(version.Name)</MudSelectItem>
@@ -39,46 +40,53 @@
 
     private IEnumerable<Generation> _generations;
     private List<PokeApiNet.Version> _versionsInGeneration = new();
-    private Generation _generation;
     private PokeApiNet.Version _version;
-    private bool _loading = true;
-    private string _selectedGeneration = "";
+    private bool _generationDisabled = true;
+    private bool _versionDisabled = true;
+    private string _selectedGeneration = "national";
     private string _selectedVersion = "";
 
     protected override async Task OnInitializedAsync()
     {
-        _loading = true;
+        _generationDisabled = _versionDisabled = true;
         _generations = await pokeApiService.GetGenerationListAsync();
-        var generations = _generations.ToList();
-        
-        if (generations.Any())
-        {
-            await GenerationChanged(generations.Last().Name);
-        }
-        
-        _loading = false;
+        _generationDisabled = _versionDisabled = false;
     }
     
     private async Task GenerationChanged(string value)
     {
-        _loading = true;
-        _generation = await pokeApiService.GetGenerationByNameAsync(value);
-        _selectedGeneration = _generation.Name;
-        _selectedVersion = "";
-        _versionsInGeneration.Clear();
-        
-        foreach (var versionGroup in _generation.VersionGroups)
+        _versionDisabled = true;
+
+        if (string.IsNullOrWhiteSpace(value) == false)
         {
-            var versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
-            
-            foreach (var version in versionGroupObject.Versions)
+            if (value == "national")
             {
-                var versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
-                _versionsInGeneration.Add(versionObject);
+                _selectedGeneration = "National";
+                _selectedVersion = "";
+                _versionDisabled = true;
+                _versionsInGeneration.Clear();
+            }
+            else
+            {
+                Generation generation = await pokeApiService.GetGenerationByNameAsync(value);
+                _selectedGeneration = generation.Name;
+                _selectedVersion = "";
+                _versionsInGeneration.Clear();
+                
+                foreach (var versionGroup in generation.VersionGroups)
+                {
+                    var versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
+                    
+                    foreach (var version in versionGroupObject.Versions)
+                    {
+                        var versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
+                        _versionsInGeneration.Add(versionObject);
+                    }
+                }
             }
         }
         
-        _loading = false;
+        _versionDisabled = false;
         StateHasChanged();
     }
     
