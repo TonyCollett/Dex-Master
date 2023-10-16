@@ -1,38 +1,47 @@
-﻿<MudStack Row="true">
-    <MudSelect T="string"
-               Value="_selectedGeneration"
-               ValueChanged="GenerationChanged"
-               Label="Generation"
-               Variant="Variant.Filled"
-               AnchorOrigin="Origin.BottomCenter"
-               Disabled="_generationDisabled"
-               FullWidth="true">
-        <MudSelectItem Value="@("national")">National</MudSelectItem>
-        @if (_generations != null && _generations.Any())
-        {
-            @foreach (var generation in _generations)
+﻿@using Version = PokeApiNet.Version
+<MudGrid>
+    <MudItem lg="6">
+        <MudSelect T="string"
+                   Value="_selectedGeneration"
+                   ValueChanged="GenerationChanged"
+                   Label="Generation"
+                   Variant="Variant.Filled"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Disabled="_generationDisabled"
+                   FullWidth="true">
+            <MudSelectItem Value="@("national")">National</MudSelectItem>
+            @if (_generations != null && _generations.Any())
             {
-                <MudSelectItem Value="@(generation.Name)">@CommonFunctions.CleanAndCapitalise(generation.Name)</MudSelectItem>
+                @foreach (Generation generation in _generations)
+                {
+                    <MudSelectItem Value="@(generation.Name)">@CommonFunctions.CleanAndCapitalise(generation.Name)</MudSelectItem>
+                }
             }
-        }
-    </MudSelect>
-    <MudSelect T="string" 
-               Value="_selectedVersion" 
-               ValueChanged="VersionChanged" 
-               Label="Version" 
-               Variant="Variant.Filled" 
-               AnchorOrigin="Origin.BottomCenter"
-               Disabled="_versionDisabled"
-               FullWidth="true">
-        @if (_versionsInGeneration != null && _versionsInGeneration.Any())
-        {
-            @foreach (var version in _versionsInGeneration)
+        </MudSelect>
+    </MudItem>
+    <MudItem lg="6">
+        <MudSelect T="string"
+                   Value="_selectedVersion"
+                   ValueChanged="VersionChanged"
+                   Label="Version"
+                   Variant="Variant.Filled"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Disabled="_versionDisabled"
+                   FullWidth="true">
+            @if (_versionsInGeneration != null && _versionsInGeneration.Any())
             {
-                <MudSelectItem Value="@(version.Name)">@CommonFunctions.CleanAndCapitalise(version.Name)</MudSelectItem>
+                @foreach (Version version in _versionsInGeneration)
+                {
+                    <MudSelectItem Value="@(version.Name)">@CommonFunctions.CleanAndCapitalise(version.Name)</MudSelectItem>
+                }
             }
-        }
-    </MudSelect>
-</MudStack>
+            else
+            {
+                <MudSelectItem Value="@("national")">National</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
 
 @code {
     [Parameter]
@@ -44,7 +53,7 @@
     private bool _generationDisabled = true;
     private bool _versionDisabled = true;
     private string _selectedGeneration = "national";
-    private string _selectedVersion = "";
+    private string _selectedVersion = "national";
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,8 +70,8 @@
         {
             if (value == "national")
             {
-                _selectedGeneration = "National";
-                _selectedVersion = "";
+                _selectedGeneration = "national";
+                _selectedVersion = "national";
                 _versionDisabled = true;
                 _versionsInGeneration.Clear();
             }
@@ -83,6 +92,8 @@
                         _versionsInGeneration.Add(versionObject);
                     }
                 }
+                
+                _selectedVersion = _versionsInGeneration.First().Name;
             }
         }
         

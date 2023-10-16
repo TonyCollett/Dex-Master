@@ -5,11 +5,12 @@
 </MudOverlay>
 
 <MudStack>
-    <MudStack Row="true">
-        <MudSpacer></MudSpacer>
-        <MudSpacer></MudSpacer>
-        <VersionPicker></VersionPicker>
-    </MudStack>
+    <MudGrid>
+        <MudItem lg="8"></MudItem>
+        <MudItem lg="4">
+            <VersionPicker></VersionPicker>
+        </MudItem>
+    </MudGrid>
     
     @if (_pokemon == null)
     {
