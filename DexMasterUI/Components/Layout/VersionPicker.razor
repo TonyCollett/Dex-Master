@@ -1,28 +1,33 @@
 ﻿<MudStack Row="true">
-    <MudSelect T="string" Value="_selectedGeneration" ValueChanged="GenerationChanged" Label="Generation" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter">
+    <MudSelect T="string" 
+               Value="_selectedGeneration" 
+               ValueChanged="GenerationChanged" 
+               Label="Generation" 
+               Variant="Variant.Filled" 
+               AnchorOrigin="Origin.BottomCenter"
+               Disabled="_loading"
+               FullWidth="true">
         @if (_generations != null && _generations.Any())
         {
             @foreach (var generation in _generations)
             {
-                <MudSelectItem Value="@(generation.Name)"/>
+                <MudSelectItem Value="@(generation.Name)">@CommonFunctions.CleanAndCapitalise(generation.Name)</MudSelectItem>
             }
         }
     </MudSelect>
-    <MudSelect T="string" Value="_selectedVersionGroup" ValueChanged="VersionGroupChanged" Label="Version Group" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter">
-        @if (_generation != null && _generation.VersionGroups.Any())
-        {
-            @foreach (var versionGroup in _generation.VersionGroups)
+    <MudSelect T="string" 
+               Value="_selectedVersion" 
+               ValueChanged="VersionChanged" 
+               Label="Version" 
+               Variant="Variant.Filled" 
+               AnchorOrigin="Origin.BottomCenter"
+               Disabled="_loading"
+               FullWidth="true">
+        @if (_versionsInGeneration != null && _versionsInGeneration.Any())
+{
+            @foreach (var version in _versionsInGeneration)
             {
-                <MudSelectItem Value="@(versionGroup.Name)"/>
-            }
-        }
-    </MudSelect>
-    <MudSelect T="string" Value="_selectedVersion" ValueChanged="VersionChanged" Label="Version" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter">
-        @if (_versionGroup != null && _versionGroup.Versions.Any())
-        {
-            @foreach (var version in _versionGroup.Versions)
-            {
-                <MudSelectItem Value="@(version.Name)"/>
+                <MudSelectItem Value="@(version.Name)">@CommonFunctions.CleanAndCapitalise(version.Name)</MudSelectItem>
             }
         }
     </MudSelect>
@@ -33,15 +38,16 @@
     public EventCallback<string> SelectedVersionChanged { get; set; }
 
     private IEnumerable<Generation> _generations;
+    private List<PokeApiNet.Version> _versionsInGeneration = new();
     private Generation _generation;
-    private VersionGroup _versionGroup;
     private PokeApiNet.Version _version;
+    private bool _loading = true;
     private string _selectedGeneration = "";
-    private string _selectedVersionGroup = "";
     private string _selectedVersion = "";
 
     protected override async Task OnInitializedAsync()
     {
+        _loading = true;
         _generations = await pokeApiService.GetGenerationListAsync();
         var generations = _generations.ToList();
         
@@ -49,27 +55,31 @@
         {
             await GenerationChanged(generations.Last().Name);
         }
+        
+        _loading = false;
     }
     
     private async Task GenerationChanged(string value)
     {
+        _loading = true;
         _generation = await pokeApiService.GetGenerationByNameAsync(value);
         _selectedGeneration = _generation.Name;
-        StateHasChanged();
-    }
-    
-    private async Task VersionGroupChanged(string value)
-    {
-        _versionGroup = await pokeApiService.GetVersionGroupByNameAsync(value);
-        _selectedVersionGroup = _versionGroup.Name;
+        _selectedVersion = "";
+        _versionsInGeneration.Clear();
         
-        if (_versionGroup.Versions.Count == 1)
+        foreach (var versionGroup in _generation.VersionGroups)
         {
-            await VersionChanged(_versionGroup.Versions.First().Name);
+            var versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
+            
+            foreach (var version in versionGroupObject.Versions)
+            {
+                var versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
+                _versionsInGeneration.Add(versionObject);
+            }
         }
         
+        _loading = false;
         StateHasChanged();
-
     }
     
     private async Task VersionChanged(string value)

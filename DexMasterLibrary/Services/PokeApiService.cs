@@ -100,6 +100,13 @@ public class PokeApiService : IPokeApiService
         return await Client.GetResourceAsync<Generation>(generations.Results);
     }
     
+    public async Task<IEnumerable<PokeApiNet.Version>> GetVersionListAsync()
+    {
+        var versions = await Client.GetNamedResourcePageAsync<PokeApiNet.Version>(50, 0);
+
+        return await Client.GetResourceAsync<PokeApiNet.Version>(versions.Results);
+    }
+    
     public async Task<VersionGroup> GetVersionGroupByNameAsync(string name)
     {
         return await Client.GetResourceAsync<VersionGroup>(name);
