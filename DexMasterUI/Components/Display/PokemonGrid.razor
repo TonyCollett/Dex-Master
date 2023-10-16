@@ -8,7 +8,7 @@
     <MudGrid>
         <MudItem lg="8"></MudItem>
         <MudItem lg="4">
-            <VersionPicker></VersionPicker>
+            <VersionPicker SelectedVersionChanged="SetVersion"></VersionPicker>
         </MudItem>
     </MudGrid>
     
@@ -79,6 +79,7 @@
 
     private const string SavedLimit = "Limit";
 
+    private string _version = "national";
     private IEnumerable<Pokemon> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
@@ -120,5 +121,10 @@
     {
         var localBrowserCardsPerPageResult = await protectedLocalStorage.GetAsync<int>(SavedLimit);
         _limit = localBrowserCardsPerPageResult.Success ? localBrowserCardsPerPageResult.Value : 12;
+    }
+    
+    private void SetVersion(string version)
+    {
+        _version = version;
     }
 }

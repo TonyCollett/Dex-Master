@@ -1,4 +1,5 @@
 ﻿@using Version = PokeApiNet.Version
+
 <MudGrid>
     <MudItem lg="6">
         <MudSelect T="string"
@@ -7,8 +8,7 @@
                    Label="Generation"
                    Variant="Variant.Filled"
                    AnchorOrigin="Origin.BottomCenter"
-                   Disabled="_generationDisabled"
-                   FullWidth="true">
+                   Disabled="_generationDisabled">
             <MudSelectItem Value="@("national")">National</MudSelectItem>
             @if (_generations != null && _generations.Any())
             {
@@ -26,8 +26,7 @@
                    Label="Version"
                    Variant="Variant.Filled"
                    AnchorOrigin="Origin.BottomCenter"
-                   Disabled="_versionDisabled"
-                   FullWidth="true">
+                   Disabled="_versionDisabled">
             @if (_versionsInGeneration != null && _versionsInGeneration.Any())
             {
                 @foreach (Version version in _versionsInGeneration)
@@ -48,8 +47,8 @@
     public EventCallback<string> SelectedVersionChanged { get; set; }
 
     private IEnumerable<Generation> _generations;
-    private List<PokeApiNet.Version> _versionsInGeneration = new();
-    private PokeApiNet.Version _version;
+    private List<Version> _versionsInGeneration = new();
+    private Version _version;
     private bool _generationDisabled = true;
     private bool _versionDisabled = true;
     private string _selectedGeneration = "national";
@@ -84,11 +83,11 @@
                 
                 foreach (var versionGroup in generation.VersionGroups)
                 {
-                    var versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
+                    VersionGroup versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
                     
                     foreach (var version in versionGroupObject.Versions)
                     {
-                        var versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
+                        Version versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
                         _versionsInGeneration.Add(versionObject);
                     }
                 }
