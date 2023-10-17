@@ -1,4 +1,5 @@
 @using DexMasterLibrary.Enums
+
 @if (_pokemon != null && _pokemonSpecies != null)
 {
     <VersionPicker SelectedVersionChanged="SetVersion"></VersionPicker>
@@ -28,9 +29,6 @@
     private PokemonSpecies _pokemonSpecies;
     private PokemonInfo _pokemonInfo = new();
 
-    private PokeApiService _pokeApiService = new();
-    
-  
     private class PokemonInfo
     {
         public int Id { get; set; }
