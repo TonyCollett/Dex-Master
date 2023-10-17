@@ -14,13 +14,28 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int, IEnumerable<Pokemon>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "")
+    public async Task<(int, IEnumerable<PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "")
     {
-        var pokemonPage = await Client.GetNamedResourcePageAsync<Pokemon>(100000, 0);
-        var filteredPokemon = pokemonPage.Results.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        Pokedex versionGroupPokemon;
+        
+        if (!string.IsNullOrWhiteSpace(version))
+        {
+            var versionObject = await GetVersionByNameAsync(version);
+            var versionGroup = await GetVersionGroupByNameAsync(versionObject.VersionGroup.Name);
+
+            versionGroupPokemon = await Client.GetResourceAsync(versionGroup.Pokedexes.First());
+        }
+        else
+        {
+            versionGroupPokemon = await Client.GetResourceAsync<Pokedex>(1);
+        }
+
+        var pokemonInPokedexList = versionGroupPokemon.PokemonEntries.Select(p => p.PokemonSpecies).ToList();
+        
+        var filteredPokemon = pokemonInPokedexList.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         var pokemonList = filteredPokemon.ToList();
 
-        return (pokemonList.Count, await Client.GetResourceAsync<Pokemon>(pokemonList.Skip(offset).Take(limit).ToList()));
+        return (pokemonList.Count, await Client.GetResourceAsync<PokemonSpecies>(pokemonList.Skip(offset).Take(limit).ToList()));
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)

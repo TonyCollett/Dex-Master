@@ -19,11 +19,11 @@
     else if (_pokemon.Any())
     {
         <MudGrid>
-            @foreach (Pokemon pokemon in _pokemon)
+            @foreach (PokemonSpecies pokemon in _pokemon)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard Pokemon="@pokemon"/>
+                        <PokemonCard PokemonSpecies="@pokemon"/>
                     </CascadingValue>
                 </MudItem>
             }
@@ -83,7 +83,7 @@
     private const string SavedLimit = "Limit";
 
     private string _version = "national";
-    private IEnumerable<Pokemon> _pokemon;
+    private IEnumerable<PokemonSpecies> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;

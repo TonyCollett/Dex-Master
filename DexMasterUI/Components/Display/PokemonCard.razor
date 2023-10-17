@@ -8,8 +8,8 @@
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.Name)</MudText>
-                <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
+                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(PokemonSpecies.Name)</MudText>
+                <!--<MudText Typo="Typo.body2">@_pokemonTypes</MudText>-->
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
@@ -46,13 +46,15 @@
            Width="40%">
     @if (_open)
     {
-        <PokemonDetails PokemonId="@Pokemon.Id"/>
+        <PokemonDetails PokemonId="@PokemonSpecies.Id"/>
     }
 </MudDrawer>
 
 @code {
     [Parameter] 
     public Pokemon Pokemon { get; set; }
+    [Parameter] 
+    public PokemonSpecies PokemonSpecies { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
@@ -62,7 +64,7 @@
 
     protected override void OnParametersSet()
     {
-        _pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (CommonFunctions.Capitalise(type.Type.Name) + " "));
+        //_pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (CommonFunctions.Capitalise(type.Type.Name) + " "));
     }
 
     private void OpenDrawer()
