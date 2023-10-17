@@ -10,9 +10,6 @@
 
 @code {
     [Parameter]
-    public string SearchString { get; set; }
-
-    [Parameter]
     public EventCallback<string> OnSearchCallback { get; set; }
 
     private string _searchTerm;

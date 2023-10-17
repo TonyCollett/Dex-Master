@@ -14,6 +14,15 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
+    public async Task<(int, IEnumerable<Pokemon>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "")
+    {
+        var pokemonPage = await Client.GetNamedResourcePageAsync<Pokemon>(100000, 0);
+        var filteredPokemon = pokemonPage.Results.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        var pokemonList = filteredPokemon.ToList();
+
+        return (pokemonList.Count, await Client.GetResourceAsync<Pokemon>(pokemonList.Skip(offset).Take(limit).ToList()));
+    }
+
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)
     {
         var pokemonSpeciesPage = await Client.GetNamedResourcePageAsync<PokemonSpecies>(limit, offset);

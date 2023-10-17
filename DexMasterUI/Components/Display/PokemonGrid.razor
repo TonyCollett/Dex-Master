@@ -77,6 +77,9 @@
     [Parameter]
     public string UserId { get; set; }
 
+    [Parameter]
+    public string SearchTerm { get; set; } = "";
+
     private const string SavedLimit = "Limit";
 
     private string _version = "national";
@@ -106,7 +109,7 @@
     {
         _isLoading = true;
         
-        var fetchPokemon = await pokeApiService.GetPokemonListAsync(_limit, (_currentPage-1) * _limit);
+        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm);
         _totalPokemon = fetchPokemon.Item1;
         _pokemon = fetchPokemon.Item2;
 

@@ -11,7 +11,7 @@
         <MudText Class="pl-4" Typo="Typo.h4" @onclick="GoHome">Dex-Master</MudText>
         <MudSpacer />
         <MudStack AlignItems="AlignItems.Center" Row="true">
-            <SearchBar SearchString="searchTerm" OnSearchCallback="@PerformSearch"/>
+            <SearchBar OnSearchCallback="@PerformSearch"/>
             <MudDivider Vertical="true" FlexItem="true" />
             <MudToggleIconButton @bind-Toggled="@_isDarkMode" 
                 Color="Color.Surface" Icon="@Icons.Material.Filled.DarkMode"
@@ -46,7 +46,6 @@
     private User _loggedInUser;
     private MudTheme _theme = new();
     private bool _isDarkMode = true;
-    private string _searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
