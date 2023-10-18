@@ -1,21 +1,21 @@
-@if (Pokemon != null)
+@if (PokemonSpecies != null && _pokemon != null)
 {
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @Pokemon.Id
+                    @PokemonSpecies.Order
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(PokemonSpecies.Name)</MudText>
-                <!--<MudText Typo="Typo.body2">@_pokemonTypes</MudText>-->
+                <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        <!--<MudCardMedia Image="@Pokemon.Sprites.FrontDefault" />-->
+        <MudCardMedia Image="@_pokemon.Sprites.FrontDefault" />
         <MudCardContent>
             
         </MudCardContent>
@@ -52,19 +52,19 @@
 
 @code {
     [Parameter] 
-    public Pokemon Pokemon { get; set; }
-    [Parameter] 
     public PokemonSpecies PokemonSpecies { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
-    
+
+    private Pokemon _pokemon;
     private bool _open;
     private string _pokemonTypes;
+    private readonly IPokeApiService _pokeApiService = new PokeApiService();
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        //_pokemonTypes = Pokemon.Types.Aggregate("", (current, type) => current + (CommonFunctions.Capitalise(type.Type.Name) + " "));
+        _pokemon = await _pokeApiService.GetPokemonByIdAsync(PokemonSpecies.Id);
     }
 
     private void OpenDrawer()

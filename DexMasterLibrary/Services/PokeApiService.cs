@@ -18,7 +18,7 @@ public class PokeApiService : IPokeApiService
     {
         Pokedex versionGroupPokemon;
         
-        if (!string.IsNullOrWhiteSpace(version))
+        if (!string.IsNullOrWhiteSpace(version) && version != "national")
         {
             var versionObject = await GetVersionByNameAsync(version);
             var versionGroup = await GetVersionGroupByNameAsync(versionObject.VersionGroup.Name);
@@ -33,9 +33,11 @@ public class PokeApiService : IPokeApiService
         var pokemonInPokedexList = versionGroupPokemon.PokemonEntries.Select(p => p.PokemonSpecies).ToList();
         
         var filteredPokemon = pokemonInPokedexList.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-        var pokemonList = filteredPokemon.ToList();
-
-        return (pokemonList.Count, await Client.GetResourceAsync<PokemonSpecies>(pokemonList.Skip(offset).Take(limit).ToList()));
+        var pokemonSpeciesResourceList = filteredPokemon.ToList();
+        
+        var pokemonSpeciesList = await Client.GetResourceAsync<PokemonSpecies>(pokemonSpeciesResourceList.Skip(offset).Take(limit).ToList());
+        
+        return (pokemonSpeciesResourceList.Count, pokemonSpeciesList);
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)

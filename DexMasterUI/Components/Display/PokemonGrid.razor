@@ -109,7 +109,7 @@
     {
         _isLoading = true;
         
-        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm);
+        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm, _version);
         _totalPokemon = fetchPokemon.Item1;
         _pokemon = fetchPokemon.Item2;
 
@@ -126,8 +126,9 @@
         _limit = localBrowserCardsPerPageResult.Success ? localBrowserCardsPerPageResult.Value : 12;
     }
     
-    private void SetVersion(string version)
+    private async Task SetVersion(string version)
     {
         _version = version;
+        await LoadPokemon();
     }
 }
