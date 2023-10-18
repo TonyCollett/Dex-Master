@@ -4,7 +4,7 @@
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @PokemonSpecies.Order
+                    @PokemonSpecies.Id
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
@@ -15,7 +15,7 @@
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        <MudCardMedia Image="@_pokemon.Sprites.FrontDefault" />
+        <MudCardMedia Image="@_pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="200" />
         <MudCardContent>
             
         </MudCardContent>
