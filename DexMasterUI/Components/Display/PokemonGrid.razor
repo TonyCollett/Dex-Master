@@ -8,26 +8,30 @@
     <MudGrid>
         <MudItem lg="8"></MudItem>
         <MudItem lg="4">
-            <VersionPicker SelectedVersionChanged="SetVersion"></VersionPicker>
+            <VersionPicker SelectedVersionChanged="SetVersion" />
         </MudItem>
     </MudGrid>
     
-    @if (_pokemon == null)
+    @if (_pokemonSpecies == null)
     {
         <MudText>Loading Pokemon...</MudText>
     }
-    else if (_pokemon.Any())
+    else if (_pokemonSpecies.Any())
     {
         <MudGrid>
-            @foreach (PokemonSpecies pokemon in _pokemon)
+            @foreach (PokemonSpecies pokemonSpecies in _pokemonSpecies)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard PokemonSpecies="@pokemon"/>
+                        <PokemonCard PokemonSpecies="@pokemonSpecies"/>
                     </CascadingValue>
                 </MudItem>
             }
         </MudGrid>
+    }
+    else if (_pokemonSpecies.Count() == 0)
+    {
+        <MudText>No Pokemon Found</MudText>
     }
     else
     {
@@ -83,7 +87,7 @@
     private const string SavedLimit = "Limit";
 
     private string _version = "national";
-    private IEnumerable<PokemonSpecies> _pokemon;
+    private IEnumerable<PokemonSpecies> _pokemonSpecies;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;
@@ -111,7 +115,7 @@
         
         var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm, _version);
         _totalPokemon = fetchPokemon.Item1;
-        _pokemon = fetchPokemon.Item2;
+        _pokemonSpecies = fetchPokemon.Item2;
 
         _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 
