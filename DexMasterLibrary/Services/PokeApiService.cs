@@ -20,8 +20,8 @@ public class PokeApiService : IPokeApiService
         
         if (!string.IsNullOrWhiteSpace(version) && version != "national")
         {
-            var versionObject = await GetVersionByNameAsync(version);
-            var versionGroup = await GetVersionGroupByNameAsync(versionObject.VersionGroup.Name);
+            Version versionObject = await GetVersionByNameAsync(version);
+            VersionGroup versionGroup = await GetVersionGroupByNameAsync(versionObject.VersionGroup.Name);
 
             versionGroupPokemon = await Client.GetResourceAsync(versionGroup.Pokedexes.First());
         }
@@ -141,5 +141,10 @@ public class PokeApiService : IPokeApiService
     public async Task<Version> GetVersionByNameAsync(string name)
     {
         return await Client.GetResourceAsync<Version>(name);
+    }
+    
+    public async Task<Version> GetVersionByIdAsync(int id)
+    {
+        return await Client.GetResourceAsync<Version>(id);
     }
 }

@@ -93,6 +93,7 @@
                 }
                 
                 _selectedVersion = _versionsInGeneration.First().Name;
+                await SelectedVersionChanged.InvokeAsync(_selectedVersion);
             }
         }
         
