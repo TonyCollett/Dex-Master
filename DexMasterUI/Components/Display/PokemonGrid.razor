@@ -79,9 +79,6 @@
 
 @code {
     [Parameter]
-    public string UserId { get; set; }
-
-    [Parameter]
     public string SearchTerm { get; set; } = "";
 
     private const string SavedLimit = "Limit";
@@ -132,6 +129,7 @@
     
     private async Task SetVersion(string version)
     {
+        _currentPage = 1;
         _version = version;
         await LoadPokemon();
     }
