@@ -25,4 +25,5 @@ public interface IPokeApiService
     public Task<Type> GetTypeByNameAsync(string name);
     public Task<Version> GetVersionByNameAsync(string name);
     public Task<VersionGroup> GetVersionGroupByNameAsync(string name);
+    public Task<IEnumerable<Version>> GetAllVersionsOfGenerationAsync(Generation generation);
 }

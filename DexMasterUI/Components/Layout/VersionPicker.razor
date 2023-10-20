@@ -47,7 +47,7 @@
     public EventCallback<string> SelectedVersionChanged { get; set; }
 
     private IEnumerable<Generation> _generations;
-    private List<Version> _versionsInGeneration = new();
+    private IEnumerable<Version> _versionsInGeneration;
     private Version _version;
     private bool _generationDisabled = true;
     private bool _versionDisabled = true;
@@ -72,25 +72,14 @@
                 _selectedGeneration = "national";
                 _selectedVersion = "national";
                 _versionDisabled = true;
-                _versionsInGeneration.Clear();
             }
             else
             {
                 Generation generation = await pokeApiService.GetGenerationByNameAsync(value);
                 _selectedGeneration = generation.Name;
                 _selectedVersion = "";
-                _versionsInGeneration.Clear();
-                
-                foreach (var versionGroup in generation.VersionGroups)
-                {
-                    VersionGroup versionGroupObject = await pokeApiService.GetVersionGroupByNameAsync(versionGroup.Name);
-                    
-                    foreach (var version in versionGroupObject.Versions)
-                    {
-                        Version versionObject = await pokeApiService.GetVersionByNameAsync(version.Name);
-                        _versionsInGeneration.Add(versionObject);
-                    }
-                }
+
+                _versionsInGeneration = await pokeApiService.GetAllVersionsOfGenerationAsync(generation);
                 
                 _selectedVersion = _versionsInGeneration.First().Name;
                 await SelectedVersionChanged.InvokeAsync(_selectedVersion);
