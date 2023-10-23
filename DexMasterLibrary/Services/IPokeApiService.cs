@@ -11,7 +11,7 @@ public interface IPokeApiService
     public Task<IEnumerable<Ability>> GetPokemonAbilitiesAsync(Pokemon pokemon);
     public Task<IEnumerable<Generation>> GetGenerationListAsync();
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
-    public Task<(int, IEnumerable<PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "national");
+    public Task<(int, Dictionary<Pokemon, PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "");
     public Task<(int, IEnumerable<Pokemon>)> GetPokemonListAsync(int limit, int offset);
     public Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset);
     public Task<IEnumerable<Type>> GetPokemonTypesAsync(Pokemon pokemon);

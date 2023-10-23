@@ -1,6 +1,4 @@
-﻿@using System.Collections.ObjectModel
-
-<MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
+﻿<MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
@@ -112,7 +110,7 @@
         
         var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm, _version);
         _totalPokemon = fetchPokemon.Item1;
-        _pokemonSpecies = fetchPokemon.Item2;
+        _pokemonSpecies = fetchPokemon.Item2.Values;
 
         _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 

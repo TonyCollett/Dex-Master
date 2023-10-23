@@ -14,7 +14,7 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int, IEnumerable<PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "")
+    public async Task<(int, Dictionary<Pokemon, PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "")
     {
         Pokedex versionGroupPokemon;
         
@@ -35,9 +35,12 @@ public class PokeApiService : IPokeApiService
         var filteredPokemon = pokemonInPokedexList.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         var pokemonSpeciesResourceList = filteredPokemon.ToList();
         
-        var pokemonSpeciesList = await Client.GetResourceAsync<PokemonSpecies>(pokemonSpeciesResourceList.Skip(offset).Take(limit).ToList());
+        var pokemonSpeciesList = await Client.GetResourceAsync<PokemonSpecies>(pokemonSpeciesResourceList.Skip(offset).Take(limit));
+        var pokemonList = await Client.GetResourceAsync<Pokemon>(pokemonSpeciesList.Select(p => p.Varieties.First().Pokemon));
         
-        return (pokemonSpeciesResourceList.Count, pokemonSpeciesList);
+        Dictionary<Pokemon, PokemonSpecies> pokemonDictionary = pokemonList.ToDictionary(p => p, p => pokemonSpeciesList.First(ps => ps.Name == p.Species.Name));
+        
+        return (pokemonSpeciesResourceList.Count, pokemonDictionary);
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)
