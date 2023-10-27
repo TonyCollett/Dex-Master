@@ -3,7 +3,7 @@
 @if (Pokemon.Key != null && Pokemon.Value != null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudGrid Justify="Justify.SpaceEvenly">
+        <MudGrid Spacing="2" Justify="Justify.SpaceEvenly">
                 <MudItem lg="12">
                     <VersionPicker SelectedVersionChanged="SetVersion"></VersionPicker>
                 </MudItem>
@@ -14,14 +14,18 @@
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.caption">Type 1</MudText>
-                    <MudText Typo="Typo.h3">@_pokemonInfo.Type1</MudText>
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Type 1</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type1</MudText>
+                    </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.caption">Type 2</MudText>
-                    <MudText Typo="Typo.h3">@_pokemonInfo.Type2</MudText>
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Type 2</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type2</MudText>
+                    </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem lg="12">
@@ -31,20 +35,26 @@
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.caption">Height</MudText>
-                    <MudText Typo="Typo.h6">@_pokemonInfo.Height</MudText>
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Height</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Height</MudText>
+                    </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.caption">Weight</MudText>
-                    <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Weight</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                    </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.caption">Dex Entry</MudText>
-                    <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Dex Entry</MudText>
+                        <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+                    </MudStack>
                 </MudPaper>
             </MudItem>
         </MudGrid>
