@@ -1,21 +1,21 @@
-@if (PokemonSpecies != null && _pokemon != null)
+@if (Pokemon.Key != null)
 {
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @PokemonSpecies.Id
+                    @Pokemon.Key.Id
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(PokemonSpecies.Name)</MudText>
+                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.Key.Name)</MudText>
                 <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        <MudCardMedia Image="@_pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="200" />
+        @* <MudCardMedia Image="@_pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="200" /> *@
         <MudCardContent>
             
         </MudCardContent>
@@ -46,13 +46,13 @@
            Width="40%">
     @if (_open)
     {
-        <PokemonDetails PokemonId="@PokemonSpecies.Id"/>
+        <PokemonDetails Pokemon="@Pokemon"/>
     }
 </MudDrawer>
 
 @code {
     [Parameter] 
-    public PokemonSpecies PokemonSpecies { get; set; }
+    public KeyValuePair<Pokemon, PokemonSpecies> Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
@@ -60,11 +60,10 @@
     private Pokemon _pokemon;
     private bool _open;
     private string _pokemonTypes;
-    private readonly IPokeApiService _pokeApiService = new PokeApiService();
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        _pokemon = await _pokeApiService.GetPokemonByIdAsync(PokemonSpecies.Id);
+        _pokemonTypes = Pokemon.Key.Types.Select(t => t.Type.Name).Aggregate((a, b) => $"{a} / {b}");
     }
 
     private void OpenDrawer()
