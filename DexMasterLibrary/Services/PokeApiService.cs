@@ -55,6 +55,23 @@ public class PokeApiService : IPokeApiService
         return await Client.GetResourceAsync<PokemonSpecies>(pokemon.Species);
     }
     
+    public async Task<IEnumerable<Pokedex>> GetPokedexListAsync()
+    {
+        var pokedexPage = await Client.GetNamedResourcePageAsync<Pokedex>(100, 0);
+
+        return await Client.GetResourceAsync<Pokedex>(pokedexPage.Results);
+    }
+    
+    public async Task<Pokedex> GetPokedexByNameAsync(string pokedex)
+    {
+        return await Client.GetResourceAsync<Pokedex>(pokedex);
+    }
+    
+    public async Task<Pokedex> GetPokedexByIdAsync(int pokedexId)
+    {
+        return await Client.GetResourceAsync<Pokedex>(pokedexId);
+    }
+    
     public async Task<IEnumerable<Ability>> GetPokemonAbilitiesAsync(Pokemon pokemon)
     {
         return await Client.GetResourceAsync<Ability>(pokemon.Abilities.Select(a => a.Ability));
