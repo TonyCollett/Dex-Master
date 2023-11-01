@@ -158,6 +158,14 @@ public class PokeApiService : IPokeApiService
         return await Client.GetResourceAsync<VersionGroup>(name);
     }
     
+    public async Task<IEnumerable<VersionGroup>> GetVersionGroupListAsync()
+    {
+        var versionGroups = await Client.GetNamedResourcePageAsync<VersionGroup>(100, 0);
+
+        return await Client.GetResourceAsync<VersionGroup>(versionGroups.Results);
+    }
+    
+    
     public async Task<Version> GetVersionByNameAsync(string name)
     {
         return await Client.GetResourceAsync<Version>(name);

@@ -1,0 +1,117 @@
+﻿@using Version = PokeApiNet.Version
+
+<MudGrid>
+    <MudItem lg="4">
+        <MudSelect T="Generation"
+                   Value="_selectedGeneration"
+                   ValueChanged="GenerationChanged"
+                   Label="Generation"
+                   Variant="Variant.Filled"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Disabled="_generationDisabled">
+            @if (_generations != null && _generations.Any())
+            {
+                @foreach (Generation generation in _generations)
+                {
+                    <MudSelectItem Value="@(generation)">@CommonFunctions.CleanAndCapitalise(generation.Name)</MudSelectItem>
+                }
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem lg="4">
+        <MudSelect T="VersionGroup"
+                   Value="_selectedVersionGroup"
+                   ValueChanged="VersionGroupChanged"
+                   Label="Version Group"
+                   Variant="Variant.Filled"
+                   AnchorOrigin="Origin.BottomCenter"
+                   Disabled="_versionDisabled">
+            @if (_versionGroupsInGeneration != null && _versionGroupsInGeneration.Any())
+            {
+                @foreach (VersionGroup versionGroup in _versionGroupsInGeneration)
+                {
+                    <MudSelectItem Value="@(versionGroup)">@CommonFunctions.CleanAndCapitalise(versionGroup.Name)</MudSelectItem>
+                }
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem lg="4">
+            <MudSelect T="Pokedex"
+                       Value="_selectedPokedex"
+                       ValueChanged="PokedexChanged"
+                       Label="Pokedex"
+                       Variant="Variant.Filled"
+                       AnchorOrigin="Origin.BottomCenter"
+                       Disabled="_versionDisabled">
+                @if (_pokedexesInVersionGroup != null && _pokedexesInVersionGroup.Any())
+                {
+                    @foreach (Pokedex pokedex in _pokedexesInVersionGroup)
+                    {
+                        <MudSelectItem Value="@(pokedex)">@CommonFunctions.CleanAndCapitalise(pokedex.Name)</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public EventCallback<Pokedex> SelectedVersionChanged { get; set; }
+
+    private IEnumerable<Generation> _generations;
+    private IEnumerable<VersionGroup> _versionGroups;
+    private IEnumerable<VersionGroup> _versionGroupsInGeneration;
+    private IEnumerable<Pokedex> _pokedexes;
+    private IEnumerable<Pokedex> _pokedexesInVersionGroup;
+    private bool _generationDisabled = true;
+    private bool _versionDisabled = true;
+    private bool _dataIsLoaded;
+    private Generation _selectedGeneration;
+    private VersionGroup _selectedVersionGroup;
+    private Pokedex _selectedPokedex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!_dataIsLoaded)
+        {
+            _generationDisabled = _versionDisabled = true;
+            _generations = await pokeApiService.GetGenerationListAsync();
+            _pokedexes = await pokeApiService.GetPokedexListAsync();
+            _versionGroups = await pokeApiService.GetVersionGroupListAsync();
+            _generationDisabled = _versionDisabled = false;
+            _dataIsLoaded = true;
+        }
+    }
+    
+    private void GenerationChanged(Generation value)
+    {
+        _versionDisabled = true;
+
+        if (value != null)
+        {
+            _versionGroupsInGeneration = value.VersionGroups.Select(versionGroup => _versionGroups.First(x => x.Name == versionGroup.Name));
+        }
+        
+        _versionDisabled = false;
+        StateHasChanged();
+    }
+    
+    private void VersionGroupChanged(VersionGroup value)
+    {
+        _selectedVersionGroup = value;
+        
+        if (value != null)
+        {
+            _pokedexesInVersionGroup = value.Pokedexes.Select(pokedex => _pokedexes.First(x => x.Name == pokedex.Name));
+        }
+        
+        StateHasChanged();
+    }
+    
+    private async Task PokedexChanged(Pokedex value)
+    {
+        _selectedPokedex = value;
+        await SelectedVersionChanged.InvokeAsync(_selectedPokedex);
+        StateHasChanged();
+    }
+}

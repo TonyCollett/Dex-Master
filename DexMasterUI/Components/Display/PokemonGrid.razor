@@ -6,7 +6,7 @@
     <MudGrid>
         <MudItem lg="8"></MudItem>
         <MudItem lg="4">
-            <VersionPicker SelectedVersionChanged="SetVersion" />
+            <VersionPickerV2 />
         </MudItem>
     </MudGrid>
     
@@ -21,7 +21,7 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard Pokemon="@pokemon"/>
+                        @* <PokemonCard Pokemon="@pokemon"/> *@
                     </CascadingValue>
                 </MudItem>
             }
