@@ -1,6 +1,7 @@
 ﻿@using Version = PokeApiNet.Version
+<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">
 
-<MudGrid>
+<MudGrid Justify="Justify.SpaceEvenly">
     <MudItem lg="3">
         <MudSelect T="Generation"
                    Value="_selectedGeneration"
@@ -25,7 +26,7 @@
                    Label="Version Group"
                    Variant="Variant.Outlined"
                    AnchorOrigin="Origin.BottomCenter"
-                   Disabled="_versionDisabled">
+                   Disabled="_versionGroupDisabled">
             @if (_versionGroupsInGeneration != null && _versionGroupsInGeneration.Any())
             {
                 @foreach (VersionGroup versionGroup in _versionGroupsInGeneration)
@@ -53,7 +54,11 @@
         </MudSelect>
     </MudItem>
     <MudItem lg="1">
-        <MudIconButton OnClick="NationalDexSelected" Icon="@Icons.Material.Filled.Calculate" />
+        <MudIconButton OnClick="NationalDexSelected" 
+                       Icon="fas fa-globe-europe" 
+                       Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Size="Size.Large" />
     </MudItem>
 </MudGrid>
 
@@ -67,7 +72,7 @@
     private IEnumerable<Pokedex> _pokedexes;
     private IEnumerable<Pokedex> _pokedexesInVersionGroup;
     private bool _generationDisabled = true;
-    private bool _versionDisabled = true;
+    private bool _versionGroupDisabled = true;
     private bool _pokedexDisabled = true;
     private bool _dataIsLoaded;
     private Generation _selectedGeneration;
@@ -78,7 +83,7 @@
     {
         if (!_dataIsLoaded)
         {
-            _generationDisabled = _versionDisabled = _pokedexDisabled = true;
+            _generationDisabled = _versionGroupDisabled = _pokedexDisabled = true;
             
             var generationsAsync = pokeApiService.GetGenerationListAsync();
             var pokedexesAsync = pokeApiService.GetPokedexListAsync();
@@ -103,7 +108,7 @@
     
     private async Task GenerationChanged(Generation value)
     {
-        _versionDisabled = true;
+        _versionGroupDisabled = true;
         _selectedGeneration = value;
         _selectedVersionGroup = null;
         _selectedPokedex = null;
@@ -115,13 +120,12 @@
         
         await VersionGroupChanged(_versionGroupsInGeneration.First());
         
-        _versionDisabled = false;
+        _versionGroupDisabled = false;
         StateHasChanged();
     }
     
     private async Task VersionGroupChanged(VersionGroup value)
     {
-        _pokedexDisabled = true;
         _selectedVersionGroup = value;
         _selectedPokedex = null;
         
@@ -131,8 +135,6 @@
         }
         
         await PokedexChanged(_pokedexesInVersionGroup.First());
-        
-        _pokedexDisabled = false;
         StateHasChanged();
     }
     
@@ -146,12 +148,11 @@
     private async Task NationalDexSelected()
     {
         _pokedexesInVersionGroup = _pokedexes;
+        _selectedPokedex = null;
         _selectedGeneration = null;
         _selectedVersionGroup = null;
-        _versionDisabled = true;
-        _selectedPokedex = _pokedexesInVersionGroup.Select(p => p.Name).Contains("national")
-            ? _pokedexesInVersionGroup.First(p => p.Name == "national")
-            : _pokedexesInVersionGroup.First();
-        await PokedexChanged(_selectedPokedex);
+        _versionGroupDisabled = true;
+        await PokedexChanged(_pokedexesInVersionGroup.First());
+        StateHasChanged();
     }
 }

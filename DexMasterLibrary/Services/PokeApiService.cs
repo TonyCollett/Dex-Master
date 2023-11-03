@@ -14,23 +14,9 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int, Dictionary<Pokemon, PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, string searchTerm = "", string version = "")
+    public async Task<(int, Dictionary<Pokemon, PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
     {
-        Pokedex versionGroupPokemon;
-        
-        if (!string.IsNullOrWhiteSpace(version) && version != "national")
-        {
-            Version versionObject = await GetVersionByNameAsync(version);
-            VersionGroup versionGroup = await GetVersionGroupByNameAsync(versionObject.VersionGroup.Name);
-
-            versionGroupPokemon = await Client.GetResourceAsync(versionGroup.Pokedexes.First());
-        }
-        else
-        {
-            versionGroupPokemon = await Client.GetResourceAsync<Pokedex>(1);
-        }
-
-        var pokemonInPokedexList = versionGroupPokemon.PokemonEntries.Select(p => p.PokemonSpecies).ToList();
+        var pokemonInPokedexList = pokedex.PokemonEntries.Select(p => p.PokemonSpecies).ToList();
         
         var filteredPokemon = pokemonInPokedexList.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
         var pokemonSpeciesResourceList = filteredPokemon.ToList();

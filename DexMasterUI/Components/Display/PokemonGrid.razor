@@ -6,7 +6,7 @@
     <MudGrid>
         <MudItem lg="7"></MudItem>
         <MudItem lg="5">
-            <VersionPickerV2 />
+            <VersionPickerV2 SelectedVersionChanged="SetPokedex" />
         </MudItem>
     </MudGrid>
     
@@ -21,7 +21,7 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        @* <PokemonCard Pokemon="@pokemon"/> *@
+                        <PokemonCard Pokemon="@pokemon"/>
                     </CascadingValue>
                 </MudItem>
             }
@@ -81,7 +81,7 @@
 
     private const string SavedLimit = "Limit";
 
-    private string _version = "national";
+    private Pokedex _pokedex;
     private Dictionary<Pokemon, PokemonSpecies> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
@@ -94,7 +94,6 @@
     {
         await CheckBrowserStorageAsync();
         _loggedInUser ??= await authProvider.GetUserFromAuthAsync(userData);
-        await LoadPokemon();
     }
 
     private async Task OnPageChanged(int newPage)
@@ -108,7 +107,7 @@
     {
         _isLoading = true;
         
-        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, SearchTerm, _version);
+        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, _pokedex, SearchTerm);
         _totalPokemon = fetchPokemon.Item1;
         _pokemon = fetchPokemon.Item2;
 
@@ -125,10 +124,10 @@
         _limit = localBrowserCardsPerPageResult.Success ? localBrowserCardsPerPageResult.Value : 12;
     }
     
-    private async Task SetVersion(string version)
+    private async Task SetPokedex(Pokedex pokedex)
     {
         _currentPage = 1;
-        _version = version;
+        _pokedex = pokedex;
         await LoadPokemon();
     }
 }
