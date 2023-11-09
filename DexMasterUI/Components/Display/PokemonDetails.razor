@@ -90,7 +90,7 @@
         public string FlavourText { get; set; }
     }
     
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         if (Pokemon.Key != null && Pokemon.Value != null)
         {
@@ -102,7 +102,7 @@
             _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Key.Types[0].Type.Name).GetValueOrDefault();
             _pokemonInfo.Type2 = Pokemon.Key.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Key.Types[1].Type.Name).GetValueOrDefault() : null;
             _pokemonInfo.MainSprite = Pokemon.Key.Sprites.Other.OfficialArtwork.FrontDefault;
-            _pokemonInfo.FlavourText = Pokemon.Value.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en").FlavorText;
+            _pokemonInfo.FlavourText = Pokemon.Value.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText;
         }
     }
 
