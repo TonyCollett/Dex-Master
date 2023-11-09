@@ -108,34 +108,57 @@
     
     private async Task GenerationChanged(Generation value)
     {
-        _versionGroupDisabled = true;
-        _selectedGeneration = value;
-        _selectedVersionGroup = null;
-        _selectedPokedex = null;
-
         if (value != null)
         {
+            _versionGroupDisabled = true;
+            _selectedGeneration = value;
+            _selectedVersionGroup = null;
+            _selectedPokedex = null;
+
             _versionGroupsInGeneration = _selectedGeneration.VersionGroups.SelectMany(versionGroup => _versionGroups.Where(x => x.Name == versionGroup.Name));
+        
+            await VersionGroupChanged(_versionGroupsInGeneration.First());
+        
+            _versionGroupDisabled = false;
+            StateHasChanged();
         }
-        
-        await VersionGroupChanged(_versionGroupsInGeneration.First());
-        
-        _versionGroupDisabled = false;
-        StateHasChanged();
     }
     
     private async Task VersionGroupChanged(VersionGroup value)
     {
-        _selectedVersionGroup = value;
-        _selectedPokedex = null;
-        
         if (value != null)
         {
-            _pokedexesInVersionGroup = _selectedVersionGroup.Pokedexes.SelectMany(pokedex => _pokedexes.Where(x => x.Name == pokedex.Name));
+            _selectedVersionGroup = value;
+            _selectedPokedex = null;
+
+            if (_selectedVersionGroup.Id == 20)
+            {
+                // Fix for Sword/Shield - Galar
+                _pokedexesInVersionGroup = _pokedexes.Where(x => x.Id == 27);
+            }
+            else if (_selectedVersionGroup.Id == 21)
+            {
+                // Fix for Sword/Shield - Isle of Armor
+                _pokedexesInVersionGroup = _pokedexes.Where(x => x.Id == 28);
+            }
+            else if (_selectedVersionGroup.Id == 22)
+            {
+                // Fix for Sword/Shield - Crown Tundra
+                _pokedexesInVersionGroup = _pokedexes.Where(x => x.Id == 29);
+            }
+            else if (_selectedVersionGroup.Id == 23)
+            {
+                // Fix for BDSP - Sinnoh
+                _pokedexesInVersionGroup = _pokedexes.Where(x => x.Id == 5);
+            }
+            else
+            {
+                _pokedexesInVersionGroup = _selectedVersionGroup.Pokedexes.SelectMany(pokedex => _pokedexes.Where(x => x.Name == pokedex.Name));
+            }
+
+            await PokedexChanged(_pokedexesInVersionGroup.First());
+            StateHasChanged();
         }
-        
-        await PokedexChanged(_pokedexesInVersionGroup.First());
-        StateHasChanged();
     }
     
     private async Task PokedexChanged(Pokedex value)
