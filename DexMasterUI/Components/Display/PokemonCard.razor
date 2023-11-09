@@ -56,14 +56,13 @@
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
-
-    private Pokemon _pokemon;
+    
     private bool _open;
     private string _pokemonTypes;
 
     protected override void OnParametersSet()
     {
-        _pokemonTypes = Pokemon.Key.Types.Select(t => t.Type.Name).Aggregate((a, b) => $"{a} / {b}");
+        _pokemonTypes = Pokemon.Key.Types.Select(t => t.Type.Name).Aggregate((a, b) => $"{CommonFunctions.Capitalise(a)} / {CommonFunctions.Capitalise(b)}");
     }
 
     private void OpenDrawer()
