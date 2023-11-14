@@ -14,19 +14,23 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int, Dictionary<Pokemon, PokemonSpecies>)> FilterPokemonListAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
+    public async Task<(int, List<Pokemon>)> FilterPokemonListAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
     {
-        var pokemonInPokedexList = pokedex.PokemonEntries.Select(p => p.PokemonSpecies).ToList();
+        var pokemonInPokedexList = pokedex.PokemonEntries.ToDictionary(p => p.EntryNumber, p => p.PokemonSpecies.Name);
         
-        var filteredPokemon = pokemonInPokedexList.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-        var pokemonSpeciesResourceList = filteredPokemon.ToList();
+        var filteredPokemon = pokemonInPokedexList
+            .Where(p => p.Value.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+            .Skip(offset).Take(limit)
+            .ToDictionary(p => p.Key, p => p.Value);
+
+        List<Pokemon> pokemonList = new();
         
-        var pokemonSpeciesList = await Client.GetResourceAsync<PokemonSpecies>(pokemonSpeciesResourceList.Skip(offset).Take(limit));
-        var pokemonList = await Client.GetResourceAsync<Pokemon>(pokemonSpeciesList.Select(p => p.Varieties.First().Pokemon));
-        
-        Dictionary<Pokemon, PokemonSpecies> pokemonDictionary = pokemonList.ToDictionary(p => p, p => pokemonSpeciesList.First(ps => ps.Name == p.Species.Name));
-        
-        return (pokemonSpeciesResourceList.Count, pokemonDictionary);
+        foreach (string pokemonName in filteredPokemon.Values)
+        {
+            pokemonList.Add(await Client.GetResourceAsync<Pokemon>(pokemonName));
+        }
+
+        return (pokemonInPokedexList.Count, pokemonList);
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)

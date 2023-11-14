@@ -21,7 +21,9 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard Pokemon="@pokemon"/>
+                        <CascadingValue Value="@_pokedex.Region.Name">
+                            <PokemonCard Pokemon="@pokemon"/>
+                        </CascadingValue>
                     </CascadingValue>
                 </MudItem>
             }
