@@ -21,15 +21,13 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <CascadingValue Value="@_pokedex.Region.Name">
-                            <PokemonCard Pokemon="@pokemon"/>
-                        </CascadingValue>
+                        <PokemonCard Pokemon="@pokemon"/>
                     </CascadingValue>
                 </MudItem>
             }
         </MudGrid>
     }
-    else if (_pokemon.Count() == 0)
+    else if (!_pokemon.Any())
     {
         <MudText>No Pokemon Found</MudText>
     }
@@ -84,7 +82,7 @@
     private const string SavedLimit = "Limit";
 
     private Pokedex _pokedex;
-    private Dictionary<Pokemon, PokemonSpecies> _pokemon;
+    private IEnumerable<Pokemon> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;

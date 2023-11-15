@@ -1,21 +1,27 @@
-@if (Pokemon.Key != null)
+@if (Pokemon != null)
 {
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @Pokemon.Key.Id
+                    @Pokemon.Id
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.Key.Name)</MudText>
-                <MudText Typo="Typo.body2">@_pokemonTypes</MudText>
+                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.Name)</MudText>
+                <MudStack Row="true">
+                    <MudText Typo="Typo.body2">@CommonFunctions.Capitalise(Pokemon.Types[0].Type.Name)</MudText>
+                    @if (Pokemon.Types.Count > 1)
+                    {
+                        <MudText Typo="Typo.body2">@CommonFunctions.Capitalise(Pokemon.Types[1].Type.Name)</MudText>
+                    }
+                </MudStack>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        @* <MudCardMedia Image="@_pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="200" /> *@
+        <MudCardMedia Image="@Pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="180" />
         <MudCardContent>
             
         </MudCardContent>
@@ -52,7 +58,7 @@
 
 @code {
     [Parameter] 
-    public KeyValuePair<Pokemon, PokemonSpecies> Pokemon { get; set; }
+    public Pokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
@@ -64,7 +70,7 @@
 
     protected override void OnParametersSet()
     {
-        _pokemonTypes = Pokemon.Key.Types.Select(t => t.Type.Name).Aggregate((a, b) => $"{CommonFunctions.Capitalise(a)} / {CommonFunctions.Capitalise(b)}");
+        _pokemonTypes = Pokemon.Types.Select(t => t.Type.Name).Aggregate((a, b) => $"{CommonFunctions.Capitalise(a)} / {CommonFunctions.Capitalise(b)}");
     }
 
     private void OpenDrawer()

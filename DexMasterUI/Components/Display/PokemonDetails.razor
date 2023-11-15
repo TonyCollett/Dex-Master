@@ -1,12 +1,55 @@
 @using DexMasterLibrary.Enums
 
-@if (Pokemon.Key != null && Pokemon.Value != null)
+@if (Pokemon != null && _pokemonSpecies != null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudGrid Spacing="2" Justify="Justify.SpaceEvenly">
-                <MudItem lg="12">
-                    <VersionPicker SelectedVersionChanged="SetVersion"></VersionPicker>
-                </MudItem>
+        <MudStack>
+            <VersionPicker />
+            <MudPaper Class="py-3 px-3">
+                <MudText Typo="Typo.h2">@_pokemonInfo.Name</MudText>
+            </MudPaper>
+            <MudStack Row="true">
+                <MudPaper Class="py-3 px-3">
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Type 1</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type1</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="py-3 px-3">
+                    <MudStack>
+                        <MudText Typo="Typo.caption">Type 2</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type2</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
+            <MudImage Src="@Pokemon.Sprites.FrontDefault"/>
+            <MudStack Row="true">
+                <MudPaper Class="py-3 px-3">
+                    <MudStack>
+                        <MudText Align="Align.Center" Typo="Typo.caption">Weight</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                    </MudStack>
+                </MudPaper>
+                <MudPaper Class="py-3 px-3">
+                    <MudStack>
+                        <MudText Align="Align.Center" Typo="Typo.caption">Weight</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudStack>
+            <MudPaper Class="py-3 px-3">
+                <MudStack>
+                    <MudText Align="Align.Center" Typo="Typo.caption">Dex Entry</MudText>
+                    <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudStack>
+        
+        
+        <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
+            <MudItem lg="12">
+                <VersionPicker/>
+            </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudText Typo="Typo.h2">@_pokemonInfo.Name</MudText>
@@ -30,13 +73,13 @@
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudImage Src="@Pokemon.Key.Sprites.FrontDefault" Width="20"/>
+                    <MudImage Src="@Pokemon.Sprites.FrontDefault"/>
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack>
-                        <MudText Typo="Typo.caption">Height</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.caption">Height</MudText>
                         <MudText Typo="Typo.h6">@_pokemonInfo.Height</MudText>
                     </MudStack>
                 </MudPaper>
@@ -44,7 +87,7 @@
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack>
-                        <MudText Typo="Typo.caption">Weight</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.caption">Weight</MudText>
                         <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
                     </MudStack>
                 </MudPaper>
@@ -52,28 +95,23 @@
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack>
-                        <MudText Typo="Typo.caption">Dex Entry</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.caption">Dex Entry</MudText>
                         <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
                     </MudStack>
                 </MudPaper>
             </MudItem>
         </MudGrid>
     </MudContainer>
-    
-    @if (SelectedVersion != null)
-    {
-        <MudText>You selected @SelectedVersion</MudText>
-    }
 }
 
 @code {
     [Parameter] 
-    public KeyValuePair<Pokemon, PokemonSpecies> Pokemon { get; set; }
+    public Pokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
 
-    private string SelectedVersion { get; set; }
+    private PokemonSpecies _pokemonSpecies;
 
     private PokemonInfo _pokemonInfo = new();
 
@@ -90,24 +128,20 @@
         public string FlavourText { get; set; }
     }
     
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        if (Pokemon.Key != null && Pokemon.Value != null)
-        {
-            _pokemonInfo.Id = Pokemon.Key.Id;
-            _pokemonInfo.Name = CommonFunctions.Capitalise(Pokemon.Key.Name);
-            _pokemonInfo.Height = Pokemon.Key.Height.ToString() + "cm";
-            _pokemonInfo.Weight = Pokemon.Key.Weight.ToString() + "g";
-            _pokemonInfo.Abilities = Pokemon.Key.Abilities;
-            _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Key.Types[0].Type.Name).GetValueOrDefault();
-            _pokemonInfo.Type2 = Pokemon.Key.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Key.Types[1].Type.Name).GetValueOrDefault() : null;
-            _pokemonInfo.MainSprite = Pokemon.Key.Sprites.Other.OfficialArtwork.FrontDefault;
-            _pokemonInfo.FlavourText = Pokemon.Value.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText;
-        }
-    }
-
-    private void SetVersion(string version)
-    {
-        SelectedVersion = version;
+        if (Pokemon == null) return;
+        
+        _pokemonSpecies = await pokeApiService.GetPokemonSpeciesAsync(Pokemon);
+        
+        _pokemonInfo.Id = Pokemon.Id;
+        _pokemonInfo.Name = CommonFunctions.Capitalise(Pokemon.Name);
+        _pokemonInfo.Height = Pokemon.Height + "cm";
+        _pokemonInfo.Weight = Pokemon.Weight + "g";
+        _pokemonInfo.Abilities = Pokemon.Abilities;
+        _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Types[0].Type.Name).GetValueOrDefault();
+        _pokemonInfo.Type2 = Pokemon.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(Pokemon.Types[1].Type.Name).GetValueOrDefault() : null;
+        _pokemonInfo.MainSprite = Pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
+        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText.Replace("\n", " ").Replace("\f", " ");
     }
 }
