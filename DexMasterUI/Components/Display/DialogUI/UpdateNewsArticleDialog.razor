@@ -1,0 +1,35 @@
+﻿@inject INewsArticleData NewsArticleDataService
+
+<MudDialog>
+    <DialogContent>
+        <MudPaper Class="pa-4" Outlined="true">
+            <MudForm Model="@NewsArticle">
+                <MudTextField Label="Title" For="@(() => NewsArticle.Title)" FullWidth />
+                <MudTextField Label="Image URL" For="@(() => NewsArticle.Image)" FullWidth />
+                <MudTextField Label="Created By" For="@(() => NewsArticle.CreatedBy)" FullWidth />
+                <MudTextField Label="Excerpt" For="@(() => NewsArticle.Excerpt)" FullWidth />
+                <MudTextField Label="Category" For="@(() => NewsArticle.Category)" FullWidth />
+                <MudTextField Label="Detailed Description" For="@(() => NewsArticle.DetailedDescription)" FullWidth Lines="4" />
+            </MudForm>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="UpdateArticle">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public NewsArticle NewsArticle { get; set; }
+
+    private async Task UpdateArticle()
+    {
+        await NewsArticleDataService.UpdateNewsArticleAsync(NewsArticle);
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    
+    void Cancel() => MudDialog.Cancel();
+}
