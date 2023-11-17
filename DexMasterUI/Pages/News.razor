@@ -1,0 +1,67 @@
+﻿@page "/news"
+@inject INewsArticleData NewsArticleDataService
+@inject IDialogService DialogService
+
+<MudGrid>
+    @if (_newsArticles != null)
+    {
+        @foreach (var news in _newsArticles)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardMedia Image="@news.Image" Height="200"/>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@news.Title</MudText>
+                        <MudText>@news.DatePosted.ToString("MMMM dd, yyyy")</MudText>
+                        <MudText>@news.CreatedBy</MudText>
+                        <MudText>@news.Excerpt</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Color="Color.Primary" Variant="Variant.Text" OnClick="@(() => ViewDetails(news))">Read More</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    }
+</MudGrid>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GenerateTestData">Generate Test Data</MudButton>
+
+
+@code {
+    private List<NewsArticle> _newsArticles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _newsArticles = await NewsArticleDataService.GetAllNewsArticlesAsync();
+    }
+
+    private void ViewDetails(NewsArticle news)
+    {
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters<NewsDetailsDialog> { { p => p.NewsItem, news } };
+        DialogService.Show<NewsDetailsDialog>("News Details", parameters, options);
+    }
+    
+    private void GenerateTestData()
+    {
+        var random = new Random();
+        _newsArticles = new List<NewsArticle>();
+
+        for (int i = 0; i < 10; i++)
+        {
+            _newsArticles.Add(new NewsArticle
+            {
+                Title = $"Test News Title {i + 1}",
+                Image = "https://via.placeholder.com/150", // Placeholder image URL
+                DatePosted = DateTime.Now.AddDays(-random.Next(0, 30)),
+                CreatedBy = $"Author {i + 1}",
+                DetailedDescription = $"This is a detailed description of Test News {i + 1}.",
+                Excerpt = $"This is an excerpt of Test News {i + 1}.",
+                Category = $"Category {random.Next(1, 5)}"
+            });
+        }
+
+        StateHasChanged(); // Refresh the UI to display the new articles
+    }
+}

@@ -8,10 +8,10 @@ public class DbConnection : IDbConnection
     
     public string DbName { get; }
     public string UserCollectionName { get; } = "users";
-    public string AdditionalPokemonCollectionName { get; } = "pokemon_custom";
+    public string NewsArticleCollectionName { get; } = "news-articles";
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
-    public IMongoCollection<CustomPokemonDetails> CustomPokemonDetailsCollection { get; }
+    public IMongoCollection<NewsArticle> NewsArticleCollection { get; }
 
     public DbConnection(IConfiguration config)
     {
@@ -22,7 +22,7 @@ public class DbConnection : IDbConnection
             
             IMongoDatabase db = Client.GetDatabase(DbName);
             UserCollection = db.GetCollection<User>(UserCollectionName);
-            CustomPokemonDetailsCollection = db.GetCollection<CustomPokemonDetails>(AdditionalPokemonCollectionName);
+            NewsArticleCollection = db.GetCollection<NewsArticle>(NewsArticleCollectionName);
         }
         catch (Exception)
         {

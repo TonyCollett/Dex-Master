@@ -1,22 +1,25 @@
-﻿@using System.Net.Http
-@using System.Security.Claims
+﻿@using DexMasterLibrary.Services
+@using DexMasterUI
+@using DexMasterUI.Components
+@using DexMasterUI.Components.Account
+@using DexMasterUI.Components.Admin
+@using DexMasterUI.Components.Display
+@using DexMasterUI.Components.Display.PokemonUI
+@using DexMasterUI.Components.Layout
+@using DexMasterUI.Components.Users
+@using DexMasterUI.Pages.PokemonPages
+@using DexMasterUI.Pages.Abilities
+@using DexMasterUI.Shared
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using MudBlazor
-@using DexMasterUI
-@using DexMasterUI.Shared
-@using DexMasterUI.Components
-@using DexMasterUI.Components.Admin
-@using DexMasterUI.Components.Display
-@using DexMasterUI.Components.Users
-@using DexMasterUI.Components.Layout
-@using DexMasterUI.Components.Account
-@using DexMasterLibrary.Services
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using System.Net.Http
+@using System.Security.Claims
 
 @inject ProtectedLocalStorage protectedLocalStorage
 @inject NavigationManager navManager
@@ -24,7 +27,6 @@
 @inject IPokeApiService pokeApiService
 @inject IHttpContextAccessor httpContextAccessor
 @inject IUserData userData
-@inject ICustomPokemonDetailsData CustomPokemonDetailsData
 @inject IDialogService dialogService
 @inject ISnackbar snackbar
 @inject IDbConnection dbConnection

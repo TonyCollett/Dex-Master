@@ -1,0 +1,118 @@
+@page "/abilities/"
+@using DexMasterLibrary.Enums
+
+@if (_pokemon != null && _pokemonSpecies != null)
+{
+    <MudContainer MaxWidth="MaxWidth.Large">
+        <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
+            <MudItem lg="12">
+                <VersionPicker/>
+            </MudItem>
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudText Typo="Typo.h2">@_pokemonInfo.Name</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="6">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">Type 1</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type1</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="6">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">Type 2</MudText>
+                        <MudText Typo="Typo.h3">@_pokemonInfo.Type2</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudImage Src="@_pokemon.Sprites.FrontDefault"/>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="6">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText Align="Align.Center" Typo="Typo.caption">Height</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Height</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="6">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">Weight</MudText>
+                        <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudStack AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.caption">Dex Entry</MudText>
+                        <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudSpacer />
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudButton>View all details of @_pokemon.Name</MudButton>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+}
+
+@code {
+    [Parameter] 
+    public string PokemonName { get; set; }
+    [Parameter]
+    public string Version { get; set; }
+
+    [CascadingParameter] 
+    public User LoggedInUser { get; set; }
+
+    private PokemonSpecies _pokemonSpecies;
+    private Pokemon _pokemon;
+
+    private PokemonInfo _pokemonInfo = new();
+
+    private class PokemonInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Height { get; set; }
+        public string Weight { get; set; }
+        public List<PokemonAbility> Abilities { get; set; }
+        public Types Type1 { get; set; }
+        public Types? Type2 { get; set; }
+        public string MainSprite { get; set; }
+        public string FlavourText { get; set; }
+    }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        var pokemonSpeciesTask = pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
+        var pokemonTask = pokeApiService.GetPokemonByNameAsync(PokemonName);
+        
+        await Task.WhenAll(pokemonSpeciesTask, pokemonTask);
+        
+        _pokemonSpecies = pokemonSpeciesTask.Result;
+        _pokemon = pokemonTask.Result;
+        
+        _pokemonInfo.Id = _pokemon.Id;
+        _pokemonInfo.Name = CommonFunctions.Capitalise(_pokemon.Name);
+        _pokemonInfo.Height = _pokemon.Height + "cm";
+        _pokemonInfo.Weight = _pokemon.Weight + "g";
+        _pokemonInfo.Abilities = _pokemon.Abilities;
+        _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[0].Type.Name).GetValueOrDefault();
+        _pokemonInfo.Type2 = _pokemon.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[1].Type.Name).GetValueOrDefault() : null;
+        _pokemonInfo.MainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
+        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText.Replace("\n", " ").Replace("\f", " ");
+    }
+}

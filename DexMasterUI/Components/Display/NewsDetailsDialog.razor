@@ -1,0 +1,18 @@
+﻿@inject IDialogService DialogService
+
+<MudPaper Class="pa-4" Outlined="true">
+    <MudText Typo="Typo.h5">@NewsItem.Title</MudText>
+    <MudText>@NewsItem.DatePosted.ToString("MMMM dd, yyyy")</MudText>
+    <MudText>@NewsItem.CreatedBy</MudText>
+    <MudImage Src="@NewsItem.Image" Style="max-height: 300px; width: auto;" />
+    <MudText Class="my-2">@NewsItem.DetailedDescription</MudText>
+    <MudButton Color="Color.Primary" OnClick="@Close">Close</MudButton>
+</MudPaper>
+
+@code {
+    [Parameter] public NewsArticle NewsItem { get; set; }
+    
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    void Close() => MudDialog.Cancel();
+}
