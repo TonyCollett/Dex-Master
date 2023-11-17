@@ -12,6 +12,7 @@ public class User
     public IEnumerable<UserPokemon> UserPokemon { get; set; } = new List<UserPokemon>();
 
     public byte[] ProfilePicture { get; set; }
+    public bool IsAdmin { get; set; }
 }
 
 public class AuthenticationProvider

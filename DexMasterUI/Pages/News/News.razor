@@ -1,0 +1,105 @@
+﻿@page "/news"
+@inject INewsArticleData NewsArticleDataService
+@inject IDialogService DialogService
+
+<MudGrid>
+    @if (_newsArticles != null)
+    {
+        @foreach (var news in _newsArticles)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardMedia Image="@news.Image" Height="200"/>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@news.Title</MudText>
+                        <MudText>@news.DatePosted.ToString("MMMM dd, yyyy")</MudText>
+                        <MudText>@news.CreatedBy</MudText>
+                        <MudText>@news.Excerpt</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Color="Color.Primary" Variant="Variant.Text" OnClick="@(() => ViewDetails(news))">Read More</MudButton>
+                        @if (_loggedInUser != null && _loggedInUser.IsAdmin)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteArticle(news.Id))" />
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    }
+</MudGrid>
+
+@if(_loggedInUser != null && _loggedInUser.IsAdmin)
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@GenerateTestDataAsync">Generate Test Data</MudButton>
+    <MudFab Color="Color.Primary" 
+            Style="position: fixed; bottom: 16px; right: 100px; z-index: 999;"
+            StartIcon="@Icons.Material.Filled.Add"
+            OnClick="OpenCreateArticleDialog" />
+}
+
+@code {
+    private List<NewsArticle> _newsArticles = new();
+    private User _loggedInUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _newsArticles = await NewsArticleDataService.GetAllNewsArticlesAsync();
+        _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+    }
+
+    private void ViewDetails(NewsArticle news)
+    {
+        navManager.NavigateTo($"/news/{news.Id}");
+    }
+    
+    private void OpenCreateArticleDialog()
+    {
+        DialogService.Show<CreateNewsArticleDialog>("Create News Article");
+        
+        StateHasChanged();
+    }
+    
+    private async Task GenerateTestDataAsync()
+    {
+        var random = new Random();
+        for (int i = 0; i < 10; i++)
+        {
+            var newsArticle = new NewsArticle
+            {
+                Title = $"Test News Title {i + 1}",
+                Image = "https://via.placeholder.com/150", // Placeholder image URL
+                DatePosted = DateTime.Now.AddDays(-random.Next(0, 30)),
+                CreatedBy = $"Author {i + 1}",
+                DetailedDescription = $"This is a detailed description of Test News {i + 1}.",
+                Excerpt = $"This is an excerpt of Test News {i + 1}.",
+                Category = $"Category {random.Next(1, 5)}"
+            };
+
+            await NewsArticleDataService.CreateNewsArticleAsync(newsArticle);
+        }
+
+        // Refresh the list of articles to include the newly created ones
+        _newsArticles = await NewsArticleDataService.GetAllNewsArticlesAsync();
+        StateHasChanged(); // Refresh the UI to display the new articles
+    }
+    
+    private async Task DeleteArticle(string id)
+    {
+        DialogOptions options = new() { MaxWidth = MaxWidth.Small };
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure you want to delete this article?", 
+            yesText: "Delete", 
+            cancelText: "Cancel", 
+            options:options);
+        
+        if (result == true)
+        {
+            await NewsArticleDataService.DeleteNewsArticleAsync(id);
+            _newsArticles.Remove(_newsArticles.FirstOrDefault(n => n.Id == id));
+            
+            StateHasChanged(); // Refresh the UI
+        }
+    }
+}

@@ -31,4 +31,10 @@ public class MongoNewsArticleData : INewsArticleData
         var filter = Builders<NewsArticle>.Filter.Eq("Id", newsArticle.Id);
         await _newsArticles.ReplaceOneAsync(filter, newsArticle);
     }
+    
+    public async Task DeleteNewsArticleAsync(string id)
+    {
+        var filter = Builders<NewsArticle>.Filter.Eq("Id", id);
+        await _newsArticles.DeleteOneAsync(filter);
+    }
 }

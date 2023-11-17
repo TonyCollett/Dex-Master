@@ -6,4 +6,5 @@ public interface INewsArticleData
     Task<NewsArticle> GetNewsArticleByIdAsync(string id);
     Task CreateNewsArticleAsync(NewsArticle newsArticle);
     Task UpdateNewsArticleAsync(NewsArticle newsArticle);
+    Task DeleteNewsArticleAsync(string id);
 }

@@ -34,4 +34,8 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\Comments\CommentDisplay.razor" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Items\" />
+  </ItemGroup>
 </Project>

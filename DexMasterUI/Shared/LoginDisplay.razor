@@ -19,7 +19,6 @@
                 </MudStack>
             </ActivatorContent>
             <ChildContent>
-                <MudMenuItem>Notifications</MudMenuItem>
                 <MudMenuItem @onclick="@(() => NavigateTo($"Profile/{LoggedInUser.Id}"))">Profile</MudMenuItem>
                 <MudMenuItem @onclick="@(() => NavigateTo("Identity/Logout", true))">Logout</MudMenuItem>
             </ChildContent>

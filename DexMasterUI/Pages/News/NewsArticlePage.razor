@@ -1,0 +1,29 @@
+﻿@page "/news/{NewsId}"
+
+@inject INewsArticleData NewsArticleDataService
+
+@if (_newsArticle != null)
+{
+    <MudPaper Class="p-4" Elevation="1">
+    <MudText Typo="Typo.h5">@_newsArticle.Title</MudText>
+    <MudText>@_newsArticle.DatePosted.ToString("MMMM dd, yyyy") by @_newsArticle.CreatedBy</MudText>
+    <MudImage Src="@_newsArticle.Image" Style="max-height: 300px; width: auto;" />
+    <MudText Class="my-2">@_newsArticle.DetailedDescription</MudText>
+    </MudPaper>
+}
+else
+{
+    <MudText Typo="Typo.h5">Article not found.</MudText>
+}
+
+@code {
+    [Parameter]
+    public string NewsId { get; set; }
+
+    private NewsArticle _newsArticle;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _newsArticle = await NewsArticleDataService.GetNewsArticleByIdAsync(NewsId);
+    }
+}
