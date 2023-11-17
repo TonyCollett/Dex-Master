@@ -21,7 +21,7 @@
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        <MudCardMedia Image="@Pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="180" />
+        @* <MudCardMedia Image="@Pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="180" /> *@
         <MudCardContent>
             
         </MudCardContent>
@@ -52,7 +52,7 @@
            Width="40%">
     @if (_open)
     {
-        <PokemonDetails Pokemon="@Pokemon"/>
+        <PokemonSidebar Pokemon="@Pokemon"/>
     }
 </MudDrawer>
 

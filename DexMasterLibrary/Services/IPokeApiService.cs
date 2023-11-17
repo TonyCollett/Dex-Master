@@ -24,6 +24,7 @@ public interface IPokeApiService
     public Task<Pokemon> GetPokemonByIdAsync(int id);
     public Task<Pokemon> GetPokemonByNameAsync(string name);
     public Task<PokemonSpecies> GetPokemonSpeciesAsync(Pokemon pokemon);
+    public Task<PokemonSpecies> GetPokemonSpeciesByNameAsync(string pokemonName);
     public Task<Type> GetTypeByIdAsync(int id);
     public Task<Type> GetTypeByNameAsync(string name);
     public Task<Version> GetVersionByNameAsync(string name);
