@@ -1,0 +1,35 @@
+@page "/ItemDex"
+
+<MudPaper Elevation="3" Class="pa-4">
+    <MudText Typo="Typo.h5">Pokémon Items</MudText>
+    <MudTable Items="@_itemList">
+        <HeaderContent>
+            <MudTh></MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh>Cost</MudTh>
+            <MudTh>Attributes</MudTh>
+            <MudTh>Effect</MudTh>
+            <MudTh>Flavor Text</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudAvatar Image="@context.Sprites.Default" Size="Size.Medium" /></MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Category">@context.Category.Name</MudTd>
+            <MudTd DataLabel="Cost">@context.Cost</MudTd>
+            <MudTd DataLabel="Attributes">@string.Join(", ", context.Attributes.Select(a => a.Name))</MudTd>
+            <MudTd DataLabel="Effect">@context.EffectEntries?[0].ShortEffect</MudTd>
+            <MudTd DataLabel="Flavor Text">@context.EffectEntries?[0].Effect</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private IEnumerable<Item> _itemList;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _itemList = await pokeApiService.GetItemListAsync();
+    }
+
+}

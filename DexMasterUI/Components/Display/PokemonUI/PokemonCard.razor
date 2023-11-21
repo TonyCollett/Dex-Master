@@ -4,7 +4,7 @@
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @Pokemon.Id
+                    @PokemonId
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
@@ -59,6 +59,8 @@
 @code {
     [Parameter] 
     public Pokemon Pokemon { get; set; }
+    [Parameter]
+    public int PokemonId { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }

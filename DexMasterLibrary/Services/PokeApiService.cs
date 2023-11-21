@@ -1,4 +1,5 @@
-﻿using Type = PokeApiNet.Type;
+﻿using DexMasterLibrary.Services.DTClasses;
+using Type = PokeApiNet.Type;
 using Version = PokeApiNet.Version;
 
 namespace DexMasterLibrary.Services;
@@ -14,20 +15,20 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int, List<Pokemon>)> FilterPokemonListAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
+    public async Task<(int Count, Dictionary<int, Pokemon> pokemonList)> FilterPokemonListAsync(int limit, int offset,
+        Pokedex pokedex, string searchTerm = "")
     {
         var pokemonInPokedexList = pokedex.PokemonEntries.ToDictionary(p => p.EntryNumber, p => p.PokemonSpecies.Name);
-        
         var filteredPokemon = pokemonInPokedexList
-            .Where(p => p.Value.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
+            .Where(p => p.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
             .Skip(offset).Take(limit)
             .ToDictionary(p => p.Key, p => p.Value);
 
-        List<Pokemon> pokemonList = new();
+        Dictionary<int, Pokemon> pokemonList = new();
         
-        foreach (string pokemonName in filteredPokemon.Values)
+        foreach (KeyValuePair<int, string> pokemonName in filteredPokemon)
         {
-            pokemonList.Add(await Client.GetResourceAsync<Pokemon>(pokemonName));
+            pokemonList.Add(pokemonName.Key, await Client.GetResourceAsync<Pokemon>(pokemonName.Value));
         }
 
         return (pokemonInPokedexList.Count, pokemonList);
@@ -176,5 +177,12 @@ public class PokeApiService : IPokeApiService
         var versionGroups = await Client.GetResourceAsync<VersionGroup>(generation.VersionGroups);
         
         return await Client.GetResourceAsync<Version>(versionGroups.SelectMany(vg => vg.Versions));
+    }
+    
+    public async Task<IEnumerable<Item> > GetItemListAsync()
+    {
+        var items = await Client.GetNamedResourcePageAsync<Item>(500, 0);
+
+        return await Client.GetResourceAsync<Item>(items.Results);
     }
 }
