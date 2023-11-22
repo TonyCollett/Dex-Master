@@ -4,12 +4,12 @@
     <DialogContent>
         <MudPaper Class="pa-4" Outlined="true">
             <MudForm Model="@NewsArticle">
-                <MudTextField Label="Title" For="@(() => NewsArticle.Title)" FullWidth />
-                <MudTextField Label="Image URL" For="@(() => NewsArticle.Image)" FullWidth />
-                <MudTextField Label="Created By" For="@(() => NewsArticle.CreatedBy)" FullWidth />
-                <MudTextField Label="Excerpt" For="@(() => NewsArticle.Excerpt)" FullWidth />
-                <MudTextField Label="Category" For="@(() => NewsArticle.Category)" FullWidth />
-                <MudTextField Label="Detailed Description" For="@(() => NewsArticle.DetailedDescription)" FullWidth Lines="4" />
+                <MudTextField Label="Title" @bind-Value="_copyNewsArticle.Title" FullWidth />
+                <MudTextField Label="Image URL"  @bind-Value="_copyNewsArticle.Image" FullWidth />
+                <MudTextField Label="Created By" @bind-Value="_copyNewsArticle.CreatedBy" FullWidth />
+                <MudTextField Label="Excerpt" @bind-Value="_copyNewsArticle.Excerpt" FullWidth />
+                <MudTextField Label="Category" @bind-Value="_copyNewsArticle.Category" FullWidth />
+                <MudTextField Label="Detailed Description" @bind-Value="_copyNewsArticle.DetailedDescription" FullWidth Lines="4" />
             </MudForm>
         </MudPaper>
     </DialogContent>
@@ -23,13 +23,34 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     
     [Parameter] public NewsArticle NewsArticle { get; set; }
+    
+    private NewsArticle _copyNewsArticle = new NewsArticle();
 
+    protected override void OnParametersSet()
+    {
+        // Create a copy of the original article to work with
+        _copyNewsArticle = new NewsArticle
+        {
+            Id = NewsArticle.Id,
+            Title = NewsArticle.Title,
+            Image = NewsArticle.Image,
+            CreatedBy = NewsArticle.CreatedBy,
+            Excerpt = NewsArticle.Excerpt,
+            Category = NewsArticle.Category,
+            DetailedDescription = NewsArticle.DetailedDescription
+        };
+    }
+    
     private async Task UpdateArticle()
     {
-        await NewsArticleDataService.UpdateNewsArticleAsync(NewsArticle);
+        await NewsArticleDataService.UpdateNewsArticleAsync(_copyNewsArticle);
 
         MudDialog.Close(DialogResult.Ok(true));
     }
     
-    void Cancel() => MudDialog.Cancel();
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
 }
