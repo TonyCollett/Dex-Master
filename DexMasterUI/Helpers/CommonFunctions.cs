@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using DexMasterLibrary.Enums;
 
 namespace DexMasterUI.Helpers
 {
@@ -13,6 +14,33 @@ namespace DexMasterUI.Helpers
             }
 
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+        }
+
+        public static string GetTypeImage(Types type)
+        {
+            Dictionary<Types, string> typeToImageMap = new Dictionary<Types, string>
+            {
+                { Types.Bug, "bug.png" },
+                { Types.Dark, "dark.png" },
+                { Types.Dragon, "dragon.png" },
+                { Types.Electric, "electric.png" },
+                { Types.Fairy, "fairy.png" },
+                { Types.Fighting, "fighting.png" },
+                { Types.Fire, "fire.png" },
+                { Types.Flying, "flying.png" },
+                { Types.Ghost, "ghost.png" },
+                { Types.Grass, "grass.png" },
+                { Types.Ground, "ground.png" },
+                { Types.Ice, "ice.png" },
+                { Types.Normal, "normal.png" },
+                { Types.Poison, "poison.png" },
+                { Types.Psychic, "psychic.png" },
+                { Types.Rock, "rock.png" },
+                { Types.Steel, "steel.png" },
+                { Types.Water, "water.png" }
+            };
+            
+            return typeToImageMap[type];
         }
         
         // Convert string to Type
