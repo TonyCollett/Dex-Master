@@ -1,4 +1,4 @@
-﻿@page "/news"
+﻿@page "/News"
 @inject INewsArticleData NewsArticleDataService
 @inject IDialogService DialogService
 
@@ -51,7 +51,7 @@
 
     private void ViewDetails(NewsArticle news)
     {
-        navManager.NavigateTo($"/news/{news.Id}");
+        navManager.NavigateTo($"/News/{news.Id}");
     }
     
     private async Task OpenCreateArticleDialog()
@@ -103,7 +103,6 @@
         }
     }
     
-        
     private async Task GenerateTestDataAsync()
     {
         var random = new Random();
