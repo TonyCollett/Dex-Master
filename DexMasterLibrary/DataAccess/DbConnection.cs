@@ -9,9 +9,11 @@ public class DbConnection : IDbConnection
     public string DbName { get; }
     public string UserCollectionName { get; } = "users";
     public string NewsArticleCollectionName { get; } = "news-articles";
+    public string ImageAssetCollectionName { get; } = "image-assets";
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
     public IMongoCollection<NewsArticle> NewsArticleCollection { get; }
+    public IMongoCollection<ImageAsset> ImageAssetCollection { get; }
 
     public DbConnection(IConfiguration config)
     {
@@ -23,6 +25,7 @@ public class DbConnection : IDbConnection
             IMongoDatabase db = Client.GetDatabase(DbName);
             UserCollection = db.GetCollection<User>(UserCollectionName);
             NewsArticleCollection = db.GetCollection<NewsArticle>(NewsArticleCollectionName);
+            ImageAssetCollection = db.GetCollection<ImageAsset>(ImageAssetCollectionName);
         }
         catch (Exception)
         {

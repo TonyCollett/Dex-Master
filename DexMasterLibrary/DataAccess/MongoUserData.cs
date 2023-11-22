@@ -9,39 +9,24 @@ public class MongoUserData : IUserData
         _users = db.UserCollection;
     }
 
-    public async Task<List<User>> GetAllUsersAsync(bool ignoreCache = false)
-    {
-        var results = await _users.FindAsync(_ => true);
-        return results.ToList();
-    }
+    public async Task<List<User>> GetAllUsersAsync() 
+        => await _users.Find(_ => true).ToListAsync();
 
-    public async Task<User> GetUserByBsonIdAsync(string id)
-    {
-        var results = await _users.FindAsync(u => u.Id == id);
-        return results.FirstOrDefault();
-    }
+    public async Task<User> GetUserByIdAsync(string id) 
+        => await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
 
-    public async Task<User> GetUserByUsernameAsync(string username)
-    {
-        var results = await _users.FindAsync(u => u.Username == username);
-        return results.FirstOrDefault();
-    }
+    public async Task<User> GetUserByUsernameAsync(string username) 
+        => await _users.Find(u => u.Username == username).FirstOrDefaultAsync();
 
-    public async Task<User> GetUserFromAuthentication(string objectId)
-    {
-        var results = await _users.FindAsync(u => u.AuthenticationMethod.NameIdentifier == objectId);
-        return results.FirstOrDefault();
-    }
+    public async Task<User> GetUserFromAuthentication(string objectId) 
+        => await _users.Find(u => u.AuthenticationMethod.NameIdentifier == objectId).FirstOrDefaultAsync();
 
     public async Task CreateUserAsync(User user)
-    {
-        await _users.InsertOneAsync(user);
-    }
+        => await _users.InsertOneAsync(user);
+    
 
     public async Task CreateMultipleUsersAsync(IEnumerable<User> users)
-    {
-        await _users.InsertManyAsync(users);
-    }
+        => await _users.InsertManyAsync(users);
 
     public async Task UpdateUserAsync(User user)
     {
@@ -56,9 +41,6 @@ public class MongoUserData : IUserData
         await _users.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
     }
 
-    public async Task<bool> CheckUsernameExists(string username)
-    {
-        var results = await _users.FindAsync(u => u.Username == username);
-        return results.Any();
-    }
+    public async Task<bool> CheckUsernameExists(string username) 
+        => await _users.Find(u => u.Username == username).AnyAsync();
 }

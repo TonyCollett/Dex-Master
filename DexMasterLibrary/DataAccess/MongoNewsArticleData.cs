@@ -9,17 +9,9 @@ public class MongoNewsArticleData : INewsArticleData
         _newsArticles = db.NewsArticleCollection;
     }
 
-    public async Task<List<NewsArticle>> GetAllNewsArticlesAsync()
-    {
-        var results = await _newsArticles.FindAsync(_ => true);
-        return results.ToList();
-    }
+    public async Task<List<NewsArticle>> GetAllNewsArticlesAsync() => await _newsArticles.Find(_ => true).ToListAsync();
 
-    public async Task<NewsArticle> GetNewsArticleByIdAsync(string id)
-    {
-        var results = await _newsArticles.FindAsync(n => n.Id == id);
-        return await results.FirstOrDefaultAsync();
-    }
+    public async Task<NewsArticle> GetNewsArticleByIdAsync(string id) => await _newsArticles.Find(n => n.Id == id).FirstOrDefaultAsync();
 
     public async Task CreateNewsArticleAsync(NewsArticle newsArticle)
     {
