@@ -50,6 +50,30 @@
     protected override async Task OnInitializedAsync()
     {
         _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+        
+        if (_loggedInUser != null && string.IsNullOrWhiteSpace(_loggedInUser.Username))
+        {
+            var parameters = new DialogParameters
+            {
+                ["UserId"] = _loggedInUser.Id
+            };
+
+            var options = new DialogOptions { 
+                CloseButton = false, 
+                MaxWidth = MaxWidth.Small, 
+                FullWidth = true, 
+                CloseOnEscapeKey = false, 
+                DisableBackdropClick = true,
+            };
+            IDialogReference dialog = dialogService.Show<ChangeUsernameDialog>("Change Username", parameters, options);
+            DialogResult result = await dialog.Result;
+
+            if (result.Canceled == false)
+            {
+                _loggedInUser = await authProvider.GetUserFromAuthAsync(userData);
+                StateHasChanged();
+            }
+        }
     }
 
     private void GoHome()

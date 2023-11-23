@@ -1,5 +1,3 @@
-@inject IDialogService DialogService
-
 <AuthorizeView>
     <Authorized>
         @if (LoggedInUser != null)
@@ -50,32 +48,6 @@
 @code {
     [Parameter]
     public User LoggedInUser { get; set; }
-    
-    protected override async Task OnParametersSetAsync()
-    {
-        if (LoggedInUser != null && string.IsNullOrWhiteSpace(LoggedInUser.Username))
-        {
-            var parameters = new DialogParameters
-            {
-                ["UserId"] = LoggedInUser.Id
-            };
-
-            var options = new DialogOptions { 
-                CloseButton = false, 
-                MaxWidth = MaxWidth.Small, 
-                FullWidth = true, 
-                CloseOnEscapeKey = false, 
-                DisableBackdropClick = true,
-            };
-            IDialogReference dialog = DialogService.Show<ChangeUsernameDialog>("Change Username", parameters, options);
-            DialogResult result = await dialog.Result;
-
-            if (result.Canceled == false)
-            {
-                StateHasChanged();
-            }
-        }
-    }
 
     private void NavigateTo(string url, bool forceReload = false)
     {
