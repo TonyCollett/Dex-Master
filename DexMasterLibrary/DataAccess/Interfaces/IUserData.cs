@@ -9,6 +9,7 @@ public interface IUserData
     Task<User> GetUserFromAuthentication(string objectId);
     Task<List<User>> GetAllUsersAsync();
     Task UpdateUserAsync(User user);
+    Task UpdateUsernameByIdAsync(string userId, string username);
     Task UserLoggedInAsync(User user);
     Task<bool> CheckUsernameExists(string username);
 }

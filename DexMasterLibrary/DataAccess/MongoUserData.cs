@@ -33,6 +33,14 @@ public class MongoUserData : IUserData
         var filter = Builders<User>.Filter.Eq("Id", user.Id);
         await _users.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
     }
+    
+    public async Task UpdateUsernameByIdAsync(string userId, string username)
+    {
+        User user = await GetUserByIdAsync(userId);
+        user.Username = username;
+        var filter = Builders<User>.Filter.Eq("Id", userId);
+        await _users.ReplaceOneAsync(filter, user, new ReplaceOptions { IsUpsert = true });
+    }
 
     public async Task UserLoggedInAsync(User user)
     {
