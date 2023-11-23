@@ -13,7 +13,7 @@ public class DbConnection : IDbConnection
     public MongoClient Client { get; }
     public IMongoCollection<User> UserCollection { get; }
     public IMongoCollection<NewsArticle> NewsArticleCollection { get; }
-    public IMongoCollection<ImageAsset> ImageAssetCollection { get; }
+    public IMongoCollection<ImageAsset?> ImageAssetCollection { get; }
 
     public DbConnection(IConfiguration config)
     {

@@ -38,7 +38,7 @@ namespace DexMasterUI.Pages.Identity
         public async Task<IActionResult> OnGetCallback(string returnUrl = null, string remoteError = null)
         {
             // Get the information about the user from the external login provider
-            var authenticatedUser = this.User.Identities.FirstOrDefault();
+            ClaimsIdentity authenticatedUser = User.Identities.FirstOrDefault();
 
             if (authenticatedUser is { IsAuthenticated: true })
             {
@@ -62,6 +62,11 @@ namespace DexMasterUI.Pages.Identity
                 {
                     user.LastLoggedInDate = DateTime.Now;
                     await _userData.UpdateUserAsync(user);
+                }
+                
+                if (user.IsAdmin)
+                {
+                    authenticatedUser.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
                 }
 
                 var authProperties = new AuthenticationProperties

@@ -8,6 +8,6 @@ public interface IDbConnection
     string UserCollectionName { get; }
     IMongoCollection<NewsArticle> NewsArticleCollection { get; }
     string NewsArticleCollectionName { get; }
-    IMongoCollection<ImageAsset> ImageAssetCollection { get; }
+    IMongoCollection<ImageAsset?> ImageAssetCollection { get; }
     string ImageAssetCollectionName { get; }
 }
