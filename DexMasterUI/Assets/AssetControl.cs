@@ -6,10 +6,8 @@ namespace DexMasterUI.Assets;
 public class AssetControl
 {
     public static string GetImageForPokemonType(PokemonType type)
-    {
-        return GetEmbeddedImageAsBase64("PokemonTypes.Pokemon_Type_Icon_" + type.ToString() + ".png");
-    }     
-    
+        => GetEmbeddedImageAsBase64("PokemonTypes.Pokemon_Type_Icon_" + type.ToString() + ".png");
+
     private static string GetEmbeddedImageAsBase64(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
