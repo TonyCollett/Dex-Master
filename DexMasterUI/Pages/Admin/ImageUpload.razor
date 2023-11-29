@@ -1,10 +1,12 @@
 ﻿@page "/upload-image"
+@using DexMasterUI.Assets
+@using DexMasterUI.Assets.Enums
 @attribute [Authorize(Roles = "Admin")]
 @inject IImageAssetData ImageAssetData
 
 <h3>Upload Image</h3>
 
-<MudFileUpload T="IReadOnlyList<IBrowserFile>" Accept=".png, .jpg" FilesChanged="UploadFiles" MaximumFileCount="100">
+<MudFileUpload T="IReadOnlyList<IBrowserFile>" Accept=".png, .jpg, .svg" FilesChanged="UploadFiles" MaximumFileCount="100">
     <ButtonTemplate>
         <MudButton HtmlTag="label"
                    Variant="Variant.Filled"
@@ -16,19 +18,18 @@
     </ButtonTemplate>
 </MudFileUpload>
 
-@if (_imageAsset != null)
-{
+
     <div class="mt-4">
-        <img src="@ConvertToBase64ImageString(_imageAsset.Data, _imageAsset.ContentType)" alt="@_imageAsset.Name" />
+        <img src="@image" alt="TEST" />
     </div>
-}
+
 
 @code {
-    ImageAsset _imageAsset;
+    string image = string.Empty;
     
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        _imageAsset = await ImageAssetData.GetImageAssetByNameAsync("test.png");
+        image = AssetControl.GetImageForPokemonType(PokemonType.Rock);
     }
     
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)

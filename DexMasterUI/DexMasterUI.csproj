@@ -14,6 +14,42 @@
     <EmbeddedResource Remove="Services\**" />
     <None Remove="Services\**" />
     <None Remove="Components\Account\" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Bug.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Bug.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Dark.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Dark.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Dragon.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Dragon.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Electric.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Electric.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fairy.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fairy.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fighting.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fighting.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fire.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Fire.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Flying.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Flying.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ghost.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ghost.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Grass.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Grass.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ground.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ground.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ice.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Ice.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Normal.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Normal.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Poison.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Poison.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Psychic.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Psychic.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Rock.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Rock.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Steel.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Steel.png" />
+    <None Remove="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Water.png" />
+    <EmbeddedResource Include="Assets\Images\PokemonTypes\Pokemon_Type_Icon_Water.png" />
   </ItemGroup>
 
   <ItemGroup>
