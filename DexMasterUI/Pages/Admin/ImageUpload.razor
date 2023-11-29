@@ -16,7 +16,21 @@
     </ButtonTemplate>
 </MudFileUpload>
 
+@if (_imageAsset != null)
+{
+    <div class="mt-4">
+        <img src="@ConvertToBase64ImageString(_imageAsset.Data, _imageAsset.ContentType)" alt="@_imageAsset.Name" />
+    </div>
+}
+
 @code {
+    ImageAsset _imageAsset;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        _imageAsset = await ImageAssetData.GetImageAssetByNameAsync("test.png");
+    }
+    
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
         List<ImageAsset> imageAssets = new();
@@ -26,6 +40,7 @@
             var imageAsset = new ImageAsset
             {
                 Name = file.Name,
+                ContentType = file.ContentType,
                 Data = await ConvertToByteArrayAsync(file)
             };
             
@@ -40,5 +55,10 @@
         using var memoryStream = new MemoryStream();
         await imageFile.OpenReadStream(5000000).CopyToAsync(memoryStream); // 5 MB size limit
         return memoryStream.ToArray();
+    }
+    
+    private string ConvertToBase64ImageString(byte[] byteArray, string contentType)
+    {
+        return $"data:image/{contentType.Replace(".", "")};base64,{Convert.ToBase64String(byteArray)}";
     }
 }
