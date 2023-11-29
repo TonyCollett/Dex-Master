@@ -2,6 +2,9 @@ namespace DexMasterUI.Helpers;
 
 public static class AuthenticationStateProviderHelpers
 {
+    /// <summary>
+    /// Get the User from the AuthenticationStateProvider
+    /// </summary>
     public static async Task<User> GetUserFromAuthAsync(this AuthenticationStateProvider provider, IUserData userData)
     {
         var authState = await provider.GetAuthenticationStateAsync();

@@ -6,6 +6,9 @@ namespace DexMasterUI.Helpers
 {
     public static class CommonFunctions
     {
+        /// <summary>
+        /// Capitalise the first letter of a string
+        /// </summary>
         public static string Capitalise(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -16,7 +19,9 @@ namespace DexMasterUI.Helpers
             return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
         }
         
-        // Convert string to Type
+        /// <summary>
+        /// Convert a string to an enum
+        /// </summary>
         public static T? ConvertStringToEnum<T>(string input) where T : struct
         {
             if (string.IsNullOrEmpty(input))
@@ -27,7 +32,11 @@ namespace DexMasterUI.Helpers
             return Enum.TryParse(input, true, out T output) ? output : null;
         }
         
-        // Clean up Version and Generation string
+        /// <summary>
+        /// Advanced version of Capitalise that also cleans up the string
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string CleanAndCapitalise(string input)
         {
             string[] words = input.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
@@ -63,6 +72,9 @@ namespace DexMasterUI.Helpers
             return cleanedString;
         }
 
+        /// <summary>
+        /// Check if a string is a Roman numeral
+        /// </summary>
         private static bool IsRomanNumeral(string word)
         {
             // Use a regular expression to check for valid Roman numerals
