@@ -17,6 +17,7 @@
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudText Typo="Typo.h2">@_pokemonInfo.Id</MudText>
                     <MudText Typo="Typo.h2">@_pokemonInfo.Name</MudText>
                 </MudPaper>
             </MudItem>
@@ -87,7 +88,7 @@
 
     private class PokemonInfo
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; }
         public string Height { get; set; }
         public string Weight { get; set; }
@@ -106,8 +107,9 @@
         bool pokemonExistsInPokedex = pokedex.PokemonEntries.Any(x => x.PokemonSpecies.Name == PokemonName);
         _pokemonSpecies = await pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
         _pokemon = await pokeApiService.GetPokemonByNameAsync(PokemonName);
+        EvolutionChain evolutionChain = await pokeApiService.GetEvolutionChainAsync(_pokemonSpecies);
         
-        _pokemonInfo.Id = _pokemon.Id;
+        _pokemonInfo.Id = _pokemonSpecies.PokedexNumbers.Where(x => x.Pokedex.Name == pokedex.Name).FirstOrDefault()?.EntryNumber;
         _pokemonInfo.Name = CommonFunctions.Capitalise(_pokemon.Name);
         _pokemonInfo.Height = _pokemon.Height + "cm";
         _pokemonInfo.Weight = _pokemon.Weight + "g";

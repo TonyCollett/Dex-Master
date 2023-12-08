@@ -33,4 +33,5 @@ public interface IPokeApiService
     public Task<IEnumerable<VersionGroup>> GetVersionGroupListAsync();
     public Task<IEnumerable<Version>> GetAllVersionsOfGenerationAsync(Generation generation);
     public Task<IEnumerable<Item>> GetItemListAsync();
+    public Task<EvolutionChain> GetEvolutionChainAsync(PokemonSpecies pokemonSpecies);
 }

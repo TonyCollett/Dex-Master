@@ -184,4 +184,9 @@ public class PokeApiService : IPokeApiService
 
         return await Client.GetResourceAsync<Item>(items.Results);
     }
+    
+    public async Task<EvolutionChain> GetEvolutionChainAsync(PokemonSpecies pokemonSpecies)
+    {
+        return await Client.GetResourceAsync<EvolutionChain>(pokemonSpecies.EvolutionChain);
+    }
 }
