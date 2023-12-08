@@ -1,8 +1,15 @@
 @page "/pokemon/{PokemonName}/{Version}"
 @using DexMasterLibrary.Enums
+@using Version = PokeApiNet.Version
 
-@if (_pokemon != null && _pokemonSpecies != null)
+<MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@if (_isLoading == false)
 {
+    <PageTitle>DexMaster - @_pokemon.Name</PageTitle>
+    
     <MudContainer MaxWidth="MaxWidth.Large">
         <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
             <MudItem lg="12">
@@ -58,12 +65,6 @@
                     </MudStack>
                 </MudPaper>
             </MudItem>
-            <MudSpacer />
-            <MudItem lg="12">
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudButton>View all details of @_pokemon.Name</MudButton>
-                </MudPaper>
-            </MudItem>
         </MudGrid>
     </MudContainer>
 }
@@ -79,6 +80,8 @@
 
     private PokemonSpecies _pokemonSpecies;
     private Pokemon _pokemon;
+
+    private bool _isLoading = true;
 
     private PokemonInfo _pokemonInfo = new();
 
@@ -97,13 +100,12 @@
     
     protected override async Task OnParametersSetAsync()
     {
-        var pokemonSpeciesTask = pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
-        var pokemonTask = pokeApiService.GetPokemonByNameAsync(PokemonName);
-        
-        await Task.WhenAll(pokemonSpeciesTask, pokemonTask);
-        
-        _pokemonSpecies = pokemonSpeciesTask.Result;
-        _pokemon = pokemonTask.Result;
+        Version version = await pokeApiService.GetVersionByNameAsync(Version);
+        VersionGroup versionGroup = await pokeApiService.GetVersionGroupByNameAsync(version.VersionGroup.Name);
+        Pokedex pokedex = await pokeApiService.GetPokedexByNameAsync(versionGroup.Pokedexes[0].Name);
+        bool pokemonExistsInPokedex = pokedex.PokemonEntries.Any(x => x.PokemonSpecies.Name == PokemonName);
+        _pokemonSpecies = await pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
+        _pokemon = await pokeApiService.GetPokemonByNameAsync(PokemonName);
         
         _pokemonInfo.Id = _pokemon.Id;
         _pokemonInfo.Name = CommonFunctions.Capitalise(_pokemon.Name);
@@ -113,6 +115,13 @@
         _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[0].Type.Name).GetValueOrDefault();
         _pokemonInfo.Type2 = _pokemon.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[1].Type.Name).GetValueOrDefault() : null;
         _pokemonInfo.MainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
-        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText.Replace("\n", " ").Replace("\f", " ");
+        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries
+            .Where(x => x.Version.Name == version.Name)
+            .Where(x => x.Language.Name == "en")
+            .FirstOrDefault()?.FlavorText
+            .Replace("\n", " ")
+            .Replace("\f", " ");
+
+        _isLoading = false;
     }
 }
