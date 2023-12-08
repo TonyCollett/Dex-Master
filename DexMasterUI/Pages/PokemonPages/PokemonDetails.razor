@@ -1,6 +1,7 @@
 @page "/pokemon/{PokemonName}/{Version}"
 @using DexMasterLibrary.Enums
 @using Version = PokeApiNet.Version
+@using System.Text
 
 <MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -37,9 +38,19 @@
                     </MudStack>
                 </MudPaper>
             </MudItem>
-            <MudItem lg="12">
+            <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudImage Src="@_pokemon.Sprites.FrontDefault"/>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="6">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudImage Src="@_pokemon.Sprites.FrontShiny"/>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    Evolution Chain
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
@@ -96,6 +107,7 @@
         public Types Type1 { get; set; }
         public Types? Type2 { get; set; }
         public string MainSprite { get; set; }
+        public string ShinyMainSprite { get; set; }
         public string FlavourText { get; set; }
     }
     
@@ -109,6 +121,8 @@
         _pokemon = await pokeApiService.GetPokemonByNameAsync(PokemonName);
         EvolutionChain evolutionChain = await pokeApiService.GetEvolutionChainAsync(_pokemonSpecies);
         
+        var evolutionChainInfo = GetEvolutionChainInfo(evolutionChain);
+        
         _pokemonInfo.Id = _pokemonSpecies.PokedexNumbers.Where(x => x.Pokedex.Name == pokedex.Name).FirstOrDefault()?.EntryNumber;
         _pokemonInfo.Name = CommonFunctions.Capitalise(_pokemon.Name);
         _pokemonInfo.Height = _pokemon.Height + "cm";
@@ -117,6 +131,7 @@
         _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[0].Type.Name).GetValueOrDefault();
         _pokemonInfo.Type2 = _pokemon.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[1].Type.Name).GetValueOrDefault() : null;
         _pokemonInfo.MainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
+        _pokemonInfo.ShinyMainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontShiny;
         _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries
             .Where(x => x.Version.Name == version.Name)
             .Where(x => x.Language.Name == "en")
@@ -126,4 +141,77 @@
 
         _isLoading = false;
     }
+    
+    public static string GetEvolutionChainInfo(EvolutionChain chain)
+    {
+        StringBuilder evolutionInfo = new StringBuilder();
+        AppendEvolutionDetails(chain.Chain, evolutionInfo);
+        return evolutionInfo.ToString().TrimEnd(',', ' ');
+    }
+
+    private static void AppendEvolutionDetails(ChainLink currentStage, StringBuilder evolutionInfo)
+    {
+        if (currentStage == null || currentStage.EvolvesTo == null || currentStage.EvolvesTo.Count == 0)
+            return;
+
+        foreach (var nextStage in currentStage.EvolvesTo)
+        {
+            evolutionInfo.Append(currentStage.Species.Name + " -> " + nextStage.Species.Name);
+
+            if (nextStage.EvolutionDetails != null && nextStage.EvolutionDetails.Any())
+            {
+                foreach (var detail in nextStage.EvolutionDetails)
+                {
+                    var method = detail.Trigger?.Name;
+                    var item = detail.Item?.Name;
+                    var level = detail.MinLevel;
+                    var happiness = detail.MinHappiness;
+                    var timeOfDay = detail.TimeOfDay;
+                    var location = detail.Location?.Name;
+                    var moveType = detail.KnownMoveType?.Name;
+
+                    evolutionInfo.Append(" (");
+
+                    if (method == "level-up")
+                    {
+                        if (level.HasValue)
+                        {
+                            evolutionInfo.Append("Level " + level.Value);
+                        }
+                        else if (happiness.HasValue)
+                        {
+                            evolutionInfo.Append("Happiness " + happiness.Value);
+                        }
+                        else if (!string.IsNullOrEmpty(timeOfDay))
+                        {
+                            evolutionInfo.Append("Time of Day " + timeOfDay);
+                        }
+                        else if (!string.IsNullOrEmpty(location))
+                        {
+                            evolutionInfo.Append("Location " + location);
+                        }
+                        else if (moveType != null)
+                        {
+                            evolutionInfo.Append("Knows " + moveType + " move");
+                        }
+                    }
+                    else if (method == "use-item" && item != null)
+                    {
+                        evolutionInfo.Append("Use " + item);
+                    }
+                    else if (method == "trade")
+                    {
+                        evolutionInfo.Append("Trade");
+                        if (detail.HeldItem != null)
+                        {
+                            evolutionInfo.Append(" with " + detail.HeldItem.Name);
+                        }
+                    }
+
+                    evolutionInfo.Append("), ");
+                }
+            }
+        }
+    }
+
 }
