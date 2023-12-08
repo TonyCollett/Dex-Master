@@ -1,5 +1,4 @@
-﻿global using Bogus;
-global using DexMasterLibrary.DataAccess;
+﻿global using DexMasterLibrary.DataAccess;
 global using DexMasterLibrary.DataAccess.Interfaces;
 global using DexMasterLibrary.Models;
 global using DexMasterUI.Helpers;

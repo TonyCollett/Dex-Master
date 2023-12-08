@@ -25,7 +25,7 @@ public class DbConnection : IDbConnection
             IMongoDatabase db = Client.GetDatabase(DbName);
             UserCollection = db.GetCollection<User>(UserCollectionName);
             NewsArticleCollection = db.GetCollection<NewsArticle>(NewsArticleCollectionName);
-            ImageAssetCollection = db.GetCollection<ImageAsset>(ImageAssetCollectionName);
+            ImageAssetCollection = db.GetCollection<ImageAsset?>(ImageAssetCollectionName);
         }
         catch (Exception)
         {

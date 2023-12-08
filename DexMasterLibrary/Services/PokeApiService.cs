@@ -1,5 +1,4 @@
-﻿using DexMasterLibrary.Services.DTClasses;
-using Type = PokeApiNet.Type;
+﻿using Type = PokeApiNet.Type;
 using Version = PokeApiNet.Version;
 
 namespace DexMasterLibrary.Services;
