@@ -13,7 +13,7 @@
         <MudText Class="pl-4" Typo="Typo.h4" @onclick="GoHome">Dex-Master</MudText>
         <MudSpacer />
         <MudStack AlignItems="AlignItems.Center" Row="true">
-            <SearchBar OnSearchCallback="@PerformSearch"/>
+            <SearchBar OnSearchCallback="@((args)=> PerformSearch(args.Item1,args.Item2))"/>
             <MudDivider Vertical="true" FlexItem="true" />
             <MudToggleIconButton @bind-Toggled="@_isDarkMode" 
                 Color="Color.Surface" Icon="@Icons.Material.Filled.DarkMode"
@@ -89,8 +89,8 @@
         StateHasChanged();
     }
 
-    private void PerformSearch(string searchText)
+    private void PerformSearch(string searchArea, string searchText)
     {
-        navManager.NavigateTo($"{searchText}", forceLoad: true);
+        navManager.NavigateTo($"/{searchArea}/Search/{searchText}", forceLoad: true);
     }
 }

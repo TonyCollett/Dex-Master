@@ -40,7 +40,7 @@
         <MudText>There was a problem fetching Pokemon</MudText>
     }
     
-    @if (_limit > 0)
+    @if (_totalPages > 1)
     {
         <MudPaper>
             <MudGrid Class="d-flex align-center mud-width-full py-3">
@@ -119,6 +119,11 @@
         {
             pokemonEntriesCount = _pokedex.PokemonEntries.Count(p => p.PokemonSpecies.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
             _pokemon = await pokeApiService.SearchPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage - 1) * _limit, _pokedex, SearchTerm);
+
+            if (_pokemon.Count() == 1 || _pokemon.Any(p => p.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)))
+            {
+                navManager.NavigateTo($"/Pokemon/{_pokemon.First(p => p.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)).Name}/{_pokedex.Name}");
+            }
         }
         else
         {

@@ -8,23 +8,27 @@
               OnAdornmentClick="PerformSearch" 
               OnKeyPress="Enter" />
 
-<MudSelect Value="_searchArea" 
+<MudSelect @bind-Value="_searchArea" 
            T="string" 
            Label="Area" 
            AnchorOrigin="Origin.BottomCenter" 
            Margin="Margin.Dense" 
            Variant="Variant.Outlined">
-    <MudSelectItem Value="@("Pokemon")" />
-    <MudSelectItem Value="@("Item")" />
-    <MudSelectItem Value="@("Ability")" />
+    <MudSelectItem Value="@POKEMON" />
+    <MudSelectItem Value="@ITEM" />
+    <MudSelectItem Value="@ABILITY" />
 </MudSelect>
 
 @code {
     [Parameter]
-    public EventCallback<string> OnSearchCallback { get; set; }
+    public EventCallback<(string, string)> OnSearchCallback { get; set; }
 
+    private const string POKEMON = "Pokemon";
+    private const string ITEM = "Item"; 
+    private const string ABILITY = "Ability"; 
+    
     private string _searchTerm;
-    private string _searchArea = "Pokemon";
+    private string _searchArea = POKEMON;
 
     private async Task Enter(KeyboardEventArgs args)
     {
@@ -36,6 +40,6 @@
 
     private async Task PerformSearch()
     {
-        await OnSearchCallback.InvokeAsync($"/{_searchArea}/Search/{_searchTerm}");
+        await OnSearchCallback.InvokeAsync((_searchArea, _searchTerm));
     }
 }
