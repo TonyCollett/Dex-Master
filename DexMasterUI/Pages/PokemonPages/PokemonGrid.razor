@@ -23,7 +23,9 @@
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
-                        <PokemonCard PokemonId="@pokemon.Key" Pokemon="@pokemon.Value"/>
+                        <CascadingValue Value="@_pokedex.Name">
+                            <PokemonCard PokemonSpecies="@pokemon"/>
+                        </CascadingValue>
                     </CascadingValue>
                 </MudItem>
             }
@@ -84,7 +86,7 @@
     private const string SavedLimit = "Limit";
 
     private Pokedex _pokedex;
-    private Dictionary<int, Pokemon> _pokemon;
+    private IEnumerable<PokemonSpecies> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;
@@ -109,9 +111,8 @@
     {
         _isLoading = true;
         
-        var fetchPokemon = await pokeApiService.FilterPokemonListAsync(_limit, (_currentPage-1) * _limit, _pokedex, SearchTerm);
-        _totalPokemon = fetchPokemon.Count;
-        _pokemon = fetchPokemon.pokemonList;
+        _pokemon = await pokeApiService.GetPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage-1) * _limit, _pokedex);
+        _totalPokemon = _pokedex.PokemonEntries.Count;
 
         _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)_totalPokemon / _limit);
 

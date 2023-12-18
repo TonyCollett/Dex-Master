@@ -1,4 +1,5 @@
-﻿using Type = PokeApiNet.Type;
+﻿using System.Diagnostics;
+using Type = PokeApiNet.Type;
 using Version = PokeApiNet.Version;
 
 namespace DexMasterLibrary.Services;
@@ -14,23 +15,9 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<(int Count, Dictionary<int, Pokemon> pokemonList)> FilterPokemonListAsync(int limit, int offset,
-        Pokedex pokedex, string searchTerm = "")
+    public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex)
     {
-        var pokemonInPokedexList = pokedex.PokemonEntries.ToDictionary(p => p.EntryNumber, p => p.PokemonSpecies.Name);
-        var filteredPokemon = pokemonInPokedexList
-            .Where(p => p.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            .Skip(offset).Take(limit)
-            .ToDictionary(p => p.Key, p => p.Value);
-
-        Dictionary<int, Pokemon> pokemonList = new();
-        
-        foreach (KeyValuePair<int, string> pokemonName in filteredPokemon)
-        {
-            pokemonList.Add(pokemonName.Key, await Client.GetResourceAsync<Pokemon>(pokemonName.Value));
-        }
-
-        return (pokemonInPokedexList.Count, pokemonList);
+        return await Client.GetResourceAsync<PokemonSpecies>(pokedex.PokemonEntries.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)
@@ -43,6 +30,27 @@ public class PokeApiService : IPokeApiService
     public async Task<PokemonSpecies> GetPokemonSpeciesAsync(Pokemon pokemon)
     {
         return await Client.GetResourceAsync<PokemonSpecies>(pokemon.Species);
+    }
+    
+    public async Task<IEnumerable<Pokemon>> GetPokemonVarietiesAsync(PokemonSpecies pokemonSpecies)
+    {
+        return await Client.GetResourceAsync<Pokemon>(pokemonSpecies.Varieties.Select(v => v.Pokemon));
+    }
+    
+    public async Task<IEnumerable<PokemonSpecies>> GetAllPokemonSpeciesAsync()
+    {
+        List<PokemonSpecies> pokemonSpeciesList = new List<PokemonSpecies>();
+        
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        await foreach (var pokemonSpecies in Client.GetAllNamedResourcesAsync<PokemonSpecies>())
+        {
+            pokemonSpeciesList.Add(await Client.GetResourceAsync(pokemonSpecies));
+        }
+        stopwatch.Stop();
+        Console.WriteLine($"Time taken to get all Pokemon Species: {stopwatch.ElapsedMilliseconds}ms");
+        
+        return pokemonSpeciesList;
     }
     
     public async Task<PokemonSpecies> GetPokemonSpeciesByNameAsync(string pokemonName)
@@ -159,7 +167,6 @@ public class PokeApiService : IPokeApiService
 
         return await Client.GetResourceAsync<VersionGroup>(versionGroups.Results);
     }
-    
     
     public async Task<Version> GetVersionByNameAsync(string name)
     {
