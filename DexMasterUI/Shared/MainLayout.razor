@@ -91,6 +91,6 @@
 
     private void PerformSearch(string searchText)
     {
-        navManager.NavigateTo($"/Search/{searchText}");
+        navManager.NavigateTo($"{searchText}", forceLoad: true);
     }
 }

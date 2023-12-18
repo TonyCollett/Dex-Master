@@ -19,6 +19,13 @@ public class PokeApiService : IPokeApiService
     {
         return await Client.GetResourceAsync<PokemonSpecies>(pokedex.PokemonEntries.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
     }
+    
+    public async Task<IEnumerable<PokemonSpecies>> SearchPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
+    {
+        var pokemonSearchList = pokedex.PokemonEntries.Where(p => p.PokemonSpecies.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        
+        return await Client.GetResourceAsync<PokemonSpecies>(pokemonSearchList.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
+    }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)
     {

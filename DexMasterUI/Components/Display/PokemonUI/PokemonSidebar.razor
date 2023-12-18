@@ -97,7 +97,7 @@
         
         _pokemonVarieties = await pokeApiService.GetPokemonVarietiesAsync(PokemonSpecies);
         
-        Pokemon defaultPokemonVariety = _pokemonVarieties.FirstOrDefault(x => x.IsDefault);
+        Pokemon defaultPokemonVariety = _pokemonVarieties.FirstOrDefault(x => x.IsDefault)!;
         
         _pokemonInfo.Id = PokemonSpecies.Id;
         _pokemonInfo.Name = CommonFunctions.Capitalise(PokemonSpecies.Name);

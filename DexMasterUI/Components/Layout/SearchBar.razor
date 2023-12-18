@@ -1,4 +1,4 @@
-﻿<MudTextField Label="Search Pokemon" 
+﻿<MudTextField Label="Search" 
               @bind-Value="_searchTerm" 
               Margin="Margin.Dense" 
               Variant="Variant.Outlined" 
@@ -8,11 +8,23 @@
               OnAdornmentClick="PerformSearch" 
               OnKeyPress="Enter" />
 
+<MudSelect Value="_searchArea" 
+           T="string" 
+           Label="Area" 
+           AnchorOrigin="Origin.BottomCenter" 
+           Margin="Margin.Dense" 
+           Variant="Variant.Outlined">
+    <MudSelectItem Value="@("Pokemon")" />
+    <MudSelectItem Value="@("Item")" />
+    <MudSelectItem Value="@("Ability")" />
+</MudSelect>
+
 @code {
     [Parameter]
     public EventCallback<string> OnSearchCallback { get; set; }
 
     private string _searchTerm;
+    private string _searchArea = "Pokemon";
 
     private async Task Enter(KeyboardEventArgs args)
     {
@@ -24,6 +36,6 @@
 
     private async Task PerformSearch()
     {
-        await OnSearchCallback.InvokeAsync(_searchTerm);
+        await OnSearchCallback.InvokeAsync($"/{_searchArea}/Search/{_searchTerm}");
     }
 }

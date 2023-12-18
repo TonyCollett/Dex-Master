@@ -13,6 +13,10 @@ public interface IPokeApiService
     public Task<IEnumerable<PokeApiNet.Version>> GetVersionListAsync();
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
     public Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex);
+    public Task<IEnumerable<PokemonSpecies>> SearchPokemonSpeciesPageFromPokedexAsync(int limit,
+        int offset,
+        Pokedex pokedex,
+        string searchTerm = "");
     public Task<(int, IEnumerable<Pokemon>)> GetPokemonListAsync(int limit, int offset);
     public Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset);
     public Task<IEnumerable<Pokedex>> GetPokedexListAsync();
