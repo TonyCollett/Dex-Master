@@ -113,6 +113,11 @@
     
     protected override async Task OnParametersSetAsync()
     {
+        if (Version == "national")
+        {
+            Version = "Red";
+        }
+        
         Version version = await pokeApiService.GetVersionByNameAsync(Version);
         VersionGroup versionGroup = await pokeApiService.GetVersionGroupByNameAsync(version.VersionGroup.Name);
         Pokedex pokedex = await pokeApiService.GetPokedexByNameAsync(versionGroup.Pokedexes[0].Name);

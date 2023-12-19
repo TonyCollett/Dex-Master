@@ -1,6 +1,6 @@
 @using DexMasterLibrary.Enums
 
-@if (PokemonSpecies != null && _pokemonVarieties != null)
+@if (Pokemon != null)
 {
     <MudContainer MaxWidth="MaxWidth.Large">
         <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
@@ -60,7 +60,7 @@
             <MudSpacer />
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudButton OnClick="@(() => NavigateToPokemon())">View all details of @PokemonSpecies.Name</MudButton>
+                    <MudButton OnClick="@(() => NavigateToPokemon())">View all details of @Pokemon.PokemonSpecies.Name</MudButton>
                 </MudPaper>
             </MudItem>
         </MudGrid>
@@ -69,13 +69,11 @@
 
 @code {
     [Parameter] 
-    public PokemonSpecies PokemonSpecies { get; set; }
+    public DTPokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
-
-    private IEnumerable<Pokemon> _pokemonVarieties;
-
+    
     private PokemonInfo _pokemonInfo = new();
 
     private class PokemonInfo
@@ -91,27 +89,25 @@
         public string FlavourText { get; set; }
     }
     
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        if (PokemonSpecies == null) return;
+        if (Pokemon == null) return;
+
+        Pokemon defaultPokemonVariety = Pokemon.PokemonVarieties.FirstOrDefault(x => x.IsDefault)!;
         
-        _pokemonVarieties = await pokeApiService.GetPokemonVarietiesAsync(PokemonSpecies);
-        
-        Pokemon defaultPokemonVariety = _pokemonVarieties.FirstOrDefault(x => x.IsDefault)!;
-        
-        _pokemonInfo.Id = PokemonSpecies.Id;
-        _pokemonInfo.Name = CommonFunctions.Capitalise(PokemonSpecies.Name);
+        _pokemonInfo.Id = Pokemon.PokemonSpecies.Id;
+        _pokemonInfo.Name = CommonFunctions.Capitalise(Pokemon.PokemonSpecies.Name);
         _pokemonInfo.Height = defaultPokemonVariety.Height + "cm";
         _pokemonInfo.Weight = defaultPokemonVariety.Weight + "g";
         _pokemonInfo.Abilities = defaultPokemonVariety.Abilities;
         _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(defaultPokemonVariety.Types[0].Type.Name).GetValueOrDefault();
         _pokemonInfo.Type2 = defaultPokemonVariety.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(defaultPokemonVariety.Types[1].Type.Name).GetValueOrDefault() : null;
         _pokemonInfo.MainSprite = defaultPokemonVariety.Sprites.Other.OfficialArtwork.FrontDefault;
-        _pokemonInfo.FlavourText = PokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText.Replace("\n", " ").Replace("\f", " ");
+        _pokemonInfo.FlavourText = Pokemon.PokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en")?.FlavorText.Replace("\n", " ").Replace("\f", " ");
     }
     
     private void NavigateToPokemon()
     {
-        navManager.NavigateTo($"/Pokemon/{PokemonSpecies.Name}");
+        navManager.NavigateTo($"/Pokemon/{Pokemon.PokemonSpecies.Name}");
     }
 }

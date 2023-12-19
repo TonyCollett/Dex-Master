@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DexMasterUI.DTClasses;
 using Type = PokeApiNet.Type;
 using Version = PokeApiNet.Version;
 
@@ -15,16 +16,33 @@ public class PokeApiService : IPokeApiService
         return (pokemonPage.Count, await Client.GetResourceAsync<Pokemon>(pokemonPage.Results));
     }
     
-    public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex)
+    public async Task<IEnumerable<DTPokemon>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex)
     {
-        return await Client.GetResourceAsync<PokemonSpecies>(pokedex.PokemonEntries.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
+        var pokemonSpecies = await Client.GetResourceAsync<PokemonSpecies>(pokedex.PokemonEntries.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
+        var pokemon = await Client.GetResourceAsync<Pokemon>(pokemonSpecies.SelectMany(ps => ps.Varieties).Select(v => v.Pokemon));
+        
+        IEnumerable<DTPokemon> pokemonVarieties = pokemonSpecies.Select(ps => new DTPokemon
+        {
+            PokemonSpecies = ps,
+            PokemonVarieties = pokemon.Where(p => p.Species.Name == ps.Name)
+        });
+        
+        return pokemonVarieties;
     }
-    
-    public async Task<IEnumerable<PokemonSpecies>> SearchPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
+
+    public async Task<IEnumerable<DTPokemon>> SearchPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "")
     {
         var pokemonSearchList = pokedex.PokemonEntries.Where(p => p.PokemonSpecies.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        var pokemonSpecies = await Client.GetResourceAsync<PokemonSpecies>(pokemonSearchList.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
+        var pokemon = await Client.GetResourceAsync<Pokemon>(pokemonSpecies.SelectMany(ps => ps.Varieties).Select(v => v.Pokemon));
         
-        return await Client.GetResourceAsync<PokemonSpecies>(pokemonSearchList.Skip(offset).Take(limit).Select(p => p.PokemonSpecies));
+        IEnumerable<DTPokemon> pokemonVarieties = pokemonSpecies.Select(ps => new DTPokemon
+        {
+            PokemonSpecies = ps,
+            PokemonVarieties = pokemon.Where(p => p.Species.Name == ps.Name)
+        });
+        
+        return pokemonVarieties;
     }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)

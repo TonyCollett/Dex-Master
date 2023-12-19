@@ -2,6 +2,7 @@
 global using DexMasterLibrary.DataAccess.Interfaces;
 global using DexMasterLibrary.Models;
 global using DexMasterUI.Helpers;
+global using DexMasterUI.DTClasses;
 global using Microsoft.AspNetCore.Authentication.Cookies;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;

@@ -1,20 +1,20 @@
-@if (PokemonSpecies != null)
+@if (Pokemon != null)
 {
     <MudCard Outlined="true">
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar Color="Color.Dark" Variant="Variant.Filled">
-                    @PokemonSpecies.PokedexNumbers.Where(x => x.Pokedex.Name == Pokedex).Select(x => x.EntryNumber).FirstOrDefault()
+                    @Pokemon.PokemonSpecies.PokedexNumbers.Where(x => x.Pokedex.Name == Pokedex).Select(x => x.EntryNumber).FirstOrDefault()
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(PokemonSpecies.Name)</MudText>
+                <MudText Typo="Typo.body1">@CommonFunctions.Capitalise(Pokemon.PokemonSpecies.Name)</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton OnClick="@(OpenDrawer)" Icon="@Icons.Material.Filled.OpenInNew" Variant="Variant.Outlined" Color="Color.Primary"/>
             </CardHeaderActions>
         </MudCardHeader>
-        @* <MudCardMedia Image="@Pokemon.Sprites.Other.OfficialArtwork.FrontDefault" Height="180" /> *@
+        <MudCardMedia Image="@Pokemon.PokemonVarieties.First().Sprites.FrontDefault" Height="180" />
         <MudCardContent>
             
         </MudCardContent>
@@ -45,13 +45,13 @@
            Width="40%">
     @if (_open)
     {
-        <PokemonSidebar PokemonSpecies="@PokemonSpecies"/>
+        <PokemonSidebar Pokemon="@Pokemon"/>
     }
 </MudDrawer>
 
 @code {
     [Parameter] 
-    public PokemonSpecies PokemonSpecies { get; set; }
+    public DTPokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }

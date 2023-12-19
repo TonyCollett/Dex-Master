@@ -19,12 +19,12 @@
     else if (_pokemon.Any())
     {
         <MudGrid>
-            @foreach (var pokemon in _pokemon)
+            @foreach (DTPokemon pokemon in _pokemon)
             {
                 <MudItem lg="2" md="6" xs="12">
                     <CascadingValue Value="@_loggedInUser">
                         <CascadingValue Value="@_pokedex.Name">
-                            <PokemonCard PokemonSpecies="@pokemon"/>
+                            <PokemonCard Pokemon="@pokemon"/>
                         </CascadingValue>
                     </CascadingValue>
                 </MudItem>
@@ -90,7 +90,7 @@
     private const string SavedLimit = "Limit";
 
     private Pokedex _pokedex;
-    private IEnumerable<PokemonSpecies> _pokemon;
+    private List<DTPokemon> _pokemon;
     private int _currentPage = 1;
     private int _limit = 12;
     private User _loggedInUser = null;
@@ -118,17 +118,19 @@
         if (string.IsNullOrWhiteSpace(SearchTerm) == false)
         {
             pokemonEntriesCount = _pokedex.PokemonEntries.Count(p => p.PokemonSpecies.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
-            _pokemon = await pokeApiService.SearchPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage - 1) * _limit, _pokedex, SearchTerm);
+            var getPokemon = await pokeApiService.SearchPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage - 1) * _limit, _pokedex, SearchTerm);
+            _pokemon = getPokemon.ToList();
 
-            if (_pokemon.Count() == 1 || _pokemon.Any(p => p.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)))
+            if (_pokemon.Count() == 1 || _pokemon.Any(p => p.PokemonSpecies.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)))
             {
-                navManager.NavigateTo($"/Pokemon/{_pokemon.First(p => p.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)).Name}/{_pokedex.Name}");
+                navManager.NavigateTo($"/Pokemon/{_pokemon.First(p => p.PokemonSpecies.Name.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase)).PokemonSpecies.Name}/{_pokedex.Name}");
             }
         }
         else
         {
             pokemonEntriesCount = _pokedex.PokemonEntries.Count;
-            _pokemon = await pokeApiService.GetPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage-1) * _limit, _pokedex);
+            var getPokemon = await pokeApiService.GetPokemonSpeciesPageFromPokedexAsync(_limit, (_currentPage-1) * _limit, _pokedex);
+            _pokemon = getPokemon.ToList();
         }
         
         _totalPages = _limit == 0 ? 1 : (int)Math.Ceiling((double)pokemonEntriesCount / _limit);

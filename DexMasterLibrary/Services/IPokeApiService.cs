@@ -1,4 +1,5 @@
-﻿using Type = PokeApiNet.Type;
+﻿using DexMasterUI.DTClasses;
+using Type = PokeApiNet.Type;
 using Version = PokeApiNet.Version;
 
 namespace DexMasterLibrary.Services;
@@ -12,8 +13,8 @@ public interface IPokeApiService
     public Task<IEnumerable<Generation>> GetGenerationListAsync();
     public Task<IEnumerable<PokeApiNet.Version>> GetVersionListAsync();
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
-    public Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex);
-    public Task<IEnumerable<PokemonSpecies>> SearchPokemonSpeciesPageFromPokedexAsync(int limit,
+    public Task<IEnumerable<DTPokemon>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex);
+    public Task<IEnumerable<DTPokemon>> SearchPokemonSpeciesPageFromPokedexAsync(int limit,
         int offset,
         Pokedex pokedex,
         string searchTerm = "");
