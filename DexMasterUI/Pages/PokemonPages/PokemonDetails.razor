@@ -21,7 +21,6 @@
                             <MudImage Height="20" Src="@Pokemon.PokemonVarieties.FirstOrDefault()?.Sprites.FrontDefault"></MudImage>
                         </MudAvatar>
                     </MudBadge>
-                    <MudText Typo="Typo.h2">@_pokemonSpecies.PokedexNumbers.FirstOrDefault(x => x.Pokedex.Name == "national")?.EntryNumber. </MudText>
                     <MudText Typo="Typo.h2">@CommonFunctions.Capitalise(Pokemon.PokemonSpecies.Name)</MudText>
                 </MudPaper>
             </MudItem>
@@ -30,13 +29,13 @@
                     <MudStack Spacing="4" Row="true">
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.caption">Type 1</MudText>
-                            <MudText Typo="Typo.h3">@CommonFunctions.Capitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[0].Type.Name)</MudText>
+                            <MudText Typo="Typo.h3">@CommonFunctions.CleanAndCapitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[0].Type.Name)</MudText>
                         </MudStack>
                         @if (Pokemon.PokemonVarieties.FirstOrDefault()?.Types.Count() > 1)
                         {
                             <MudStack AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.caption">Type 2</MudText>
-                                <MudText Typo="Typo.h3">@CommonFunctions.Capitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[1].Type.Name)</MudText>
+                                <MudText Typo="Typo.h3">@CommonFunctions.CleanAndCapitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[1].Type.Name)</MudText>
                             </MudStack>
                         }
                     </MudStack>
@@ -57,7 +56,7 @@
                     Evolution Chain
                 </MudPaper>
             </MudItem>
-            <MudItem lg="6">
+            <MudItem lg="2">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText Align="Align.Center" Typo="Typo.caption">Height</MudText>
@@ -65,13 +64,16 @@
                     </MudStack>
                 </MudPaper>
             </MudItem>
-            <MudItem lg="6">
+            <MudItem lg="2">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.caption">Weight</MudText>
                         <MudText Typo="Typo.h6">@Pokemon.PokemonVarieties.FirstOrDefault()?.Weight g</MudText>
                     </MudStack>
                 </MudPaper>
+            </MudItem>
+            <MudItem lg="8">
+                <DisplayPokemonAbility Pokemon="_pokemon" />
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
