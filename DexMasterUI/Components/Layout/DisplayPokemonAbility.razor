@@ -1,0 +1,45 @@
+﻿@if (Pokemon != null && _abilities != null && _abilities.Any())
+{
+    <MudGrid>
+        @foreach (Ability ability in _abilities)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Elevation="3">
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">
+                            @ability.Name
+                        </MudText>
+                        <MudText Typo="Typo.body1">
+                            @ability.EffectEntries.Where(a => a.Language.Name == "en").Select(a => a.Effect).FirstOrDefault()
+                        </MudText>
+                        <MudText Typo="Typo.body1">
+                            @ability.FlavorTextEntries.Where(a => a.Language.Name == "en" && a.VersionGroup.Name == VersionGroup).Select(a => a.FlavorText).FirstOrDefault()
+                        </MudText>
+
+                        @if (ability.Name == Pokemon.Abilities.Where(a => a.IsHidden).FirstOrDefault()?.Ability.Name)
+                        {
+                            <MudChip Color="Color.Secondary">Hidden Ability</MudChip>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+
+@code {
+    [Parameter]
+    public Pokemon Pokemon { get; set; }
+    
+    [Parameter]
+    public string VersionGroup { get; set; } = "sun-moon";
+
+    private IEnumerable<Ability> _abilities = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _abilities = await pokeApiService.GetPokemonAbilitiesAsync(Pokemon);
+    }
+
+}
