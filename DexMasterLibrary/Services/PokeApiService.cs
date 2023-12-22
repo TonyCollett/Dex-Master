@@ -44,6 +44,28 @@ public class PokeApiService : IPokeApiService
         
         return pokemonVarieties;
     }
+    
+    public async Task<DTPokemon> GetPokemonAsync(string? name = null, int? id = null)
+    {
+        DTPokemon pokemon = new ();
+        
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            pokemon.PokemonSpecies = await Client.GetResourceAsync<PokemonSpecies>(name);
+        }
+        else if (id != null)
+        {
+            pokemon.PokemonSpecies = await Client.GetResourceAsync<PokemonSpecies>(id.Value);
+        }
+        else
+        {
+            throw new ArgumentException("Either name or id must be provided.");
+        }
+
+        pokemon.PokemonVarieties = await Client.GetResourceAsync<Pokemon>(pokemon.PokemonSpecies.Varieties.Select(v => v.Pokemon));
+        
+        return pokemon;
+    }
 
     public async Task<IEnumerable<PokemonSpecies>> GetPokemonSpeciesListAsync(int limit, int offset)
     {

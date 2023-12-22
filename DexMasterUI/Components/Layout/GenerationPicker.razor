@@ -1,0 +1,21 @@
+﻿<MudChipSet Filter="true" Mandatory="true" SelectedChipsChanged="@(SelectedChipChanged)">
+    <MudChip Color="Color.Primary" Text="generation-ix" Default="true">Generation IX</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-viii">Generation VIII</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-vii">Generation VII</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-vi">Generation VI</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-v">Generation V</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-iv">Generation IV</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-iii">Generation III</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-ii">Generation II</MudChip>
+    <MudChip Color="Color.Primary" Text="generation-i">Generation I</MudChip>
+</MudChipSet>
+
+@code {
+    [Parameter]
+    public EventCallback<string> SelectedGenerationChanged { get; set; }
+
+    private async Task SelectedChipChanged(MudChip[] chips)
+    {
+        await SelectedGenerationChanged.InvokeAsync(chips.FirstOrDefault()?.Text);
+    }
+}

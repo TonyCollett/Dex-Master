@@ -1,6 +1,4 @@
-@page "/pokemon/{PokemonName}/{Version}"
-@using DexMasterLibrary.Enums
-@using Version = PokeApiNet.Version
+@page "/pokemon/{PokemonName}"
 @using System.Text
 
 <MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
@@ -14,38 +12,44 @@
     <MudContainer MaxWidth="MaxWidth.Large">
         <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
             <MudItem lg="12">
-                <VersionPicker/>
+                <GenerationPicker SelectedGenerationChanged="ChangeGeneration" />
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudText Typo="Typo.h2">@_pokemonInfo.Id</MudText>
-                    <MudText Typo="Typo.h2">@_pokemonInfo.Name</MudText>
+                    <MudBadge Content="@_pokemonSpecies.PokedexNumbers.FirstOrDefault(x => x.Pokedex.Name.Contains("national"))?.EntryNumber" Origin="Origin.BottomCenter" Color="Color.Primary" Overlap="true" Max="1300" Class="mx-6 my-4">
+                        <MudAvatar Size="Size.Large">
+                            <MudImage Height="20" Src="@Pokemon.PokemonVarieties.FirstOrDefault()?.Sprites.FrontDefault"></MudImage>
+                        </MudAvatar>
+                    </MudBadge>
+                    <MudText Typo="Typo.h2">@_pokemonSpecies.PokedexNumbers.FirstOrDefault(x => x.Pokedex.Name == "national")?.EntryNumber. </MudText>
+                    <MudText Typo="Typo.h2">@CommonFunctions.Capitalise(Pokemon.PokemonSpecies.Name)</MudText>
                 </MudPaper>
             </MudItem>
-            <MudItem lg="6">
+            <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudStack AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.caption">Type 1</MudText>
-                        <MudText Typo="Typo.h3">@_pokemonInfo.Type1</MudText>
+                    <MudStack Spacing="4" Row="true">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.caption">Type 1</MudText>
+                            <MudText Typo="Typo.h3">@CommonFunctions.Capitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[0].Type.Name)</MudText>
+                        </MudStack>
+                        @if (Pokemon.PokemonVarieties.FirstOrDefault()?.Types.Count() > 1)
+                        {
+                            <MudStack AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.caption">Type 2</MudText>
+                                <MudText Typo="Typo.h3">@CommonFunctions.Capitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Types[1].Type.Name)</MudText>
+                            </MudStack>
+                        }
                     </MudStack>
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudStack AlignItems="AlignItems.Center">
-                        <MudText Typo="Typo.caption">Type 2</MudText>
-                        <MudText Typo="Typo.h3">@_pokemonInfo.Type2</MudText>
-                    </MudStack>
+                    <MudImage Src="@Pokemon.PokemonVarieties.FirstOrDefault()?.Sprites.Other.OfficialArtwork.FrontDefault" />
                 </MudPaper>
             </MudItem>
             <MudItem lg="6">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudImage Src="@_pokemon.Sprites.FrontDefault"/>
-                </MudPaper>
-            </MudItem>
-            <MudItem lg="6">
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudImage Src="@_pokemon.Sprites.FrontShiny"/>
+                    <MudImage Src="@Pokemon.PokemonVarieties.FirstOrDefault()?.Sprites.Other.OfficialArtwork.FrontShiny" />
                 </MudPaper>
             </MudItem>
             <MudItem lg="12">
@@ -57,7 +61,7 @@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText Align="Align.Center" Typo="Typo.caption">Height</MudText>
-                        <MudText Typo="Typo.h6">@_pokemonInfo.Height</MudText>
+                        <MudText Typo="Typo.h6">@Pokemon.PokemonVarieties.FirstOrDefault()?.Height cm</MudText>
                     </MudStack>
                 </MudPaper>
             </MudItem>
@@ -65,7 +69,7 @@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.caption">Weight</MudText>
-                        <MudText Typo="Typo.h6">@_pokemonInfo.Weight</MudText>
+                        <MudText Typo="Typo.h6">@Pokemon.PokemonVarieties.FirstOrDefault()?.Weight g</MudText>
                     </MudStack>
                 </MudPaper>
             </MudItem>
@@ -73,8 +77,23 @@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudStack AlignItems="AlignItems.Center">
                         <MudText Typo="Typo.caption">Dex Entry</MudText>
-                        <MudText Typo="Typo.body1">@_pokemonInfo.FlavourText</MudText>
+                        <MudText Typo="Typo.body1">@Pokemon.PokemonSpecies.FlavorTextEntries.FirstOrDefault(x => x.Language.Name == "en" && x.Version.Name == "red")?.FlavorText.Replace("\n", " ").Replace("\f", " ")</MudText>
                     </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="12">
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
+                    <MudExpansionPanels>
+                        <MudExpansionPanel Text="Moves (Level Up)" MaxHeight="250">
+                            Panel One Content
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Moves (TM)" MaxHeight="500">
+                            Panel Two Content
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Moves (Egg)" MaxHeight="500">
+                            Panel Two Content
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
                 </MudPaper>
             </MudItem>
         </MudGrid>
@@ -85,65 +104,45 @@
     [Parameter] 
     public string PokemonName { get; set; }
     [Parameter]
-    public string Version { get; set; }
+    public DTPokemon Pokemon { get; set; }
 
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
 
     private PokemonSpecies _pokemonSpecies;
     private Pokemon _pokemon;
+    
+    private Generation _generation;
 
     private bool _isLoading = true;
 
-    private PokemonInfo _pokemonInfo = new();
-
-    private class PokemonInfo
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-        public string Height { get; set; }
-        public string Weight { get; set; }
-        public List<PokemonAbility> Abilities { get; set; }
-        public Types Type1 { get; set; }
-        public Types? Type2 { get; set; }
-        public string MainSprite { get; set; }
-        public string ShinyMainSprite { get; set; }
-        public string FlavourText { get; set; }
-    }
-    
     protected override async Task OnParametersSetAsync()
     {
-        if (Version == "national")
-        {
-            Version = "Red";
-        }
+        Pokemon ??= await pokeApiService.GetPokemonAsync(PokemonName);
         
-        Version version = await pokeApiService.GetVersionByNameAsync(Version);
-        VersionGroup versionGroup = await pokeApiService.GetVersionGroupByNameAsync(version.VersionGroup.Name);
-        Pokedex pokedex = await pokeApiService.GetPokedexByNameAsync(versionGroup.Pokedexes[0].Name);
-        bool pokemonExistsInPokedex = pokedex.PokemonEntries.Any(x => x.PokemonSpecies.Name == PokemonName);
         _pokemonSpecies = await pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
         _pokemon = await pokeApiService.GetPokemonByNameAsync(PokemonName);
         EvolutionChain evolutionChain = await pokeApiService.GetEvolutionChainAsync(_pokemonSpecies);
         
         var evolutionChainInfo = GetEvolutionChainInfo(evolutionChain);
         
-        _pokemonInfo.Id = _pokemonSpecies.PokedexNumbers.Where(x => x.Pokedex.Name == pokedex.Name).FirstOrDefault()?.EntryNumber;
-        _pokemonInfo.Name = CommonFunctions.Capitalise(_pokemon.Name);
-        _pokemonInfo.Height = _pokemon.Height + "cm";
-        _pokemonInfo.Weight = _pokemon.Weight + "g";
-        _pokemonInfo.Abilities = _pokemon.Abilities;
-        _pokemonInfo.Type1 = CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[0].Type.Name).GetValueOrDefault();
-        _pokemonInfo.Type2 = _pokemon.Types.Count > 1 ? CommonFunctions.ConvertStringToEnum<Types>(_pokemon.Types[1].Type.Name).GetValueOrDefault() : null;
-        _pokemonInfo.MainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontDefault;
-        _pokemonInfo.ShinyMainSprite = _pokemon.Sprites.Other.OfficialArtwork.FrontShiny;
-        _pokemonInfo.FlavourText = _pokemonSpecies.FlavorTextEntries
-            .Where(x => x.Version.Name == version.Name)
-            .Where(x => x.Language.Name == "en")
-            .FirstOrDefault()?.FlavorText
-            .Replace("\n", " ")
-            .Replace("\f", " ");
-
+        var machineMoves = _pokemon.Moves
+            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "machine" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
+            .Select(m => m.Move);
+        
+        var levelUpMoves = _pokemon.Moves
+            .SelectMany(m => m.VersionGroupDetails
+                .Where(vgd => vgd.MoveLearnMethod.Name == "level-up" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon")
+                .Select(vgd => (Move: m.Move, LevelLearnedAt: vgd.LevelLearnedAt)))
+            .OrderBy(lum => lum.LevelLearnedAt)
+            .ToList(); 
+        
+        var lookupMoves = levelUpMoves.Select(lum => lum.Move).ToList();
+        
+        var eggMoves = _pokemon.Moves
+            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
+            .Select(m => m.Move);
+        
         _isLoading = false;
     }
     
@@ -217,6 +216,11 @@
                 }
             }
         }
+    }
+    
+    private async Task ChangeGeneration(string generation)
+    {
+        _generation = await pokeApiService.GetGenerationByNameAsync(generation);
     }
 
 }
