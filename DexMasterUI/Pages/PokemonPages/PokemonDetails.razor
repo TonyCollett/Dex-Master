@@ -53,7 +53,9 @@
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    Evolution Chain
+                    <MudText Align="Align.Center" Typo="Typo.caption">Evolution Chain</MudText>
+                    <MudText Typo="Typo.h6">@Pokemon.PokemonSpecies.EvolutionChain</MudText>
+                    <PokemonEvolution Pokemon="_pokemon" />
                 </MudPaper>
             </MudItem>
             <MudItem lg="2">
@@ -147,22 +149,27 @@
         
         _isLoading = false;
     }
-    
-    public static string GetEvolutionChainInfo(EvolutionChain chain)
+
+    private static string GetEvolutionChainInfo(EvolutionChain chain)
     {
         StringBuilder evolutionInfo = new StringBuilder();
         AppendEvolutionDetails(chain.Chain, evolutionInfo);
         return evolutionInfo.ToString().TrimEnd(',', ' ');
     }
 
-    private static void AppendEvolutionDetails(ChainLink currentStage, StringBuilder evolutionInfo)
+    private static void AppendEvolutionDetails(ChainLink currentStage, StringBuilder evolutionInfo, bool isFirstStage = true)
     {
         if (currentStage == null || currentStage.EvolvesTo == null || currentStage.EvolvesTo.Count == 0)
             return;
 
         foreach (var nextStage in currentStage.EvolvesTo)
         {
+            if (!isFirstStage)
+            {
+                evolutionInfo.Append(", ");
+            }
             evolutionInfo.Append(currentStage.Species.Name + " -> " + nextStage.Species.Name);
+            isFirstStage = false;
 
             if (nextStage.EvolutionDetails != null && nextStage.EvolutionDetails.Any())
             {
@@ -180,17 +187,17 @@
 
                     if (method == "level-up")
                     {
-                        if (level.HasValue)
+                        if (timeOfDay != "")
+                        {
+                            evolutionInfo.Append("Time of Day " + timeOfDay);
+                        }
+                        else if (level.HasValue)
                         {
                             evolutionInfo.Append("Level " + level.Value);
                         }
                         else if (happiness.HasValue)
                         {
                             evolutionInfo.Append("Happiness " + happiness.Value);
-                        }
-                        else if (!string.IsNullOrEmpty(timeOfDay))
-                        {
-                            evolutionInfo.Append("Time of Day " + timeOfDay);
                         }
                         else if (!string.IsNullOrEmpty(location))
                         {
@@ -214,8 +221,10 @@
                         }
                     }
 
-                    evolutionInfo.Append("), ");
+                    evolutionInfo.Append(")");
                 }
+                
+                AppendEvolutionDetails(nextStage, evolutionInfo);
             }
         }
     }
