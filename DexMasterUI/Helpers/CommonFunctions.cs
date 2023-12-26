@@ -80,5 +80,32 @@ namespace DexMasterUI.Helpers
             // Use a regular expression to check for valid Roman numerals
             return Regex.IsMatch(word, @"^(?i)(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$");
         }
+        
+        /// <summary>
+        /// Convert a decimeter length to a string
+        /// </summary>
+        public static string ConvertLengthToString(int decimeters)
+        {
+            double centimeters = decimeters * 10;
+            double meters = decimeters / 10.0;
+            double inches = centimeters / 2.54;
+            int feet = (int)(inches / 12);
+            inches %= 12;
+
+            return meters >= 1 ? $"{meters}m ({feet}' {inches:F1}\")" : $"{centimeters}cm ({feet}' {inches:F1}\")";
+        }
+        
+        /// <summary>
+        /// Convert a hectogram weight to a string
+        /// </summary>
+        public static string ConvertWeightToString(int hectograms)
+        {
+            double kilograms = hectograms / 10.0;
+            double pounds = kilograms * 2.20462;
+            int wholePounds = (int)pounds;
+            double ounces = (pounds - wholePounds) * 16;
+
+            return $"{kilograms}kg ({wholePounds}lb {ounces:F1}oz)";
+        }
     }
 }

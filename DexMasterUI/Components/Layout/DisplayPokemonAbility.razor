@@ -1,28 +1,30 @@
 ﻿@if (Pokemon != null && _abilities != null && _abilities.Any())
 {
-    <MudGrid>
-        @foreach (Ability ability in _abilities)
-        {
-            <MudItem xs="12" sm="6" md="@(12/_abilities.Count())">
-                <MudCard Elevation="3">
-                    <MudCardContent>
-                        <MudText Typo="Typo.h5">
-                            @CommonFunctions.CleanAndCapitalise(ability.Name)
-                        </MudText>
-                        <MudTooltip Text="@ability.EffectEntries.Where(a => a.Language.Name == "en").Select(a => a.Effect).FirstOrDefault()">
-                            <MudText Typo="Typo.body1">
-                                @ability.FlavorTextEntries.Where(a => a.Language.Name == "en" && a.VersionGroup.Name == VersionGroup).Select(a => a.FlavorText).FirstOrDefault()
-                            </MudText>
-                        </MudTooltip>
-                        @if (ability.Name == Pokemon.Abilities.FirstOrDefault(a => a.IsHidden)?.Ability.Name)
+    <MudSimpleTable>
+        <thead>
+        <tr>
+            @foreach (var h in _headings)
+            {
+                <th>@h</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in _abilities)
+            {
+                <tr>
+                    <td>@CommonFunctions.CleanAndCapitalise(row.Name)</td>
+                    <td>@row.EffectEntries.Where(a => a.Language.Name == "en").Select(a => a.ShortEffect).FirstOrDefault()</td>
+                    <td>
+                        @if (row.Name == Pokemon.Abilities.FirstOrDefault(a => a.IsHidden)?.Ability.Name)
                         {
                             <MudChip Color="Color.Secondary">Hidden Ability</MudChip>
                         }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-        }
-    </MudGrid>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
 }
 
 
@@ -34,6 +36,7 @@
     public string VersionGroup { get; set; } = "sun-moon";
 
     private IEnumerable<Ability> _abilities = null;
+    private string[] _headings = ["Ability Name", "Details", ""];
 
     protected override async Task OnParametersSetAsync()
     {
