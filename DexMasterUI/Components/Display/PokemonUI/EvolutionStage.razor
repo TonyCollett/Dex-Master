@@ -1,0 +1,16 @@
+﻿<MudCard>
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">@PokemonName</MudText>
+    </MudCardHeader>
+    <MudCardMedia>
+        <MudImage Src="@PokemonImage" />
+    </MudCardMedia>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string PokemonName { get; set; }
+    
+    [Parameter]
+    public string PokemonImage { get; set; }
+}

@@ -1,9 +1,94 @@
-<MudPaper Class="mud-paper-square mud-elevation-3 p-4 d-flex flex-column align-items-center">
-    <MudImage Src="@Pokemon.Sprites.FrontDefault" Class="my-2" Style="max-width: 100%; height: auto;"/>
-    <MudText Typo="Typo.h6" Class="mt-2">@Pokemon.Name</MudText>
-</MudPaper>
+@using System.Text
+<h3>EvolutionChain</h3>
 
 @code {
+    
     [Parameter]
-    public Pokemon Pokemon { get; set; }
+    public PokemonSpecies PokemonSpecies { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var evolutionChain = await pokeApiService.GetEvolutionChainAsync(PokemonSpecies);
+        
+        var evolutionChainInfo = GetEvolutionChainInfo(evolutionChain);
+    }
+    
+    private static string GetEvolutionChainInfo(EvolutionChain chain)
+    {
+        StringBuilder evolutionInfo = new();
+        AppendEvolutionDetails(chain.Chain, evolutionInfo);
+        return evolutionInfo.ToString().TrimEnd(',', ' ');
+    }
+
+    private static void AppendEvolutionDetails(ChainLink currentStage, StringBuilder evolutionInfo, bool isFirstStage = true)
+    {
+        if (currentStage?.EvolvesTo == null || currentStage.EvolvesTo.Count == 0)
+            return;
+
+        foreach (var nextStage in currentStage.EvolvesTo)
+        {
+            if (!isFirstStage)
+            {
+                evolutionInfo.Append(", ");
+            }
+            evolutionInfo.Append(currentStage.Species.Name + " -> " + nextStage.Species.Name);
+            isFirstStage = false;
+
+            if (nextStage.EvolutionDetails != null && nextStage.EvolutionDetails.Any())
+            {
+                foreach (var detail in nextStage.EvolutionDetails)
+                {
+                    var method = detail.Trigger?.Name;
+                    var item = detail.Item?.Name;
+                    var level = detail.MinLevel;
+                    var happiness = detail.MinHappiness;
+                    var timeOfDay = detail.TimeOfDay;
+                    var location = detail.Location?.Name;
+                    var moveType = detail.KnownMoveType?.Name;
+
+                    evolutionInfo.Append(" (");
+
+                    if (method == "level-up")
+                    {
+                        if (timeOfDay != "")
+                        {
+                            evolutionInfo.Append("Time of Day " + timeOfDay);
+                        }
+                        else if (level.HasValue)
+                        {
+                            evolutionInfo.Append("Level " + level.Value);
+                        }
+                        else if (happiness.HasValue)
+                        {
+                            evolutionInfo.Append("Happiness " + happiness.Value);
+                        }
+                        else if (!string.IsNullOrEmpty(location))
+                        {
+                            evolutionInfo.Append("Location " + location);
+                        }
+                        else if (moveType != null)
+                        {
+                            evolutionInfo.Append("Knows " + moveType + " move");
+                        }
+                    }
+                    else if (method == "use-item" && item != null)
+                    {
+                        evolutionInfo.Append("Use " + item);
+                    }
+                    else if (method == "trade")
+                    {
+                        evolutionInfo.Append("Trade");
+                        if (detail.HeldItem != null)
+                        {
+                            evolutionInfo.Append(" with " + detail.HeldItem.Name);
+                        }
+                    }
+
+                    evolutionInfo.Append(")");
+                }
+                
+                AppendEvolutionDetails(nextStage, evolutionInfo);
+            }
+        }
+    }
 }
