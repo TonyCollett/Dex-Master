@@ -45,7 +45,7 @@ public class PokeApiService : IPokeApiService
         return pokemonVarieties;
     }
     
-    public async Task<DTPokemon> GetPokemonAsync(string? name = null, int? id = null)
+    public async Task<DTPokemon> GetPokemonAsync(string? name = null, int? id = null, string? varietyName = "")
     {
         DTPokemon pokemon = new ();
         
@@ -62,8 +62,13 @@ public class PokeApiService : IPokeApiService
             throw new ArgumentException("Either name or id must be provided.");
         }
 
-        pokemon.PokemonVarieties = await Client.GetResourceAsync<Pokemon>(pokemon.PokemonSpecies.Varieties.Select(v => v.Pokemon));
-        
+        var varieties = string.IsNullOrWhiteSpace(varietyName)
+            ? pokemon.PokemonSpecies.Varieties
+            : pokemon.PokemonSpecies.Varieties
+                .Where(v => v.Pokemon.Name.Contains(varietyName));
+
+        pokemon.PokemonVarieties = await Client.GetResourceAsync<Pokemon>(varieties.Select(v => v.Pokemon));
+
         return pokemon;
     }
 

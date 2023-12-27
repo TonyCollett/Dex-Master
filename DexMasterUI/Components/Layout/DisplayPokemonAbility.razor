@@ -5,7 +5,7 @@
         <tr>
             @foreach (var h in _headings)
             {
-                <th>@h</th>
+                <th style="width: @(h == _headings[0] ? "15%" : h == _headings[1] ? "75%" : "10%");">@h</th>
             }
         </tr>
         </thead>
@@ -36,7 +36,11 @@
     public string VersionGroup { get; set; } = "sun-moon";
 
     private IEnumerable<Ability> _abilities = null;
-    private string[] _headings = ["Ability Name", "Details", ""];
+    private string[] _headings = {
+        "Ability Name",
+        "Details",
+        ""
+    };
 
     protected override async Task OnParametersSetAsync()
     {

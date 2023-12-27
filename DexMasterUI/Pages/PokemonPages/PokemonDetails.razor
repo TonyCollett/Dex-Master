@@ -7,16 +7,16 @@
 
 @if (_isLoading == false)
 {
-    <PageTitle>DexMaster - @_pokemon.Name</PageTitle>
+    <PageTitle>DexMaster - @Pokemon.PokemonVarieties.FirstOrDefault()?.Name</PageTitle>
     
     <MudContainer MaxWidth="MaxWidth.Large">
-        <MudGrid Spacing="1" Justify="Justify.SpaceEvenly">
+        <MudGrid Spacing="1" Justify="Justify.Center">
             <MudItem lg="12">
                 <GenerationPicker SelectedGenerationChanged="ChangeGeneration" />
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudBadge Content="@_pokemonSpecies.PokedexNumbers.FirstOrDefault(x => x.Pokedex.Name.Contains("national"))?.EntryNumber" Origin="Origin.BottomCenter" Color="Color.Primary" Overlap="true" Max="1300" Class="mx-6 my-4">
+                    <MudBadge Content="@Pokemon.PokemonSpecies.PokedexNumbers.FirstOrDefault(x => x.Pokedex.Name.Contains("national"))?.EntryNumber" Origin="Origin.BottomCenter" Color="Color.Primary" Overlap="true" Max="1300" Class="mx-6 my-4">
                         <MudAvatar Size="Size.Large">
                             <MudImage Height="20" Src="@Pokemon.PokemonVarieties.FirstOrDefault()?.Sprites.FrontDefault"></MudImage>
                         </MudAvatar>
@@ -55,7 +55,7 @@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudText Align="Align.Center" Typo="Typo.caption">Evolution Chain</MudText>
                     <MudText Typo="Typo.h6">@Pokemon.PokemonSpecies.EvolutionChain</MudText>
-                    <PokemonEvolution Pokemon="_pokemon" />
+                    <PokemonEvolution Pokemon="Pokemon.PokemonVarieties.FirstOrDefault()" />
                 </MudPaper>
             </MudItem>
             <MudItem lg="2">
@@ -85,7 +85,7 @@
                 </MudPaper>
             </MudItem>
             <MudItem lg="10">
-                <DisplayPokemonAbility Pokemon="_pokemon" />
+                <DisplayPokemonAbility Pokemon="Pokemon.PokemonVarieties.FirstOrDefault()" />
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
@@ -120,40 +120,38 @@
     [Parameter]
     public DTPokemon Pokemon { get; set; }
 
+    [SupplyParameterFromQuery]
+    private string Variety { get; set; }
+
     [CascadingParameter] 
     public User LoggedInUser { get; set; }
 
-    private PokemonSpecies _pokemonSpecies;
-    private Pokemon _pokemon;
-    
     private Generation _generation;
 
     private bool _isLoading = true;
 
     protected override async Task OnParametersSetAsync()
     {
-        Pokemon ??= await pokeApiService.GetPokemonAsync(PokemonName);
-        
-        _pokemonSpecies = await pokeApiService.GetPokemonSpeciesByNameAsync(PokemonName);
-        _pokemon = await pokeApiService.GetPokemonByNameAsync(PokemonName);
-        EvolutionChain evolutionChain = await pokeApiService.GetEvolutionChainAsync(_pokemonSpecies);
+        Pokemon ??= await pokeApiService.GetPokemonAsync(PokemonName, varietyName:Variety);
+
+        EvolutionChain evolutionChain = await pokeApiService.GetEvolutionChainAsync(Pokemon.PokemonSpecies);
         
         var evolutionChainInfo = GetEvolutionChainInfo(evolutionChain);
         
-        var machineMoves = _pokemon.Moves
+        var machineMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
             .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "machine" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
             .Select(m => m.Move);
         
-        var levelUpMoves = _pokemon.Moves
+        var levelUpMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
             .SelectMany(m => m.VersionGroupDetails
                 .Where(vgd => vgd.MoveLearnMethod.Name == "level-up" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon")
                 .Select(vgd => (Move: m.Move, LevelLearnedAt: vgd.LevelLearnedAt)))
             .OrderBy(lum => lum.LevelLearnedAt)
             .ToList(); 
         
-        var lookupMoves = levelUpMoves.Select(lum => lum.Move).ToList();
+        var lookupMoves = levelUpMoves?.Select(lum => lum.Move).ToList();
         
-        var eggMoves = _pokemon.Moves
+        var eggMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
             .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
             .Select(m => m.Move);
         
@@ -162,7 +160,7 @@
 
     private static string GetEvolutionChainInfo(EvolutionChain chain)
     {
-        StringBuilder evolutionInfo = new StringBuilder();
+        StringBuilder evolutionInfo = new();
         AppendEvolutionDetails(chain.Chain, evolutionInfo);
         return evolutionInfo.ToString().TrimEnd(',', ' ');
     }
