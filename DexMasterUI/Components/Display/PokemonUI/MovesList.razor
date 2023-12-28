@@ -1,0 +1,168 @@
+﻿@using System.Net
+@if (_moves != null && _levelUpMoves != null && _machineMoves != null && _eggMoves != null)
+{
+<MudExpansionPanels>
+    <MudExpansionPanel Text="Moves (Level Up)">
+        <MudSimpleTable Dense="true">
+            <thead>
+                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                    @foreach (var h in _levelUpHeadings)
+                    {
+                        <th>@h</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in _levelUpMoves)
+                {
+                    <tr>
+                        <td style="vertical-align: middle;">@row.levelLearnedAt</td>
+                        <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.move.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.move.Type.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.move.DamageClass.Name)</td>
+                        <td>@row.move.Power</td>
+                        <td>@row.move.Accuracy</td>
+                        <td>@row.move.Pp</td>
+                        <td>@row.move.EffectChance</td>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
+                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
+                        <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.move.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </MudExpansionPanel>
+    <MudExpansionPanel Text="Moves (TM)">
+        <MudSimpleTable Dense="true">
+            <thead>
+                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                    @foreach (var h in _machineHeadings)
+                    {
+                        <th>@h</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in _machineMoves)
+                {
+                    <tr>
+                        <td style="vertical-align: middle;">@row.Machines.FirstOrDefault(m => m.VersionGroup.Name.Equals(VersionGroup))?.Machine.Url</td>
+                        <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.Type.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.DamageClass.Name)</td>
+                        <td>@row.Power</td>
+                        <td>@row.Accuracy</td>
+                        <td>@row.Pp</td>
+                        <td>@row.EffectChance</td>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
+                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
+                        <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </MudExpansionPanel>
+    <MudExpansionPanel Text="Moves (Egg)">
+        <MudSimpleTable Dense="true">
+            <thead>
+                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                    @foreach (var h in _eggHeadings)
+                    {
+                        <th>@h</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var row in _eggMoves)
+            {
+                <tr>
+                    <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.Name)</td>
+                    <td>@CommonFunctions.CleanAndCapitalise(row.Type.Name)</td>
+                    <td>@CommonFunctions.CleanAndCapitalise(row.DamageClass.Name)</td>
+                    <td>@row.Power</td>
+                    <td>@row.Accuracy</td>
+                    <td>@row.Pp</td>
+                    <td>@row.EffectChance</td>
+                </tr>
+                <tr>
+                    <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
+                    <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                </tr>
+            }
+            </tbody>
+        </MudSimpleTable>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+}
+
+@code {
+    [Parameter]
+    public Pokemon Pokemon { get; set; }
+    
+    [Parameter]
+    public string VersionGroup { get; set; } = "sun-moon";
+
+    private IEnumerable<Move> _moves;
+    private IEnumerable<(Move move, int levelLearnedAt)> _levelUpMoves;
+    private IEnumerable<Move> _machineMoves;
+    private IEnumerable<Move> _eggMoves;
+    
+    private string[] _levelUpHeadings = {
+        "Level",
+        "Attack Name",
+        "Type",
+        "Category",
+        "Power",
+        "Accuracy",
+        "PP", 
+        "Effect %"
+    };
+    
+    private string[] _machineHeadings = {
+        "TM/HM",
+        "Attack Name",
+        "Type",
+        "Category",
+        "Power",
+        "Accuracy",
+        "PP", 
+        "Effect %"
+    };
+    
+    private string[] _eggHeadings = {
+        "Attack Name",
+        "Type",
+        "Category",
+        "Power",
+        "Accuracy",
+        "PP", 
+        "Effect %"
+    };
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        _moves = await pokeApiService.GetPokemonMovesAsync(Pokemon);
+        var enumeratedMoves = _moves.ToList();
+        
+        _levelUpMoves = Pokemon.Moves
+            .SelectMany(m => m.VersionGroupDetails
+                .Where(vgd => vgd.MoveLearnMethod.Name == "level-up" && vgd.VersionGroup.Name.Equals(VersionGroup))
+                .Select(vgd => (Move: m.Move, LevelLearnedAt: vgd.LevelLearnedAt)))
+            .OrderBy(lum => lum.LevelLearnedAt)
+            .Join(enumeratedMoves, lum => lum.Move.Name, m => m.Name, (lum, m) => (move: m, levelLearnedAt: lum.LevelLearnedAt));
+        
+        _machineMoves = Pokemon.Moves
+            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "machine" && vgd.VersionGroup.Name.Equals(VersionGroup)))
+            .Select(m => m.Move)
+            .Join(enumeratedMoves, mm => mm.Name, m => m.Name, (mm, m) => m);
+
+        _eggMoves = Pokemon.Moves
+            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name.Equals(VersionGroup)))
+            .Select(m => m.Move)
+            .Join(enumeratedMoves, em => em.Name, m => m.Name, (em, m) => m);
+    }
+}

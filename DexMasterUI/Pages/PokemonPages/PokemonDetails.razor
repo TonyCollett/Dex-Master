@@ -1,5 +1,4 @@
 @page "/pokemon/{PokemonName}"
-@using System.Text
 
 <MudOverlay @bind-Visible="_isLoading" DarkBackground="true" ZIndex="9999">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -7,7 +6,7 @@
 
 @if (_isLoading == false)
 {
-    <PageTitle>DexMaster - @Pokemon.PokemonVarieties.FirstOrDefault()?.Name</PageTitle>
+    <PageTitle>DexMaster - @CommonFunctions.CleanAndCapitalise(Pokemon.PokemonVarieties.FirstOrDefault()?.Name)</PageTitle>
     
     <MudContainer MaxWidth="MaxWidth.Large">
         <MudGrid Spacing="1" Justify="Justify.Center">
@@ -54,8 +53,7 @@
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
                     <MudText Align="Align.Center" Typo="Typo.caption">Evolution Chain</MudText>
-                    <MudText Typo="Typo.h6">@Pokemon.PokemonSpecies.EvolutionChain</MudText>
-                    <PokemonEvolution Pokemon="Pokemon.PokemonVarieties.FirstOrDefault()" />
+                    <PokemonEvolution PokemonSpecies="Pokemon.PokemonSpecies" />
                 </MudPaper>
             </MudItem>
             <MudItem lg="2">
@@ -97,17 +95,7 @@
             </MudItem>
             <MudItem lg="12">
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-2">
-                    <MudExpansionPanels>
-                        <MudExpansionPanel Text="Moves (Level Up)" MaxHeight="250">
-                            Panel One Content
-                        </MudExpansionPanel>
-                        <MudExpansionPanel Text="Moves (TM)" MaxHeight="500">
-                            Panel Two Content
-                        </MudExpansionPanel>
-                        <MudExpansionPanel Text="Moves (Egg)" MaxHeight="500">
-                            Panel Two Content
-                        </MudExpansionPanel>
-                    </MudExpansionPanels>
+                    <MovesList Pokemon="Pokemon.PokemonVarieties.FirstOrDefault()" />
                 </MudPaper>
             </MudItem>
         </MudGrid>
@@ -133,23 +121,6 @@
     protected override async Task OnParametersSetAsync()
     {
         Pokemon ??= await pokeApiService.GetPokemonAsync(PokemonName, varietyName:Variety);
-
-        var machineMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
-            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "machine" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
-            .Select(m => m.Move);
-        
-        var levelUpMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
-            .SelectMany(m => m.VersionGroupDetails
-                .Where(vgd => vgd.MoveLearnMethod.Name == "level-up" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon")
-                .Select(vgd => (Move: m.Move, LevelLearnedAt: vgd.LevelLearnedAt)))
-            .OrderBy(lum => lum.LevelLearnedAt)
-            .ToList(); 
-        
-        var lookupMoves = levelUpMoves?.Select(lum => lum.Move).ToList();
-        
-        var eggMoves = Pokemon.PokemonVarieties.FirstOrDefault()?.Moves
-            .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name == "ultra-sun-ultra-moon"))
-            .Select(m => m.Move);
         
         _isLoading = false;
     }
