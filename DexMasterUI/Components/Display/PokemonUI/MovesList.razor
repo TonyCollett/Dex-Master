@@ -5,7 +5,7 @@
     <MudExpansionPanel Text="Moves (Level Up)">
         <MudSimpleTable Dense="true">
             <thead>
-                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                <tr>
                     @foreach (var h in _levelUpHeadings)
                     {
                         <th>@h</th>
@@ -15,7 +15,7 @@
             <tbody>
                 @foreach (var row in _levelUpMoves)
                 {
-                    <tr>
+                    <tr style="border-top: 2px solid #5c636a; ">
                         <td style="vertical-align: middle;">@row.levelLearnedAt</td>
                         <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.move.Name)</td>
                         <td>@CommonFunctions.CleanAndCapitalise(row.move.Type.Name)</td>
@@ -26,9 +26,9 @@
                         <td>@row.move.EffectChance</td>
                     </tr>
                     <tr>
-                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
-                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
-                        <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.move.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                        <td/>
+                        <td/>
+                        <td colspan="6">@row.move.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
                     </tr>
                 }
             </tbody>
@@ -37,7 +37,7 @@
     <MudExpansionPanel Text="Moves (TM)">
         <MudSimpleTable Dense="true">
             <thead>
-                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                <tr>
                     @foreach (var h in _machineHeadings)
                     {
                         <th>@h</th>
@@ -47,9 +47,9 @@
             <tbody>
                 @foreach (var row in _machineMoves)
                 {
-                    <tr>
-                        <td style="vertical-align: middle;">@row.Machines.FirstOrDefault(m => m.VersionGroup.Name.Equals(VersionGroup))?.Machine.Url</td>
-                        <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.Name)</td>
+                    <tr style="border-top: 2px solid #5c636a; ">
+                        <td>@row.Machines.FirstOrDefault(m => m.VersionGroup.Name.Equals(VersionGroup))?.Machine.Url</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.Name)</td>
                         <td>@CommonFunctions.CleanAndCapitalise(row.Type.Name)</td>
                         <td>@CommonFunctions.CleanAndCapitalise(row.DamageClass.Name)</td>
                         <td>@row.Power</td>
@@ -58,9 +58,9 @@
                         <td>@row.EffectChance</td>
                     </tr>
                     <tr>
-                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
-                        <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
-                        <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                        <td />
+                        <td />
+                        <td colspan="6">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
                     </tr>
                 }
             </tbody>
@@ -69,7 +69,7 @@
     <MudExpansionPanel Text="Moves (Egg)">
         <MudSimpleTable Dense="true">
             <thead>
-                <tr style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">
+                <tr>
                     @foreach (var h in _eggHeadings)
                     {
                         <th>@h</th>
@@ -79,8 +79,8 @@
             <tbody>
             @foreach (var row in _eggMoves)
             {
-                <tr>
-                    <td style="vertical-align: middle;">@CommonFunctions.CleanAndCapitalise(row.Name)</td>
+                <tr style="border-top: 2px solid #5c636a; ">
+                    <td>@CommonFunctions.CleanAndCapitalise(row.Name)</td>
                     <td>@CommonFunctions.CleanAndCapitalise(row.Type.Name)</td>
                     <td>@CommonFunctions.CleanAndCapitalise(row.DamageClass.Name)</td>
                     <td>@row.Power</td>
@@ -89,8 +89,8 @@
                     <td>@row.EffectChance</td>
                 </tr>
                 <tr>
-                    <td style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;"/>
-                    <td colspan="6" style="border-bottom: 2px solid #5c636a; padding-bottom: 10px;">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                    <td/>
+                    <td colspan="6">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
                 </tr>
             }
             </tbody>
@@ -160,6 +160,12 @@
             .Select(m => m.Move)
             .Join(enumeratedMoves, mm => mm.Name, m => m.Name, (mm, m) => m);
 
+        
+        foreach (var move in _machineMoves)
+        {
+            var tms = await pokeApiService.GetMoveMachineNameAsync(move);
+        }
+        
         _eggMoves = Pokemon.Moves
             .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name.Equals(VersionGroup)))
             .Select(m => m.Move)

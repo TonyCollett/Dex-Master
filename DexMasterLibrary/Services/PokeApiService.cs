@@ -136,6 +136,12 @@ public class PokeApiService : IPokeApiService
     {
         return await Client.GetResourceAsync<Move>(pokemon.Moves.Select(m => m.Move));
     }
+    
+    public async Task<string> GetMoveMachineNameAsync(Move move)
+    {
+        var machineMoves = await Client.GetResourceAsync<Machine>(move.Machines.Select(m => m.Machine));
+        return machineMoves.FirstOrDefault()?.Item.Name!;
+    }
 
     public async Task<IEnumerable<Type>> GetPokemonTypesAsync(Pokemon pokemon)
     {

@@ -13,6 +13,7 @@ public interface IPokeApiService
     public Task<IEnumerable<Generation>> GetGenerationListAsync();
     public Task<IEnumerable<PokeApiNet.Version>> GetVersionListAsync();
     public Task<IEnumerable<Move>> GetPokemonMovesAsync(Pokemon pokemon);
+    public Task<string> GetMoveMachineNameAsync(Move move);
     public Task<IEnumerable<DTPokemon>> GetPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex);
     public Task<IEnumerable<DTPokemon>> SearchPokemonSpeciesPageFromPokedexAsync(int limit, int offset, Pokedex pokedex, string searchTerm = "");
     public Task<DTPokemon> GetPokemonAsync(string? name = null, int? id = null, string? varietyName = "");
