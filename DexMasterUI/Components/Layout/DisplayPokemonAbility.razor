@@ -36,15 +36,10 @@
     public string VersionGroup { get; set; } = "sun-moon";
 
     private IEnumerable<Ability> _abilities = null;
-    private string[] _headings = {
-        "Ability Name",
-        "Details",
-        ""
-    };
+    private string[] _headings = ["Ability Name", "Detail", ""];
 
     protected override async Task OnParametersSetAsync()
     {
         _abilities = await pokeApiService.GetPokemonAbilitiesAsync(Pokemon);
     }
-
 }

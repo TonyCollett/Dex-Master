@@ -48,19 +48,19 @@
                 @foreach (var row in _machineMoves)
                 {
                     <tr style="border-top: 2px solid #5c636a; ">
-                        <td>@row.Machines.FirstOrDefault(m => m.VersionGroup.Name.Equals(VersionGroup))?.Machine.Url</td>
-                        <td>@CommonFunctions.CleanAndCapitalise(row.Name)</td>
-                        <td>@CommonFunctions.CleanAndCapitalise(row.Type.Name)</td>
-                        <td>@CommonFunctions.CleanAndCapitalise(row.DamageClass.Name)</td>
-                        <td>@row.Power</td>
-                        <td>@row.Accuracy</td>
-                        <td>@row.Pp</td>
-                        <td>@row.EffectChance</td>
+                        <td>@row.machineName.ToUpperInvariant()</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.move.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.move.Type.Name)</td>
+                        <td>@CommonFunctions.CleanAndCapitalise(row.move.DamageClass.Name)</td>
+                        <td>@row.move.Power</td>
+                        <td>@row.move.Accuracy</td>
+                        <td>@row.move.Pp</td>
+                        <td>@row.move.EffectChance</td>
                     </tr>
                     <tr>
                         <td />
                         <td />
-                        <td colspan="6">@row.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
+                        <td colspan="6">@row.move.FlavorTextEntries.FirstOrDefault(fte => fte.VersionGroup.Name.Equals(VersionGroup) && fte.Language.Name.Equals("en"))?.FlavorText</td>
                     </tr>
                 }
             </tbody>
@@ -108,10 +108,11 @@
 
     private IEnumerable<Move> _moves;
     private IEnumerable<(Move move, int levelLearnedAt)> _levelUpMoves;
-    private IEnumerable<Move> _machineMoves;
+    private IEnumerable<(Move move, string machineName)> _machineMoves;
     private IEnumerable<Move> _eggMoves;
     
-    private string[] _levelUpHeadings = {
+    private string[] _levelUpHeadings =
+    [
         "Level",
         "Attack Name",
         "Type",
@@ -120,9 +121,10 @@
         "Accuracy",
         "PP", 
         "Effect %"
-    };
+    ];
     
-    private string[] _machineHeadings = {
+    private string[] _machineHeadings =
+    [
         "TM/HM",
         "Attack Name",
         "Type",
@@ -131,9 +133,10 @@
         "Accuracy",
         "PP", 
         "Effect %"
-    };
+    ];
     
-    private string[] _eggHeadings = {
+    private string[] _eggHeadings =
+    [
         "Attack Name",
         "Type",
         "Category",
@@ -141,7 +144,7 @@
         "Accuracy",
         "PP", 
         "Effect %"
-    };
+    ];
     
     protected override async Task OnParametersSetAsync()
     {
@@ -151,20 +154,27 @@
         _levelUpMoves = Pokemon.Moves
             .SelectMany(m => m.VersionGroupDetails
                 .Where(vgd => vgd.MoveLearnMethod.Name == "level-up" && vgd.VersionGroup.Name.Equals(VersionGroup))
-                .Select(vgd => (Move: m.Move, LevelLearnedAt: vgd.LevelLearnedAt)))
+                .Select(vgd => (m.Move, vgd.LevelLearnedAt)))
             .OrderBy(lum => lum.LevelLearnedAt)
             .Join(enumeratedMoves, lum => lum.Move.Name, m => m.Name, (lum, m) => (move: m, levelLearnedAt: lum.LevelLearnedAt));
         
-        _machineMoves = Pokemon.Moves
+        var machineMoveTasks = Pokemon.Moves
             .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "machine" && vgd.VersionGroup.Name.Equals(VersionGroup)))
             .Select(m => m.Move)
-            .Join(enumeratedMoves, mm => mm.Name, m => m.Name, (mm, m) => m);
+            .Join(enumeratedMoves, mm => mm.Name, m => m.Name, (mm, m) => m)
+            .Select(async move =>
+            {
+                var machineName = await pokeApiService.GetMoveMachineNameAsync(move);
+                return (move, machineName);
+            });
 
-        
-        foreach (var move in _machineMoves)
-        {
-            var tms = await pokeApiService.GetMoveMachineNameAsync(move);
-        }
+        _machineMoves = await Task.WhenAll(machineMoveTasks);
+        _machineMoves = _machineMoves
+            .OrderBy(tuple =>
+            {
+                var numberPart = tuple.machineName[2..];
+                return int.TryParse(numberPart, out var number) ? number : 0;
+            });
         
         _eggMoves = Pokemon.Moves
             .Where(m => m.VersionGroupDetails.Any(vgd => vgd.MoveLearnMethod.Name == "egg" && vgd.VersionGroup.Name.Equals(VersionGroup)))
