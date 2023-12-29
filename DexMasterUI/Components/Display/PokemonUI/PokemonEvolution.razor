@@ -1,16 +1,29 @@
 @using System.Text
-<h3>EvolutionChain</h3>
+@_evolutionChain
 
 @code {
     
     [Parameter]
     public PokemonSpecies PokemonSpecies { get; set; }
+    
+    public class EvolutionStageData
+    {
+        public string PokemonName { get; set; }
+        public string PokemonImage { get; set; } // Replace with actual URL logic
+        public List<EvolutionStageData> Evolutions { get; set; } = new List<EvolutionStageData>();
+    }
+
+    private string _evolutionChain;
+    private bool _isLoaded = false;
 
     protected override async Task OnParametersSetAsync()
     {
+        if (_isLoaded)
+            return;
         var evolutionChain = await pokeApiService.GetEvolutionChainAsync(PokemonSpecies);
         
-        var evolutionChainInfo = GetEvolutionChainInfo(evolutionChain);
+        _evolutionChain = GetEvolutionChainInfo(evolutionChain);
+        _isLoaded = true;
     }
     
     private static string GetEvolutionChainInfo(EvolutionChain chain)
@@ -48,46 +61,46 @@
 
                     evolutionInfo.Append(" (");
 
-                    if (method == "level-up")
+                    switch (method)
                     {
-                        if (timeOfDay != "")
-                        {
+                        case "level-up" when timeOfDay != "":
                             evolutionInfo.Append("Time of Day " + timeOfDay);
-                        }
-                        else if (level.HasValue)
-                        {
+                            break;
+                        case "level-up" when level.HasValue:
                             evolutionInfo.Append("Level " + level.Value);
-                        }
-                        else if (happiness.HasValue)
-                        {
+                            break;
+                        case "level-up" when happiness.HasValue:
                             evolutionInfo.Append("Happiness " + happiness.Value);
-                        }
-                        else if (!string.IsNullOrEmpty(location))
-                        {
+                            break;
+                        case "level-up" when !string.IsNullOrEmpty(location):
                             evolutionInfo.Append("Location " + location);
-                        }
-                        else if (moveType != null)
+                            break;
+                        case "level-up":
                         {
-                            evolutionInfo.Append("Knows " + moveType + " move");
+                            if (moveType != null)
+                            {
+                                evolutionInfo.Append("Knows " + moveType + " move");
+                            }
+                            break;
                         }
-                    }
-                    else if (method == "use-item" && item != null)
-                    {
-                        evolutionInfo.Append("Use " + item);
-                    }
-                    else if (method == "trade")
-                    {
-                        evolutionInfo.Append("Trade");
-                        if (detail.HeldItem != null)
+                        case "use-item" when item != null:
+                            evolutionInfo.Append("Use " + item);
+                            break;
+                        case "trade":
                         {
-                            evolutionInfo.Append(" with " + detail.HeldItem.Name);
+                            evolutionInfo.Append("Trade");
+                            if (detail.HeldItem != null)
+                            {
+                                evolutionInfo.Append(" with " + detail.HeldItem.Name);
+                            }
+                            break;
                         }
                     }
 
                     evolutionInfo.Append(")");
                 }
                 
-                AppendEvolutionDetails(nextStage, evolutionInfo);
+                AppendEvolutionDetails(nextStage, evolutionInfo, isFirstStage);
             }
         }
     }
